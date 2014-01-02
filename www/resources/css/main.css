@@ -1,6 +1,15 @@
-@import url("reset-fonts-grids.css");
+html {
+   background: #000000;
+}
 
-/* Set 1em = 10px */
+body {
+  background: #000000;
+  margin: 1.5em
+}
+
+/*@import url("reset-fonts-grids.css");
+
+ Set 1em = 10px
 html {
    font-size: 62.5%;
    background: #000000;
@@ -39,7 +48,7 @@ a:active {
 
 a:focus {
 }
-
+ */
 /* Colors */
 
 .dkgreen {
@@ -48,7 +57,7 @@ a:focus {
 }
 
 .white {
-  background: #FFF;
+  /*background: #FFF;*/
   color: #000;
 }
 
@@ -79,7 +88,7 @@ a:focus {
   border-top-right-radius: 5px;
 }
 
-#footer {
+#myfooter {
   clear: left;
   width: 100%;
   padding: 10px;
