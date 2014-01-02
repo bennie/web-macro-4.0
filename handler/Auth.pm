@@ -34,7 +34,7 @@ sub handler {
 
   # Build session
   
-  my $dbh = DBI->connect(qw/dbi:mysql:dbname=DBNAME USERNAME PASSWORD/);
+  my $dbh = DBI->connect(qw/dbi:mysql:dbname=FORUM_DB FORUM_USER FORUM_PASS/);
   my %session;
   
   eval {
