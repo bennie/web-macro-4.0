@@ -1,5 +1,5 @@
 share/htpasswd
-auth.conf
+lib/LocalAuth.pm
 
 forums
 main
