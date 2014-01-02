@@ -1,0 +1,11 @@
+AuthName "Restricted Entry"
+AuthType Basic
+AuthUserFile /home/httpd/html/macrophile.com/share/htpasswd
+#ErrorDocument 401 /403.cgi
+ErrorDocument 403 http://error.macrophile.com/403.cgi
+Satisfy Any
+<Limit GET POST>
+order deny,allow
+deny from 66.167.56.55
+require valid-user
+</Limit>
