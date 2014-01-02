@@ -1,0 +1,128 @@
+@import url("reset-fonts-grids.css");
+
+/* Set 1em = 10px */
+html {
+   font-size: 62.5%;
+   background: #000000;
+   color: #FFFFFF;
+}
+
+body {
+    margin: 1.5em
+}
+
+body, table, td, input, select {
+    font-family: "georgia", "times", "times new roman", serif;
+    font-size: 14px;
+    color: #696;
+    quotes: "\201C" "\201E" "\2018" "\2019";
+}
+
+img {
+    border: 0;
+}
+
+a:link {
+    color: #222;
+}
+
+a:visited {
+    color: #555;
+}
+
+a:hover {
+    color: #000;
+}
+
+a:active {
+}
+
+a:focus {
+}
+
+/* Colors */
+
+.dkgreen {
+  background: #363;
+  color: #FFF;
+}
+
+.white {
+  background: #FFF;
+  color: #000;
+}
+
+/* Page design boxes */
+    
+#wrap-head {
+  float: left;
+  width: 100%;
+  height: 65px;
+  margin: 0px 0px 0px 0px;
+  text-align: left;
+}
+
+#logo {
+  float: left;
+  width: 300px;
+  height: 65px;
+  margin: 0px 0px 0px 0px;
+  text-align: left;
+}
+
+#panel {
+  margin-left: 300px;
+  height: 65px;
+  text-align: right;
+  padding: 5px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+#footer {
+  clear: left;
+  width: 100%;
+  padding: 10px;
+}
+
+#debug {
+  clear: left;
+  text-align: left;
+  width: 100%;
+  padding: 10px;
+}
+
+#wrap-body {
+  float: left;
+  width: 100%;
+  margin: 0px 0px 0px 0px;
+  text-align: left;
+  
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+#side {
+  float: left;
+  width: 110px;
+  text-align: center;
+  padding: 5px;
+}
+
+#content {
+  margin-left: 110px;
+  padding: 1em;
+}
+
+/* fineprint style */
+
+.fineprint {
+  font-size: 10px;
+  color: #696;
+}
+
+a.fineprint:link    { color:#696; }
+a.fineprint:visited { color:#696; }
+a.fineprint:hover   { color:#696; }
+a.fineprint:active  { color:#696; }
