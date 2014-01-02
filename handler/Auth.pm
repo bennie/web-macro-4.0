@@ -4,6 +4,7 @@ use Apache2::RequestIO;
 use Apache::Session::MySQL;
 use APR::Table;
 use DBI;
+use LocalAuth;
 use strict;
 
 require Digest::MD5;
@@ -34,7 +35,9 @@ sub handler {
 
   # Build session
   
-  my $dbh = DBI->connect(qw/dbi:mysql:dbname=FORUM_DB FORUM_USER FORUM_PASS/);
+  my $dbh = DBI->connect("dbi:mysql:dbname=$LocalAuth::FORUM_DB", 
+             $LocalAuth::FORUM_USER, $LocalAuth::FORUM_PASS );
+
   my %session;
   
   eval {

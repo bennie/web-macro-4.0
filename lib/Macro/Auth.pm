@@ -5,6 +5,7 @@ $Macro::Auth::VERSION='$Revision: 1.8 $';
 use CGI;
 use DBI;
 use Digest::MD5 qw/md5_hex/;
+use LocalAuth;
 use strict;
 
 sub new {
@@ -17,10 +18,10 @@ sub new {
   my $table_prefix  = 'phpbb';
 
   my $db_driver = 'mysql';
-  my $db_name   = 'FORUM_DB';
-  my $db_host   = 'FORUM_HOST';
-  my $db_user   = 'FORUM_USER';
-  my $db_pass   = 'FORUM_PASS';
+  my $db_name   = $LocalAuth::FORUM_DB;
+  my $db_host   = $LocalAuth::FORUM_HOST;
+  my $db_user   = $LocalAuth::FORUM_USER;
+  my $db_pass   = $LocalAuth::FORUM_PASS;
 
   # Do it
 

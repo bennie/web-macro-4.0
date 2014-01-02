@@ -4,6 +4,7 @@ $Macro::Forum::VERSION='$Revision: 1.22 $';
 
 use CGI;
 use DBI;
+use LocalAuth;
 use Macro::Util qw/safe_username/;
 
 use strict;
@@ -40,10 +41,10 @@ sub _dbh {
   my $self = shift @_;
   unless ( defined $self->{dbh} ) {
     my $db_driver = 'mysql';
-    my $db_name   = 'FORUM_DB';
-    my $db_host   = 'FORUM_HOST';
-    my $db_user   = 'FORUM_USER';
-    my $db_pass   = 'FORUM_PASS';
+    my $db_host   = $LocalAuth::FORUM_HOST;
+    my $db_name   = $LocalAuth::FORUM_DB;
+    my $db_user   = $LocalAuth::FORUM_USER;
+    my $db_pass   = $LocalAuth::FORUM_PASS;
     my @dbconnect = ("dbi:$db_driver:dbname=$db_name:host=$db_host", $db_user, $db_pass);
     $self->{dbh} = DBI->connect(@dbconnect) or die "Connecting: $DBI::errstr";
   }
