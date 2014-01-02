@@ -1,6 +1,7 @@
 share/htpasswd
 lib/LocalAuth.pm
 
+dev
 forums
 main
 phpBB3
