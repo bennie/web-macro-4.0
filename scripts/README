@@ -1,0 +1,19 @@
+Copyright (c) 2001-2006, Phillip Pollard. <bennie@macrophile.com>
+All Rights are Reserved.
+
+This information is out of date.
+
+Index of scripts
+
+changelog     - Add Stuff to the changelog
+cron/         - Cron jobs to inspect the site, etc.
+generate-html - Write the html file from the DB
+pre-process/  - Scripts to take any information from the DB used to 
+                generate pages. Run before running generate-html.
+README        - This file.
+tmpl-fix/     - Files to apply the template to other programs.
+
+Remember to regenerate cron driven pages and such. Run the cron run the 
+pre-processing, and then run the generate-html.
+
+db-save/ - Old DB save directory. No longer used.

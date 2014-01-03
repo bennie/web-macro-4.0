@@ -1,0 +1,80 @@
+<table class="innertable" cellspacing="0" cellpadding="3">
+<tr><th class="innertablehead" colspan="2" height="25" nowrap="nowrap">User Info: <tmpl_var name="username"></th></tr>
+
+<tr>
+ <td class="innertablesubhead br" width="40%" height="28" align="center"><b>Avatar</b></td>
+ <td class="innertablesubhead" width="60%" align="center"><b>General Info</b></td>
+</tr>
+  
+<tr>
+ <td class="row2 br" height="6" valign="top" align="center"><img src="http://forums.macrophile.com/images/avatars/<tmpl_var name="user_avatar">" alt="" border="0" /><br /><tmpl_var name="user_title"></td>
+ <td rowspan="3" valign="top">
+ 
+   <table width="100%" border="0" cellspacing="1" cellpadding="3">
+		<tr>
+		  <td valign="middle" align="right" nowrap="nowrap">Joined:&nbsp;</td>
+		  <td width="100%"><b><tmpl_var name="pretty_regdate"></b></td>
+		</tr>
+		<tr>
+
+		  <td valign="top" align="right" nowrap="nowrap">Total posts:&nbsp;</td>
+		  <td valign="top"><b><tmpl_var name="user_posts"></b><!--<br />[0.65% of total / 1.21 posts per day] --><br /><a href="http://forums.macrophile.com/search.php?search_author=<tmpl_var name="url_username">">Find all posts by <tmpl_var name="username"></a></td>
+		</tr>
+		<tr>
+		  <td valign="middle" align="right" nowrap="nowrap">Location:&nbsp;</td>
+		  <td><b><tmpl_var name="user_from"></b></td>
+
+		</tr>
+		<tr>
+		  <td valign="middle" align="right" nowrap="nowrap">Website:&nbsp;</td>
+		  <td><b><tmpl_var name="link_web"></b></td>
+		</tr>
+		<tr>
+		  <td valign="middle" align="right" nowrap="nowrap">Occupation:&nbsp;</td>
+		  <td><b><tmpl_var name="user_occ"></b></td>
+		</tr>
+		<tr>
+		  <td valign="top" align="right" nowrap="nowrap">Interests:</td>
+		  <td> <b><tmpl_var name="user_interests"></b></td>
+		</tr>
+	  </table>
+
+	</td>
+  </tr>
+  <tr>
+	<td class="innertablesubhead br" align="center" height="28"><b>Contact Info</b></td>
+  </tr>
+  <tr>
+	<td valign="top" class="br">
+	  <table width="100%" border="0" cellspacing="1" cellpadding="3">
+		<tr>
+		  <td valign="middle" align="right" nowrap="nowrap">E-mail address:</td>
+		  <td valign="middle" width="100%"><b><tmpl_var name="link_email"></b>
+		  </td>
+		</tr>
+		<tr>
+		  <td valign="middle" nowrap="nowrap" align="right">Private Message:</td>
+		  <td valign="middle"><b><a href="privmsg.php?mode=post&amp;u=<tmpl_var name="user_id">"><img src="http://forums.macrophile.com/templates/macrophile/images/lang_english/icon_pm.gif" alt="Send private message" title="Send private message" border="0" /></a></b></td>
+		</tr>
+		<tr>
+		  <td valign="middle" nowrap="nowrap" align="right">MSN Messenger:</td>
+		  <td valign="middle"><tmpl_var name="link_msnm"></td>
+		</tr>
+		<tr>
+		  <td valign="middle" nowrap="nowrap" align="right">Yahoo Messenger:</td>
+		  <td valign="middle"><tmpl_var name="link_yim"></td>
+		</tr>
+		<tr>
+		  <td valign="middle" nowrap="nowrap" align="right">AIM Address:</td>
+		  <td valign="middle"><tmpl_var name="link_aim"></td>
+		</tr>
+		<tr>
+		  <td valign="middle" nowrap="nowrap" align="right">ICQ Number:</td>
+		  <td valign="middle"><tmpl_var name="link_icq"></td>
+		</tr>
+	  </table>
+	</td>
+  </tr>
+</table>
+
+<p><tmpl_var name="attachments"></p>

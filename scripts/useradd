@@ -1,0 +1,46 @@
+#!/usr/bin/perl -I/var/www/macrophile.com/lib
+
+# Add a user
+# (c) 2001-2007, Phillip Pollard, <bennie@macrophile.com>
+
+my $table = 'users';
+
+# Pragma
+
+use Macro;
+use Term::Query qw(query);
+use strict;
+
+# Main
+
+my $macro = new Macro;
+
+my @time = localtime(time);
+my $year  = $time[5] + 1900;
+my $month = $macro->db_zero_ten($time[4] + 1);
+my $day   = $macro->db_zero_ten($time[3]);
+
+my $date = $year.$month.$day;
+
+my $username   = query('Username       : ','d','BigFox');
+my $createdate = query('Creation Date  : ','d',$date);
+my $fullname   = query('Full Name      : ','d','NULL');
+my $got_new    = query('Has new Stuff? : ','d','F');
+
+# Username should be lowercase:
+$username =~ tr/A-Z/a-z/;
+
+my $users = $macro->get_config($table);
+
+my $dbh = $macro->_dbh();
+my $sql = "insert into $users (username, fullname, modified, got_new) "
+        . 'values (' . $dbh->quote($username)   . ','
+                     . $dbh->quote($fullname)   . ','
+                     . $dbh->quote($createdate) . ','
+                     . $dbh->quote($got_new)    . ')';
+my $sth = $dbh->prepare($sql);
+my $ret = $sth->execute;
+
+print "Done! (return $ret)\n\n",
+      "     Don't forget to run the cron processing script before you can generate the info page:\n",
+      "     ./cron/userlist.pl && ./pre-process/userlist.pl && ./generate-html\n\n";

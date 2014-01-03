@@ -1,0 +1,23 @@
+<applet code=IRCApplet.class archive="irc.jar,pixx.jar" width=640 height=400>
+<param name="CABINETS" value="irc.cab,securedirc.cab,pixx.cab">
+
+<param name="nick" value="<!--[username]-->">
+<param name="name" value="<!--[username]-->">
+<param name="alternatenick" value="<!--[username]-->???">
+
+<param name="host" value="irc.anthrochat.net">
+<param name="gui" value="pixx">
+
+<param name="authorizedjoinlist" value="none+#macro">
+<param name="command1" value="join #macro">
+<param name="style:highlightlinks" value="true">
+
+<param name="pixx:showstatus" value="false">
+<param name="pixx:showchanlist" value="false">
+
+<param name="style:backgroundimage" value="false">
+<param name="style:backgroundimage1" value="all all 0 background.gif">
+
+<param name="pixx:color6" value="003300">
+<param name="pixx:color5" value="336633">
+</applet>

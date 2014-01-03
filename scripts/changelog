@@ -1,0 +1,43 @@
+#!/usr/bin/perl -I/var/www/macrophile.com/lib
+
+=head1 changelog
+
+This script adds and entry to the changelog page.
+
+=cut
+
+# Add a change to the change log
+# (c) 2001-2007, Phillip Pollard, <bennie@macrophile.com>
+
+my $table = 'change_log';
+
+# Pragma
+
+use Macro;
+use Term::Query qw(query);
+use strict;
+
+# Main
+
+my @time = localtime(time);
+my $month = ('January','February','March','April','May','June','July','August',
+             'September','October','November','December')[$time[4]];
+my $day   = $time[3];
+my $year  = $time[5] + 1900;
+
+my $date = "$month $day, $year";
+
+my $change_time = query('Date of Change : ','d',$date);
+my $change_desc = query('Description    : ','d','Go boom');
+
+my $macro = new Macro;
+my $change_log = $macro->get_config($table);
+
+my $dbh = $macro->{'dbh'};
+my $sql = "insert into $change_log (change_time, change_desc) values ("
+        . $dbh->quote($change_time) . ','
+        . $dbh->quote($change_desc) . ')';
+my $sth = $dbh->prepare($sql);
+my $ret = $sth->execute;
+
+print "Done! (return $ret)\n";

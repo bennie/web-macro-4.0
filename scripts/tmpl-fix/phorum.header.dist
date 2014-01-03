@@ -1,0 +1,23 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+
+<html><head><title>Macrophile BB - <?PHP if(isset($ForumName)) echo $ForumName; ?><?PHP echo $title; ?></title>
+<LINK REL=stylesheet TYPE="text/css" HREF="/styles/main.css" TITLE="style">
+<meta name="Phorum Version" content="<?PHP echo $phorumver; ?>">
+<meta name="Phorum DB" content="<?PHP echo $DB->type; ?>">
+<meta name="PHP Version" content="<?PHP echo phpversion(); ?>">
+<STYLE> 
+  BODY {font-family: Arial, Helvetica;font-size: 10pt;}
+  TD {font-family: Arial, Helvetica;font-size: 10pt;}
+  INPUT {font-family: Arial, Helvetica;font-size: 10pt;}
+  TEXTAREA {font-family: Arial, Helvetica;font-size: 10pt;width: 500px;}
+  .forum {
+ 	font-family: Arial, Helvetica;
+ 	font-size: medium;
+ }
+  .nav {font-family: MS Sans Serif,Geneva,sans-serif;font-size: 8pt;}
+</STYLE>
+</head><tmpl_var name="header">
+
+<!--
+<font face="Arial" size="5" color="#FFFFFF"><?PHP echo $ForumName; ?></font>
+-->
