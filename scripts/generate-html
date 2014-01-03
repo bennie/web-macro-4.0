@@ -1,0 +1,100 @@
+#!/usr/bin/perl -w -I/var/www/macrophile.com/lib
+
+# Generic web-site generation engine.
+# (c) 2000-2011, Phillip Pollard <bennie@macrophile.com>
+
+### Config
+
+my $tmpl_name  = 'main-template';
+my $html_dir = '/var/www/macrophile.com/';
+
+### Pre-process
+
+use HTML::Template;
+use Macro;
+use strict;
+
+my $macro = new Macro;
+
+my $html_prefix  = $macro->{html_prefix};
+my $image_prefix = $macro->{image_prefix};
+my $start_table  = $macro->{start_table};
+my $end_table    = $macro->{end_table};
+
+### Main
+
+my $raw_pages = $macro->get_config('raw_pages');
+my $tmpl      = $macro->get_raw_text($tmpl_name);
+
+my $sql = "select name, url, title, body, last from $raw_pages order by name";
+my $sth = $macro->{dbh}->prepare($sql);
+my $ret = $sth->execute;
+
+my $year = 1900 + (localtime)[5];
+
+while (my ($name,$url,$title,$body,$last) = $sth->fetchrow_array) {
+
+  my $outfile =  $html_dir . ($html_dir =~ /\/$/ ? '': '/') . $url;
+
+  my @mtime = localtime((stat $outfile)[9] || 0);
+  my $mtime = ($mtime[5]+1900) . &zt($mtime[4]+1) . &zt($mtime[3])
+            . &zt($mtime[2]) . &zt($mtime[1]) . &zt($mtime[0]);
+
+  $last =~ /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
+  my $check = $1.$2.$3.$4.$5.$6;
+
+  next unless $check > $mtime or $ARGV[0];
+
+  print $tmpl_name;
+
+  ### Read in the raw body file with template and process.
+
+  my $body_tmpl = HTML::Template->new(
+                              die_on_bad_params => 0,
+                              scalarref => \$body
+                             );
+
+  $body_tmpl->param(
+        image_prefix => $image_prefix,
+        html_prefix  => $html_prefix,
+        start_table  => $start_table,
+        end_table    => $end_table
+  );
+
+  my $body_out = $body_tmpl->output;
+
+  print " --> $name ";
+
+  ### Schalam Dunk
+
+  my $meta = HTML::Template->new(
+               die_on_bad_params => 0,
+               scalarref => \$tmpl
+             );
+
+  $meta->param(
+    title        => "Macrophile.com - $title",
+    body         => $body_out,
+
+    time         => "Last generated $last",
+    year         => $year,
+
+    html_prefix  => $html_prefix,
+    image_prefix => $image_prefix,
+    start_table  => $start_table,
+    end_table    => $end_table
+  );
+
+  print "--> $outfile ";
+   
+  open OUTFILE, ">$outfile";
+  print OUTFILE $meta->output;
+  close OUTFILE;
+
+  print "--> done!\n";
+}
+
+sub zt {
+  my $in = int(shift @_);
+  return ( $in < 10 and $in > -1 ) ? '0'.$in : $in;
+}

@@ -1,0 +1,317 @@
+#!/usr/bin/perl -w -I/var/www/macrophile.com/lib
+
+# This script generates the user directories
+# (c) 2006, Phillip Pollard <bennie@macrophile.com>
+
+$| = 1;
+
+use CGI;
+use CGI::Utils;
+use DB_File;
+use HTML::Template;
+use Macro;
+use Macro::Forum;
+use Macro::Util qw/dir files mysql_date safe_username/;
+use String::ShellQuote;
+
+use strict;
+
+### Conf
+
+my $debug = 0; # Debug output
+my $force = 0; # Force ALL directories written
+
+my $single_force = -100;
+#my $single_force = 2;
+
+my $base = '/var/www/macrophile.com/users/';
+my $dbfile = '/var/www/macrophile.com/users/generated.db';
+
+### Bootstrap
+
+for my $arg (@ARGV) {
+  $force = 1 if $arg eq '--force';
+}
+
+my $cgi = new CGI;
+my $cu  = new CGI::Utils;
+my $mf  = new Macro::Forum;
+
+my $macro = new Macro;
+
+my $html_prefix  = $macro->{html_prefix};
+my $image_prefix = $macro->{image_prefix};
+my $start_table  = $macro->{start_table};
+my $end_table    = $macro->{end_table};
+
+my $page = $macro->get_raw_text('main-template');
+my $tmpl = $macro->get_raw_text('userinfo-template');
+
+my $dbh = $mf->_dbh();
+
+### Sort out time and time-based updates
+
+my $time = time;
+
+tie my %memory, 'DB_File', $dbfile;
+my $lastrun = $memory{lastrun} || '0000-00-00 00:00:00';
+my $mysql_lastrun = mysql_date($lastrun);
+print "Last run " . scalar(localtime($lastrun)) ." ($mysql_lastrun)\n";
+
+my $sth = $dbh->prepare('select user_id from phpbb3_users where user_lastpost_time >= ?');
+my $ret = $sth->execute($mysql_lastrun);
+
+my %modified;
+
+while ( my $ref = $sth->fetchrow_arrayref ) {
+  $modified{$ref->[0]}++;
+}
+
+### Sort out users and dirs
+
+my $users = $mf->users({ posts => 1 });
+
+my %dirs = map { $_ => 1 } grep { -d dir($base,$_) && $_ ne 'CVS' && $_ ne 'squirrelmail-1.4.1' } files($base);
+print scalar(keys %dirs) . " directories found.\n";
+
+my %lookup;
+for my $id ( keys %$users ) {
+  my $username = safe_username($users->{$id});
+  $lookup{$username} = $id;
+  $dirs{$username}--;
+}
+
+### Process dirs
+
+print "Processing dirs: ";
+
+my $updated = my $delete = my $new = 0;
+my %alpha;
+
+for my $dir ( keys %dirs ) {  
+  if ( $dirs{$dir} == 1 ) { # Delete unused directories
+    my $delete = shell_quote(dir($base,$dir));
+    `rm -rf $delete`;
+    $delete++;
+    print 'd';
+    next;
+  }
+  
+  if ( $dirs{$dir} == -1 ) { # Created needed directory
+    my $fsdir = dir($base,$dir);
+    mkdir($fsdir);
+    print "mkdir($fsdir)\n" if $debug;
+    $new++;
+    print 'n';
+    $force = 1;
+  }
+
+  ### Add to the indexes
+
+  my $user_id = $lookup{$dir};
+  
+  my $indexed = 0;
+  my $rawusername = $users->{$user_id};
+  
+  for my $alpha ( 'A' .. 'Z' ) {
+    if ( $rawusername =~ /^$alpha/i ) {
+      $alpha{$alpha}{$rawusername} = $user_id;
+      $indexed++;
+    }
+  }
+
+  if ( not $indexed ) {
+    $alpha{'Misc'}{$rawusername} = $user_id;
+  }
+
+  ### Do we do it?
+  
+  next unless ( $force or $modified{$user_id} or $user_id == $single_force );
+  
+  ### Attachments
+  
+  my $attachments = '';
+  my $attach = $mf->recent_attachments({ forums => [3,8,20,21], userid => $user_id });
+
+  my $class;
+
+  if ( scalar(keys %$attach) > 0 ) {
+    my @table; my @row1; my @row2;
+
+    my @rows = qw/row1 row2/; # Alternated row styles
+    my $count = 1;
+
+    for my $key ( sort { $a <=> $b } keys %$attach ) {
+      my ( $image, $desc ) = $mf->attachment_html($attach->{$key});
+
+      $class = $rows[0];
+      $class .= ' br' if $count < 4;
+      push @row1, $cgi->td({-class=>$class,-align=>'center',-valign=>'top',-width=>155},$image);
+      push @row2, $cgi->td({-class=>$class,-align=>'center',-valign=>'top',-width=>155},$desc);
+
+      if ( $count++ == 4 ) {
+        push @table, $cgi->Tr(@row1);
+        push @table, $cgi->Tr(@row2);
+        $count = 1;
+        @row1 = ();
+        @row2 = ();
+        push @rows, shift @rows;
+      }
+    }
+    
+    if ( $count > 1 ) {
+      until ( $count++ > 4 ) {
+        push @row1, $cgi->td({-class=>$class,-align=>'center',-valign=>'top',-width=>155},'&nbsp;');
+        push @row2, $cgi->td({-class=>$class,-align=>'center',-valign=>'top',-width=>155},'&nbsp;');
+      }
+      push @table, $cgi->Tr(@row1);
+      push @table, $cgi->Tr(@row2);
+    }
+
+    $attachments = $cgi->table({ class=>"innertable", cellspacing=>0, cellpadding=>3 },
+                     "<tr><td class=\"innertablehead\" colspan=\"4\">Art Uploads</td></tr>",
+                     @table
+                   );
+
+  }
+
+  ### preprocess the page
+
+  my $info = $mf->user($user_id,{attachments=>1});
+  my $outfile   = dir($base,$dir,'index.html');
+  my $emailfile = dir($base,$dir,'email.js');
+  
+  my $body = HTML::Template->new(
+                              die_on_bad_params => 0,
+                              scalarref => \$tmpl
+                             );
+
+  my %const = (
+        image_prefix => $image_prefix,
+        html_prefix  => $html_prefix,
+        start_table  => $start_table,
+        end_table    => $end_table
+  );
+
+  my %param = ( %$info, %const );
+  
+  $param{attachments} = $attachments;
+
+  $param{url_username} = $cu->url_encode($param{username});
+
+  $param{link_aim}  = $param{user_aim}  ? '<a href="aim:goim?screenname=' . $cu->url_encode($param{user_aim}) . '&amp;message=Hello+Are+you+there?"><img src="http://forums.macrophile.com/templates/macrophile/images/lang_english/icon_aim.gif" alt="AIM Address" title="AIM Address" border="0" /></a>' : '&nbsp;' ;
+  $param{link_icq}  = $param{user_icq}  ? join("\n", '<script language="JavaScript" type="text/javascript"><!--', 'if ( navigator.userAgent.toLowerCase().indexOf(\'mozilla\') != -1 && navigator.userAgent.indexOf(\'5.\') == -1 && navigator.userAgent.indexOf(\'6.\') == -1 )', 'document.write(\' <a href="http://wwp.icq.com/scripts/search.dll?to='.$cu->url_encode($param{user_icq}).'"><img src="http://forums.macrophile.com/templates/macrophile/images/lang_english/icon_icq_add.gif" alt="ICQ Number" title="ICQ Number" border="0" /></a>\');', 'else', 'document.write(\'<table cellspacing="0" cellpadding="0" border="0"><tr><td nowrap="nowrap"><div style="position:relative;height:18px"><div style="position:absolute"><a href="http://wwp.icq.com/scripts/search.dll?to='.$cu->url_encode($param{user_icq}).'"><img src="http://forums.macrophile.com/templates/macrophile/images/lang_english/icon_icq_add.gif" alt="ICQ Number" title="ICQ Number" border="0" /></a></div><div style="position:absolute;left:3px;top:-1px"><a href="http://wwp.icq.com/'.$cu->url_encode($param{user_icq}).'#pager"><img src="http://web.icq.com/whitepages/online?icq='.$cu->url_encode($param{user_icq}).'&img=5" width="18" height="18" border="0" /></a></div></div></td></tr></table>\');', '//--></script><noscript><a href="http://wwp.icq.com/scripts/search.dll?to='.$cu->url_encode($param{user_icq}).'"><img src="http://forums.macrophile.com/templates/macrophile/images/lang_english/icon_icq_add.gif" alt="ICQ Number" title="ICQ Number" border="0" /></a></noscript>') : '&nbsp;';
+  $param{link_msnm} = $param{user_msnm} ? $param{user_msnm} : '&nbsp;';
+  $param{link_yim}  = $param{user_yim}  ? '<a href="http://edit.yahoo.com/config/send_webmesg?.target='. $cu->url_encode($param{user_yim}) .'&amp;.src=pg"><img src="http://forums.macrophile.com/templates/macrophile/images/lang_english/icon_yim.gif" alt="Yahoo Messenger" title="Yahoo Messenger" border="0" /></a>' : '&nbsp;';
+
+  $param{link_email} = '<script type="text/javascript" src="email.js"></script>';
+  $param{link_web}   = $param{user_website} ? '<a href="'.$param{user_website}.'" target="_userwww">'.$param{user_website}.'</a>' : '&nbsp;';
+
+  $body->param(%param);
+
+  &page($info->{username},$body->output(),$outfile);
+
+  # Email fix
+
+  my $email = $param{user_email} ? '<a href="mailto:'.$param{user_email}.'"><img src="http://forums.macrophile.com/templates/macrophile/images/lang_english/icon_email.gif" alt="Send e-mail" title="Send e-mail" border="0" /></a>' : '&nbsp;';
+
+  open  EMAIL, '>', $emailfile;
+  print EMAIL "<!--\ndocument.write('$email');\n//-->";
+  close EMAIL;
+  
+  $updated++;
+  print '.';
+}
+
+print "\n\n";
+
+### Summary
+
+print "Deleted directories : $delete\n";
+print "New directories     : $new\n";
+print "Updated pages       : $updated\n";
+
+$memory{lastrun} = $time; # mark processing time for next run
+
+### Indexes
+
+for my $index ( 'A' .. 'Z', 'Misc' ) {
+  my @usernames;
+
+  for my $username ( sort { lc($a) cmp lc($b) } keys %{$alpha{$index}} ) {
+    push @usernames, $cgi->a({-href=>$cu->url_encode(safe_username($username))},$username);
+  }
+
+  # Divide up the columns
+  
+  my (@col1,@col2,@col3);
+
+  my $sizing = int(scalar(@usernames)/3);
+  $sizing -= 1 unless scalar(@usernames) % 3;
+  
+  for ( 0 .. $sizing ) {
+    push @col1, shift @usernames;
+  }
+  for ( 0 .. $sizing ) {
+    push @col2, shift @usernames;
+  }
+  @col3 = @usernames;
+  
+  # Build the page
+
+  my @rows = qw/row1 row2/; # Alternated row styles
+  my @table;
+  
+  while (@col1) {
+    my $class = $rows[0] . ' br';
+    push @rows, shift @rows;
+
+    push @table, 
+           $cgi->Tr(
+             $cgi->td({-class=>$class,-align=>'center',-valign=>'top',-width=>205},shift @col1),
+             $cgi->td({-class=>$class,-align=>'center',-valign=>'top',-width=>205},shift @col2 || '&nbsp;'),
+             $cgi->td({-class=>$class,-align=>'center',-valign=>'top',-width=>205},shift @col3 || '&nbsp;'),
+           );
+
+  }
+
+  my $links = $cgi->p({-align=>'center',-class=>'subnav'},'[&nbsp;' .$cgi->a({-class=>'subnav',-href=>'/'},'Original') . '&nbsp;|&nbsp;' . join('&nbsp;|&nbsp;', map { $_ eq $index ? $cgi->b($_) : $cgi->a({-class=>'subnav',-href=>$_.'.html'},$_); } ( 'A' .. 'Z', 'Misc' )) . '&nbsp;]') . "\n";
+  
+  my $body = $links
+           . $cgi->table({ class=>"innertable", cellspacing=>0, cellpadding=>3 },
+               "<tr><td class=\"innertablehead\" colspan=\"3\">Index for: $index</td></tr>",
+               @table
+             );
+
+  &page("Index for $index",$body,dir($base,$index.'.html'));
+  print "Writing index: $index\n";
+}
+
+### Subroutine
+
+sub page {
+  my $title = shift @_;
+  my $body  = shift @_;
+  my $out   = shift @_;
+  my $meta = HTML::Template->new(
+               die_on_bad_params => 0,
+               scalarref => \$page
+             );
+
+  $meta->param(
+    title        => "Macrophile.com - $title",
+    body         => $body,
+
+    time         => 'Last generated '. scalar(localtime($time)),
+    year         => (localtime($time))[5] + 1900,
+
+    html_prefix  => $html_prefix,
+    image_prefix => $image_prefix,
+    start_table  => $start_table,
+    end_table    => $end_table
+  );
+   
+  open OUTFILE, ">$out";
+  print OUTFILE $meta->output;
+  close OUTFILE;
+}

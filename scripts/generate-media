@@ -1,0 +1,355 @@
+#!/usr/bin/perl -w -I/var/www/macrophile.com/lib
+
+# Generate media portions of the website.
+# (c) 2006, Phillip Pollard <bennie@macrophile.com>
+
+use HTML::Template;
+use Macro;
+use Macro::Media;
+use strict;
+
+my $macro = new Macro;
+my $media = new Macro::Media;
+
+my $cgi = $macro->{cgi};
+
+### Conf
+
+my $tmpl_name  = 'main-template';
+my $html_dir = '/var/www/macrophile.com/main/media';
+
+### Bootstrap
+
+my $html_prefix  = $macro->{html_prefix};
+my $image_prefix = $macro->{image_prefix};
+my $start_table  = $macro->{start_table};
+my $end_table    = $macro->{end_table};
+
+my $tmpl = $macro->get_raw_text($tmpl_name);
+my $year = 1900 + (localtime)[5];
+
+my $formats   = $media->formats;
+my $genres    = $media->genres;
+my $interests = $media->interests;
+
+### Main
+
+my $ids = $media->ids();
+my %allflags; # Repository for movie links
+
+for my $id (@$ids) {
+  my %media = $media->get($id);
+
+  my $dir = join('/',$html_dir,split('',$media{id}));
+  my $outfile = $dir.'/index.html';
+
+  mkdir($dir,0755) && print "Making $dir\n" unless -d $dir;
+  
+  print "$media{id}: $media{title}";
+
+  ### Sort attributes into easier to handle format
+
+  my %attribute_data;
+  for my $attrid ( keys %{$media{attributes}} ) {
+    push @{$attribute_data{$media{attributes}{$attrid}{name}}}, $media{attributes}{$attrid}{value};
+  }
+
+  ### These are the attributes displayed in the upper portion of the page
+  
+  my @headers = qw/director producer writer starring distributor released time language budget country/;
+  my %lookup = (
+    budget      => 'Budget:',
+    country     => 'Origin:',
+    director    => 'Directed&nbsp;by:',
+    distributor => 'Distributed&nbsp;by:',
+    language    => 'Language:',
+    producer    => 'Produced&nbsp;by:',
+    released    => 'Release&nbsp;Date:',
+    starring    => 'Starring:',
+    time        => 'Running&nbsp;time:',
+    writer      => 'Written&nbsp;by:',
+  );
+
+  ### Cross links
+  
+  my @formats   = ();
+  my @genres    = ();
+  my @interests = ();
+
+  for my $flag ( sort { lc($a) cmp lc($b) } keys %{$media{flags}} ) {
+    my $link = '/media/'.&link($flag).'.html';
+    push @formats,   $cgi->a({-href=>$link},$formats->{$flag})   if defined $formats->{$flag};
+    push @genres,    $cgi->a({-href=>$link},$genres->{$flag})    if defined $genres->{$flag};
+    push @interests, $cgi->a({-href=>$link},$interests->{$flag}) if defined $interests->{$flag};
+
+    $allflags{$flag}{$media{id}} = "$media{title} ($media{year})";
+  }
+  
+  ### Sort out offiste links
+  
+  my @links;
+  push @links, $cgi->a({-href=>$attribute_data{imdb}->[0]},'IMDb') if $attribute_data{imdb};
+  push @links, $cgi->a({-href=>$attribute_data{wikipedia}->[0]},'Wikipedia') if $attribute_data{wikipedia};
+  
+  ### Put together thumbnail image
+  
+  my $thumb;
+
+  if ( $media{image} ) {
+    my $image = $media{image};
+    
+    $thumb = $cgi->img({
+               -src    => '/media/'.$media{id}.'/'.$media{images}{$image}{thumb},
+               -height => $media{images}{$image}{thumb_height},
+               -width  => $media{images}{$image}{thumb_width},
+               -border => 0
+             });
+   
+  }
+
+  ### Build upper portion of page (Attribute list and thumbnail)
+  
+  my $upper = $cgi->table(
+                $cgi->Tr({-valign=>'top'},
+                  $cgi->td(
+                    $cgi->font({-face=>'Arial', -size=> 2 },
+                      ( scalar(@formats)   ? $cgi->b('Formats: ')   . join(', ',@formats)   . $cgi->br : '' ),
+                      ( scalar(@genres)    ? $cgi->b('Genres: ')    . join(', ',@genres)    . $cgi->br : '' ),
+                      ( scalar(@interests) ? $cgi->b('Interests: ') . join(', ',@interests) : '' ),
+                    ),
+                  ),
+                  $cgi->td({-rowspan=>2},
+                    $thumb
+                  )
+                ),
+                $cgi->Tr(
+                  $cgi->td(
+                    $cgi->table(
+                    ( map { 
+                        defined $attribute_data{$_} ? $cgi->Tr({-valign=>'top'},
+                                                        $cgi->td({-align=>'right'},
+                                                          $cgi->b($cgi->font({-face=>'Arial',-size=>2},$lookup{$_}||$_))
+                                                        ),
+                                                        $cgi->td(
+                                                          $cgi->font({-face=>'Arial',-size=>2},join(', ',@{$attribute_data{$_}}))
+                                                        )
+                                                      ) 
+                                                    : ''; 
+                      } @headers )
+                    )
+                  )
+                )
+              );
+
+  # Build block of images
+
+  my $images = '';
+  my @images;
+  
+  for my $imageid ( sort keys %{$media{images}} ) {
+    next if $media{image} == $imageid; # Skip the default image
+    push @images, $cgi->img({
+               -src    => '/media/'.$media{id}.'/'.$media{images}{$imageid}{thumb},
+               -height => $media{images}{$imageid}{thumb_height},
+               -width  => $media{images}{$imageid}{thumb_width},
+               -border => 0
+             });
+  }
+  
+  if ( scalar(@images) ) {
+    if ( scalar(@images) == 1 ) {
+      $images = $images[0];
+    } elsif ( scalar(@images) == 2 ) {
+      $images = $cgi->table($cgi->Tr($cgi->td($images[0]),$cgi->td($images[1])));
+    } else {
+      my @rows;
+      while ( scalar(@images) ) {
+        push @rows, $cgi->Tr(
+                      $cgi->td(shift @images),
+                      $cgi->td(scalar(@images) ? shift @images : '&nbsp'),
+                      $cgi->td(scalar(@images) ? shift @images : '&nbsp')
+                    );
+      }
+      $images = $cgi->table(@rows);
+    }
+    
+    $images = $cgi->p($cgi->b('Additional Images:')) . $cgi->center($images);
+  }
+  
+  # Assemble the page
+  
+  my $body = $start_table
+           . $cgi->Tr($cgi->td({-bgcolor=>'#003300'},$cgi->font({-size=>4,-face=>"Arial",-color=>'#FFFFFF'},$media{title},"($media{year})")))
+           . $cgi->Tr(
+               $cgi->td({-bgcolor=>'#FFFFFF'},
+                 $upper,
+                 $cgi->p($cgi->b('Summary:'),$media{summary}),
+                 $images,
+                 ( scalar(@links) ? $cgi->p($cgi->b('Links:'),join(', ',@links)) : '' ),
+               )
+             )
+           . $end_table
+           . $start_table
+           . $cgi->Tr(
+               $cgi->td({-bgcolor=>'#FFFFFF'},           
+                 $cgi->font({-size=>1},
+                   $cgi->b('Citations:'), $cgi->br,
+                   ( $media{reference} ? $media{reference} . $cgi->br : '' ),
+                 )
+               )
+             )
+           . $end_table;
+
+  ### Output
+
+  my $time = "Created $media{created}. Last modified $media{modified}" . $cgi->br . 'Page Generated ' . scalar(localtime);
+
+  my $meta = HTML::Template->new(
+               die_on_bad_params => 0,
+               scalarref => \$tmpl
+             );
+
+  $meta->param(
+    title        => "Macrophile.com - Media - $media{title}",
+    body         => $body,
+    time         => $time,
+    year         => $year,
+    html_prefix  => $html_prefix,
+    image_prefix => $image_prefix,
+    start_table  => $start_table,
+    end_table    => $end_table
+  );
+   
+  open  OUTFILE, ">$outfile";
+  print OUTFILE $meta->output;
+  close OUTFILE;
+
+  print " (done)\n";
+}
+
+### Flag pages
+
+for my $flag ( sort keys %allflags ) {
+  print "Flag: $flag";
+  my $file = $html_dir .'/'. &link($flag) .'.html';
+  
+  my $title = $flag;
+  $title = "Format: $formats->{$flag}" if $formats->{$flag};
+  $title = "Genre: $genres->{$flag}" if $genres->{$flag};
+  $title = "Interest: $interests->{$flag}" if $interests->{$flag};
+
+  my $category = 'Unknown Cagtegorization for this flag';
+  $category = $cgi->a({-href=>'/media/formats.html'},'All Formats') if $formats->{$flag};
+  $category = $cgi->a({-href=>'/media/genres.html'},'All Genres') if $genres->{$flag};
+  $category = $cgi->a({-href=>'/media/interests.html'},'All Interests') if $interests->{$flag};
+
+  my $body = $cgi->p('[',$category,']')
+           . $cgi->ul(
+               ( map { $cgi->li($cgi->a({-href=>'/media/'.$_},$allflags{$flag}{$_})); } sort { lc($allflags{$flag}{$a}) cmp lc($allflags{$flag}{$b}) } keys %{$allflags{$flag}} )
+             );
+
+  &simple_page($file,$title,$body);
+}
+
+### Other pages
+
+# Formats page
+
+print "Formats page";
+my $file  = $html_dir .'/formats.html';
+my $title = 'All Available Formats';
+
+my @formats;
+for my $format ( sort { lc($formats->{$a}) cmp lc($formats->{$b}) } keys %$formats ) {
+  push @formats, $cgi->li( $allflags{$format} ? $cgi->a({-href=>'/media/'.&link($format).'.html'},$formats->{$format}) : $formats->{$format} );
+}
+my $body = $cgi->ul(@formats);
+
+&simple_page($file,$title,$body);
+
+# Genres page
+
+print "Genres page";
+$file  = $html_dir .'/genres.html';
+$title = 'All Available Genres';
+
+my @genres;
+for my $genre ( sort { lc($genres->{$a}) cmp lc($genres->{$b}) } keys %$genres ) {
+  push @genres, $cgi->li( $allflags{$genre} ? $cgi->a({-href=>'/media/'.&link($genre).'.html'},$genres->{$genre}) : $genres->{$genre} );
+}
+$body = $cgi->ul(@genres);
+
+&simple_page($file,$title,$body);
+
+# Interests page
+
+print "Interests page";
+$file  = $html_dir .'/interests.html';
+$title = 'All Available Interests';
+
+my @interests;
+for my $interest ( sort { lc($interests->{$a}) cmp lc($interests->{$b}) } keys %$interests ) {
+  push @interests, $cgi->li( $allflags{$interest} ? $cgi->a({-href=>'/media/'.&link($interest).'.html'},$interests->{$interest}) : $interests->{$interest} );
+}
+$body = $cgi->ul(@interests);
+
+&simple_page($file,$title,$body);
+
+# Index page
+
+print "Index page";
+$file  = $html_dir .'/index.html';
+$title = 'Macrophile Media Archive';
+
+$body = $cgi->ul(
+          $cgi->li($cgi->a({-href=>'formats.html'},'By Media Format')),
+          $cgi->li($cgi->a({-href=>'genres.html'},'By Story genre')),
+          $cgi->li($cgi->a({-href=>'interests.html'},'By Related Macro Interest Content')),
+        );
+
+&simple_page($file,$title,$body);
+
+### Subroutines
+
+sub simple_page {
+  my $file  = shift @_;
+  my $title = shift @_;
+  my $body  = shift @_;
+  
+  $body = $start_table
+        . $cgi->Tr($cgi->td({-bgcolor=>'#003300'},$cgi->font({-size=>4,-face=>"Arial",-color=>'#FFFFFF'},$title)))
+        . $cgi->Tr(
+            $cgi->td({-bgcolor=>'#FFFFFF'},
+              $cgi->font({-face=>'Arial',-size=>3},$body)
+            )
+          )
+        . $end_table;
+  
+  my $meta = HTML::Template->new(
+               die_on_bad_params => 0,
+               scalarref => \$tmpl
+             );
+
+  $meta->param(
+    title        => "Macrophile.com - Media - $title",
+    body         => $body,
+    time         => 'Last Generated ' . scalar(localtime),
+    year         => $year,
+    html_prefix  => $html_prefix,
+    image_prefix => $image_prefix,
+    start_table  => $start_table,
+    end_table    => $end_table
+  );
+   
+  open  OUTFILE, ">$file";
+  print OUTFILE $meta->output;
+  close OUTFILE;
+
+  print " (done)\n";
+}
+
+sub link {
+  my $link = shift @_;
+  $link =~ s/ /_/g;
+  return $link;
+}

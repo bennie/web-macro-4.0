@@ -1,0 +1,157 @@
+#!/usr/bin/perl -w -I/var/www/macrophile.com/lib
+
+# This page generates thumbnails for all attachments in the DB.
+# (c) 2006-2007, Phillip Pollard <bennie@macrophile.com>
+
+use Image::Size;
+use Macro;
+use Macro::Forum;
+use Macro::Util qw/files/;
+use String::ShellQuote;
+use strict;
+
+### Conf
+
+my $debug = 0;
+
+my $name      = 'art';
+my $thumbsize = 150;
+my $sourcedir = '/var/www/macrophile.com/phpBB3/files';
+my $thumbdir  = '/var/www/macrophile.com/main/images/preview';
+my $htmldir   = '/images/preview';
+
+### Main
+
+my $macro = new Macro;
+my $cgi = $macro->{cgi};
+
+my $mf = new Macro::Forum;
+my $dbh = $mf->_dbh();
+
+### Check files
+
+&debug('--> Loading current file data:');
+
+my %files;
+map {$files{$_}++;} files($thumbdir);
+
+### Check thumbnails entries
+
+&debug('--> Loading thumbnail data');
+
+my $sql = 'select attach_id, physical_filename from thumbnails';
+my $sth = $dbh->prepare($sql);
+my $ret = $sth->execute();
+
+my @lost;
+my %done;
+
+while ( my $ref = $sth->fetchrow_arrayref ) {
+  unless ( -f $thumbdir.'/'.$ref->[1] ) {
+    warn "Lost the thumbail for $ref->[0] : $ref->[1]\n";
+    push @lost, $ref->[0];
+  } else {
+    $done{$ref->[0]}++;
+  }
+}
+
+$sth->finish;
+
+if ( scalar(@lost) ) {
+  $sql = 'delete from thumbnails where attach_id=?';
+  $sth = $dbh->prepare($sql);
+  for my $lost (@lost) {
+    $ret = $sth->execute($lost);
+    warn "Delete returned $ret" unless $ret == 1;
+  }
+}
+
+$sth->finish;
+
+### Load attachment entries
+
+&debug('--> Loading attachment data');
+
+my %attach;
+$attach{'Conetest'} = $mf->recent_attachments({ forum => 24 });
+$attach{'Macro Art'} = $mf->recent_attachments({ forum => 3 });
+$attach{'Macro Art (Adult)'} = $mf->recent_attachments({ forum => 8 });
+
+my @new;
+my @delete;
+
+my %attach_ids;
+
+for my $category ( keys %attach ) {
+  for my $id ( keys %{$attach{$category}} ) {
+    $attach_ids{$attach{$category}{$id}{attach_id}}++;
+    next if $done{$attach{$category}{$id}{attach_id}};
+    push @new, [ $attach{$category}{$id}{attach_id}, $attach{$category}{$id}{physical_filename} ];
+  }
+}
+
+for my $id ( keys %done ) {
+  push @delete, $id unless $attach_ids{$id};
+}
+
+&debug(scalar(@new) .  " images to add\n" . scalar(@delete) . " images to delete");
+
+### Add thumbnails
+
+my $added = 0;
+my $deleted = 0;
+
+$sql = 'insert into thumbnails (attach_id,physical_filename,width,height) values (?,?,?,?)';
+$sth = $dbh->prepare($sql);
+
+for my $ref ( @new ) {
+  my $id   = $ref->[0];
+  my $file = $ref->[1];
+  
+  my ($fullx,$fully,$type) = imgsize($sourcedir.'/'.$file);
+  next unless $fullx;
+
+  my $x; my $y;
+
+  if ( $fullx > $fully and $fullx > $thumbsize ) {
+    $x = $thumbsize;
+    $y = int(($thumbsize/$fullx) * $fully );
+  } elsif ( $fully > $fullx and $fully > $thumbsize ) {
+    $x = int(($thumbsize/$fully) * $fullx );
+    $y = $thumbsize;
+  } elsif ( $fully > $thumbsize ) {
+    $x = $thumbsize;
+    $y = $thumbsize;
+  } else {
+    $x = $fullx;
+    $y = $fully;
+  }
+
+  my $size = $x.'x'.$y;
+    
+  my $from = shell_quote($sourcedir.'/'.$file);
+  my $to   = shell_quote($thumbdir.'/'.$file);
+  `convert -size $size $from -resize $size $to`;
+
+  &debug("Creating $file $size");
+
+  $sth->execute($id,$file,$x,$y);
+
+  $added++;
+}
+
+### DELETE?!
+
+print "Added: $added\nDeleted: $deleted\n";
+
+### Subs
+
+sub debug {
+  if ( $debug ) {
+    my @lines = @_;
+    for my $line (@lines) {
+      chomp $line;
+      print "$line\n";
+    }
+  }
+}
