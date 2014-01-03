@@ -1,6 +1,8 @@
 share/htpasswd
 lib/LocalAuth.pm
 
+scripts/archive/avatars.tar.*
+
 dev
 forums
 main
