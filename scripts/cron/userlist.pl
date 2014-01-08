@@ -5,6 +5,8 @@
 
 ### CONFIG
 
+my $debug = 1;
+
 my $users_table = 'users';
 my $data_table  = 'users_data';
 
@@ -21,6 +23,7 @@ my $dummyimg = "http://www.macrophile.com/images/no-image.gif";
 
 ### PROGRAM
 
+use Data::Dumper;
 use Macro;
 use strict;
 
@@ -45,43 +48,20 @@ $sth->finish;
 # Grab the info and load the DB
 
 foreach my $name (@users) {
-
-  my ($username,$passwd,$uid,$gid,$quota,$finger,$dgoc,$dir,$shell) =
-     (getpwnam $name);
+  print "\n* $name\n\n" if $debug;
 
   # Defaults
-
   my $comment = 'User has yet to configure .info file.';
   my $email   = $name.$domain;
   my $img     = $dummyimg;
-  my $title   = &cap($name).'\'s Page';
-  my $web     = 0;
+  my $title   = undef;
+  my $web     = "http://$name.macrophile.com/";
 
-  # Check for web dir
-  if ($web == 0) {
-    my $internaldir = $dir."/".$webdir;
-    if (-d $internaldir) {
-      $web = 'http://'.$username.'.macrophile.com/'
-    }
+  # Handle ".info" file
+  my $raw = `curl --silent http://$name.macrophile.com/.info`;
+  my @lines = split "\n", $raw;
 
-    # Read title (if they have a web page in their web dir)
-    my $webpage = $internaldir."/".$index;
-    if (-r $webpage) {
-      open (WEBFILE, $webpage);
-      my $whole;
-      while (my $line = <WEBFILE>) {$whole=$whole.$line}
-      close (WEBFILE);
-      $whole =~ /<title>(.+)<\/title>/i;
-      if (length $1) { $title = $1; }
-    }
-  }
-
-  # Read info file?
-  my $infofile = $dir.'/'.$webdir.'/'.$info;
-
-  if (-r $infofile) {
-    open (INFOFILE, $infofile);
-    while (my $line = <INFOFILE>) {
+  for my $line (@lines) {
       chomp($line);
       my ($nameof, $variable) = split /=/, $line, 2;
       $nameof =~ tr/A-Z/a-z/;
@@ -95,7 +75,24 @@ foreach my $name (@users) {
       if ($nameof eq 'web'    ) { $web     = $variable };
 
     }
-    close (INFOFILE);
+
+  # Fallback for a title
+
+  unless ( $title ) { # Try to pull from their page
+    my $raw = `curl --silent $web`;
+    $title = $1 if $raw =~ /<title>\s*(.+?)\s*<\/title>/i;
+  }
+
+  $title = &cap($name).'\'s Page' unless $title;
+
+  # Summary
+
+  if ( $debug ) {
+    print " - comment : $comment\n";
+    print " - email   : $email\n";
+    print " - img     : $img\n";
+    print " - title   : $title\n";
+    print " - web     : $web\n\n";
   }
 
   # Load into the DB
@@ -104,7 +101,7 @@ foreach my $name (@users) {
   my $dbh   = $macro->_dbh();
 
   $sql = "select name from $table where username = "
-       . $dbh->quote($username);
+       . $dbh->quote($name);
   $sth = $dbh->prepare($sql);
   $ret = $sth->execute;
          $sth->finish;
@@ -116,7 +113,7 @@ foreach my $name (@users) {
          . $dbh->quote($img)         . ','
          . $dbh->quote(&name($name)) . ','
          . $dbh->quote($title)       . ','
-         . $dbh->quote($username)    . ','
+         . $dbh->quote($name)        . ','
          . $dbh->quote($web)         . ')';
   } else {
     $sql = "update $table set "
@@ -127,7 +124,7 @@ foreach my $name (@users) {
          . 'title   = ' . $dbh->quote($title)       . ', '
          . 'web     = ' . $dbh->quote($web)         . '  '
          . 'where username = '
-         . $macro->{'dbh'}->quote($username);
+         . $macro->{'dbh'}->quote($name);
   }
 
   $sth = $dbh->prepare($sql);
