@@ -43,4 +43,4 @@ my $ret = $sth->execute;
 
 print "Done! (return $ret)\n\n",
       "     Don't forget to run the cron processing script before you can generate the info page:\n",
-      "     ./cron/userlist.pl && ./pre-process/userlist.pl && ./generate-html\n\n";
+      "     /var/www/macrophile.com/scripts/cron/daily.sh\n\n";
