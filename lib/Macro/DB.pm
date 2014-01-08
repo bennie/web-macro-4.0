@@ -3,6 +3,7 @@ package Macro::DB;
 $Macro::DB::VERSION='$Revision: 1.5 $';
 
 use DBI;
+use LocalAuth;
 use strict;
 
 sub new {
