@@ -6,3 +6,20 @@ Rebuilding macrophile.com
 shared/  - global style templates, and robot.txt, etc
 handler/ - mod_perl based auth
 www/     - main site (v4.0)
+
+A large portion of this site is static and driven off of two scripts. 
+One that runs every 5 minutes and one that is run daily:
+
+scripts/cron/daily.sh
+
+This script updates the shell-account based user list. And outputs any 
+static pages from the internal database where they are stored. In all 
+cases, it only updates pages if changes are necessary.
+
+scripts/cron/5min.sh
+
+* This script harvests the data from the forums. 
+* It generates the data for the user listings under users.macrophile.com
+* It generates any new thumbnails necessary that have not been generated for art posts
+* it updates the front page with links to the most recent art and stories.
+* It checks the DB and writes any new static pages, if necessary.
