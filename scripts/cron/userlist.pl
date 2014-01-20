@@ -29,6 +29,12 @@ use strict;
 
 my $macro = new Macro;
 
+# Parse debug
+
+for my $arg (@ARGV) {
+  $debug = $1 if $arg =~ /--debug=(.+)/i;
+}
+
 # Grab the users
 
 my $users = $macro->get_config($users_table);
@@ -47,18 +53,19 @@ $sth->finish;
 
 # Grab the info and load the DB
 
-foreach my $name (@users) {
-  print "\n* $name\n\n" if $debug;
+foreach my $username (@users) {
+  print "\n* $username\n\n" if $debug;
 
   # Defaults
   my $comment = 'User has yet to configure .info file.';
-  my $email   = $name.$domain;
+  my $email   = $username.$domain;
   my $img     = $dummyimg;
+  my $name    = $username;
   my $title   = undef;
-  my $web     = "http://$name.macrophile.com/";
+  my $web     = "http://$username.macrophile.com/";
 
   # Handle ".info" file
-  my $raw = `curl --silent http://$name.macrophile.com/.info`;
+  my $raw = `curl --silent http://$username.macrophile.com/.info`;
   my @lines = split "\n", $raw;
 
   for my $line (@lines) {
@@ -91,6 +98,7 @@ foreach my $name (@users) {
     print " - comment : $comment\n";
     print " - email   : $email\n";
     print " - img     : $img\n";
+    print " - name    : $name\n";
     print " - title   : $title\n";
     print " - web     : $web\n\n";
   }
@@ -101,7 +109,7 @@ foreach my $name (@users) {
   my $dbh   = $macro->_dbh();
 
   $sql = "select name from $table where username = "
-       . $dbh->quote($name);
+       . $dbh->quote($username);
   $sth = $dbh->prepare($sql);
   $ret = $sth->execute;
          $sth->finish;
@@ -113,7 +121,7 @@ foreach my $name (@users) {
          . $dbh->quote($img)         . ','
          . $dbh->quote(&name($name)) . ','
          . $dbh->quote($title)       . ','
-         . $dbh->quote($name)        . ','
+         . $dbh->quote($username)    . ','
          . $dbh->quote($web)         . ')';
   } else {
     $sql = "update $table set "
@@ -124,15 +132,14 @@ foreach my $name (@users) {
          . 'title   = ' . $dbh->quote($title)       . ', '
          . 'web     = ' . $dbh->quote($web)         . '  '
          . 'where username = '
-         . $macro->{'dbh'}->quote($name);
+         . $macro->{'dbh'}->quote($username);
   }
 
   $sth = $dbh->prepare($sql);
   $ret = $sth->execute;
 
   # Update the same and it throws, WTF?
-  #if ($ret == 1 || $ret eq "0E0") { print "Bad return value of $ret on
-  #SQL statement: $sql\n"; }
+  unless ($ret eq 1 || $ret eq "0E0") { print "Bad return value of $ret on SQL statement: $sql\n"; }
 
   $sth->finish;
 }
