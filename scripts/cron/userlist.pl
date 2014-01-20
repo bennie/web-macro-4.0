@@ -5,7 +5,7 @@
 
 ### CONFIG
 
-my $debug = 1;
+my $debug = 0;
 
 my $users_table = 'users';
 my $data_table  = 'users_data';
