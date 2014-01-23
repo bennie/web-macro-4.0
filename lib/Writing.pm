@@ -1,7 +1,5 @@
 package Writing;
 
-$Writing::VERSION='$Revision: 1.4 $';
-
 use Macro::DB;
 use strict;
 
@@ -14,8 +12,6 @@ sub new {
 
   return $self;
 }
-
-# Methods
 
 =head3 create_chapter({ story => $story, user => $user, title => $title, body => $body })
 
