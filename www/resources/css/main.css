@@ -14,8 +14,7 @@ body {
 	color:#fff;
 }
 .white {
-	background:#FFF;
-	color:#000;
+	color:#FFF;
 }
 
 /* Header design */
@@ -115,6 +114,8 @@ body div#content {
 }
 #block {
 	padding:1em;
+	background:#FFF;
+	color:#000;
 }
 #content {
 	padding:1em;

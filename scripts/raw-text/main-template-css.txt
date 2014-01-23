@@ -58,7 +58,7 @@
 	</div>
 	<div id="content" class="dkgreen">
 
-<div id="block" class="white"><tmpl_var name='body'></div>
+<div id="block"><tmpl_var name='body'></div>
 
 	</div>
 </div>
@@ -69,6 +69,4 @@
 <tmpl_var name='time'><br /> 
 &lt;bennie&nbsp;&#64;&nbsp;macrophile.com&gt;<br /> 
 <!--[username]--></p></div>
-<div id="debug"><tmpl_var name='debug'>
-
-</p></div></body></html>
+<div id="debug" class="white"><tmpl_var name='debug'></div></body></html>
