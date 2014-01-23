@@ -45,13 +45,13 @@
 </div>
 <div id="wrap-body" class="dkgreen">
 	<div id="side">
-		<a href="html/art.html" title="Art">Art</a>
-		<a href="writing/stories.cgi" title="Stories">Stories</a>
+		<a href="/html/art.html" title="Art">Art</a>
+		<a href="/writing/stories.cgi" title="Stories">Stories</a>
 		<a href="http://forums.macrophile.com/" title="Discussion">Discussion</a>
-		<a href="contest.cgi" title="Contest">Contest</a>
-		<a href="macro-stat/" title="Macro Stat">Macro Stat</a>
+		<a href="/contest.cgi" title="Contest">Contest</a>
+		<a href="/macro-stat/" title="Macro Stat">Macro Stat</a>
 		<a href="http://users.macrophile.com/" title="Userlist">Userlist</a>
-		<a href="html/links.html" title="Links">Links</a>
+		<a href="/html/links.html" title="Links">Links</a>
 	</div>
 	<div id="content">
 
