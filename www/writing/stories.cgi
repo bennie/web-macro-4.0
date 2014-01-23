@@ -1,4 +1,5 @@
 #!/usr/bin/perl -I/var/www/macrophile.com/lib
+#!/opt/local/bin/perl -I/Users/phil/Documents/work/web-macro-4.0/lib
 
 use CGI;
 use CGI::Carp qw/fatalsToBrowser/;
@@ -98,12 +99,12 @@ my $meta = HTML::Template->new(
            );
 
 $meta->param(
-  title        => "Macrophile.com - Stories",
+  title        => "Interactive Stories",
   body         => $body,
   debug        => $cgi->pre($debug),
 
   time         => scalar localtime,
-  year         => 2011,
+  year         => 2013,
 
   html_prefix  => $html_prefix,
   image_prefix => $image_prefix,
