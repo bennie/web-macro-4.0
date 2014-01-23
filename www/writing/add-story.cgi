@@ -9,13 +9,7 @@ use Writing;
 use strict;
 
 my $macro = new Macro;
-
-my $html_prefix  = $macro->{html_prefix};
-my $image_prefix = $macro->{image_prefix};
-my $start_table  = $macro->{start_table};
-my $end_table    = $macro->{end_table};
-
-my $tmpl         = $macro->get_raw_text('main-template-css');
+my $tmpl  = $macro->get_raw_text('main-template-css');
 
 my $w = new Writing;
 
@@ -81,11 +75,6 @@ $page->param(
     year         => ((localtime)[5]+1900),
 
     debug        => $cgi->pre($debug),
-
-    html_prefix  => $html_prefix,
-    image_prefix => $image_prefix,
-    start_table  => $start_table,
-    end_table    => $end_table
 );
 
 print $page->output;
