@@ -6,15 +6,20 @@ body {
 	background:#000;
 	margin:1.5em
 }
+
 /* Colors */
+
 .dkgreen {
 	background:#363;
 	color:#fff;
 }
 .white {
+	background:#FFF;
 	color:#000;
 }
-/* Page design boxes */
+
+/* Header design */
+
 #wrap-head {
 	float:left;
 	width:100%;
@@ -30,14 +35,38 @@ body {
 	margin:0px 0px 0px 0px;
 	text-align:left;
 }
-#panel {
+
+#middle_panel {
 	margin-left:300px;
+	height:65px;
+	text-align:left;
+	padding:5px;
+	border-top-left-radius:5px;
+	border-top-right-radius:5px;
+}
+
+#right_panel {
 	height:65px;
 	text-align:right;
 	padding:5px;
 	border-top-left-radius:5px;
 	border-top-right-radius:5px;
 }
+
+/* Body design */
+
+#wrap-body {
+	float:left;
+	width:100%;
+	margin:0px 0px 0px 0px;
+	text-align:left;
+	border-top-left-radius:5px;
+	border-bottom-left-radius:5px;
+	border-bottom-right-radius:5px;
+}
+
+/* Footer */
+
 #myfooter {
 	clear:left;
 	width:100%;
@@ -49,15 +78,7 @@ body {
 	width:100%;
 	padding:10px;
 }
-#wrap-body {
-	float:left;
-	width:100%;
-	margin:0px 0px 0px 0px;
-	text-align:left;
-	border-top-left-radius:5px;
-	border-bottom-left-radius:5px;
-	border-bottom-right-radius:5px;
-}
+
 /* ################################ */
 /* ### BEGIN Redesign CSS Rules ### */
 body {
@@ -91,8 +112,12 @@ body {
 body div#content {
 	font-size:1.1em;
 }
+#block {
+	padding:1em;
+}
 #content {
 	padding:1em;
+	margin-left: 110px;
 }
 #footer {
 	text-align:center;
