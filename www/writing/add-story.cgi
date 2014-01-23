@@ -74,11 +74,11 @@ if ( $cgi->param('title') and $cgi->param('description') and $cgi->param('userna
 my $page = HTML::Template->new( die_on_bad_params => 0, scalarref => \$tmpl );
 
 $page->param(
-    title        => "Macrophile.com - Stories",
+    title        => "Add a Story",
     body         => $body,
 
     time         => scalar localtime,
-    year         => 2011,
+    year         => ((localtime)[5]+1900),
 
     debug        => $cgi->pre($debug),
 

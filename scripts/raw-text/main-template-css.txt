@@ -30,9 +30,6 @@
 		<!-- width:300px, height:65px -->
 		<a href="/" title="Macrophile Home"><img src="/resources/images/macrophile.gif" alt="Macrophile" border="0" /></a>
 	</div>
-	<div id="middle_panel" class="dkgreen">
-		<h2><tmpl_var name='title'></h2>
-	</div>
 	<div id="right_panel" class="dkgreen">
 		<form name="_xclick" action="https://www.paypal.com/cgi-bin/webscr" method="post"> 
 			<input type="hidden" name="cmd" value="_xclick" /> 
@@ -41,6 +38,9 @@
 			<input type="hidden" name="currency_code" value="USD" /> 
 			<input type="image" border="0" src="/resources/images/x-click-butcc-donate.gif" name="submit" title="Make fast, free, and secure payments with PayPal." alt="Make fast, free, and secure payments with PayPal." /> 
 		</form>
+	</div>
+	<div id="middle_panel" class="dkgreen">
+		<h2><tmpl_var name='title'></h2>
 	</div>
 </div>
 

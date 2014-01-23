@@ -38,18 +38,19 @@ body {
 
 #middle_panel {
 	margin-left:300px;
+	margin-right:100px;
 	height:65px;
-	text-align:left;
+	text-align:center;
 	padding:5px;
 	border-top-left-radius:5px;
-	border-top-right-radius:5px;
 }
 
 #right_panel {
+	float:right;
+	width:100px;
 	height:65px;
 	text-align:right;
 	padding:5px;
-	border-top-left-radius:5px;
 	border-top-right-radius:5px;
 }
 

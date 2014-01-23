@@ -104,7 +104,7 @@ $meta->param(
   debug        => $cgi->pre($debug),
 
   time         => scalar localtime,
-  year         => 2013,
+  year         => ((localtime)[5]+1900),
 
   html_prefix  => $html_prefix,
   image_prefix => $image_prefix,
