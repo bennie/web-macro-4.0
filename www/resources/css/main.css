@@ -1,137 +1,133 @@
 html {
-   background: #000000;
+	background:#000;
 }
 
 body {
-  background: #000000;
-  margin: 1.5em
+	background:#000;
+	margin:1.5em
 }
 
-/*@import url("reset-fonts-grids.css");
-
- Set 1em = 10px
-html {
-   font-size: 62.5%;
-   background: #000000;
-   color: #FFFFFF;
-}
-
-body {
-    margin: 1.5em
-}
-
-body, table, td, input, select {
-    font-family: "georgia", "times", "times new roman", serif;
-    font-size: 14px;
-    color: #696;
-    quotes: "\201C" "\201E" "\2018" "\2019";
-}
-
-img {
-    border: 0;
-}
-
-a:link {
-    color: #222;
-}
-
-a:visited {
-    color: #555;
-}
-
-a:hover {
-    color: #000;
-}
-
-a:active {
-}
-
-a:focus {
-}
- */
 /* Colors */
 
 .dkgreen {
-  background: #363;
-  color: #FFF;
+	background:#363;
+	color:#fff;
 }
-
 .white {
-  /*background: #FFF;*/
-  color: #000;
+	background:#FFF;
+	color:#000;
 }
 
-/* Page design boxes */
-    
+/* Header design */
+
 #wrap-head {
-  float: left;
-  width: 100%;
-  height: 65px;
-  margin: 0px 0px 0px 0px;
-  text-align: left;
+	float:left;
+	width:100%;
+	height:65px;
+	margin:0px 0px 0px 0px;
+	text-align:left;
 }
 
 #logo {
-  float: left;
-  width: 300px;
-  height: 65px;
-  margin: 0px 0px 0px 0px;
-  text-align: left;
+	float:left;
+	width:300px;
+	height:65px;
+	margin:0px 0px 0px 0px;
+	text-align:left;
 }
 
-#panel {
-  margin-left: 300px;
-  height: 65px;
-  text-align: right;
-  padding: 5px;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
+#middle_panel {
+	margin-left:300px;
+	height:65px;
+	text-align:left;
+	padding:5px;
+	border-top-left-radius:5px;
+	border-top-right-radius:5px;
 }
 
-#myfooter {
-  clear: left;
-  width: 100%;
-  padding: 10px;
+#right_panel {
+	height:65px;
+	text-align:right;
+	padding:5px;
+	border-top-left-radius:5px;
+	border-top-right-radius:5px;
 }
 
-#debug {
-  clear: left;
-  text-align: left;
-  width: 100%;
-  padding: 10px;
-}
+/* Body design */
 
 #wrap-body {
-  float: left;
-  width: 100%;
-  margin: 0px 0px 0px 0px;
-  text-align: left;
-  
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
+	float:left;
+	width:100%;
+	margin:0px 0px 0px 0px;
+	text-align:left;
+	border-top-left-radius:5px;
+	border-bottom-left-radius:5px;
+	border-bottom-right-radius:5px;
 }
 
+/* Footer */
+
+#myfooter {
+	clear:left;
+	width:100%;
+	padding:10px;
+}
+#debug {
+	clear:left;
+	text-align:left;
+	width:100%;
+	padding:10px;
+}
+
+/* ################################ */
+/* ### BEGIN Redesign CSS Rules ### */
+body {
+    font-family:arial,verdana,helvetica,sans-serif;
+	font-size:10pt;
+}
 #side {
-  float: left;
-  width: 110px;
-  text-align: center;
-  padding: 5px;
+	float:left;
+	width:110px;
+	text-align:center;
+	padding:5px;
 }
-
+#side a {
+    background-color:#000;
+    border:1px solid #33cc66;
+    color:#fff;
+    display:block;
+    font-size:1em;
+    font-weight:bold;
+    margin:5px 0px;
+    min-height:20px;
+    padding:4px 0px;
+    text-decoration:none;
+    width:100px;
+}
+#side a:hover {
+    background-color:#33cc66;
+    border:1px solid #fff;
+    color:#000;
+}
+body div#content {
+	font-size:1.1em;
+}
+#block {
+	padding:1em;
+}
 #content {
-  margin-left: 110px;
-  padding: 1em;
+	padding:1em;
+	margin-left: 110px;
 }
-
-/* fineprint style */
-
+#footer {
+	text-align:center;
+}
 .fineprint {
-  font-size: 10px;
-  color: #696;
+	font-size:10px;
+	color:#696;
 }
-
-a.fineprint:link    { color:#696; }
-a.fineprint:visited { color:#696; }
-a.fineprint:hover   { color:#696; }
-a.fineprint:active  { color:#696; }
+a.fineprint {
+	color:#696;
+}
+/* ###  END Redesign CSS Rules  ### */
+/* ################################ */
