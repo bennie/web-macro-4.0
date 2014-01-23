@@ -1,7 +1,5 @@
 package Macro::Auth;
 
-$Macro::Auth::VERSION='$Revision: 1.8 $';
-
 use CGI;
 use DBI;
 use Digest::MD5 qw/md5_hex/;

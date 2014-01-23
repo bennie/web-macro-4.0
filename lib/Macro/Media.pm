@@ -18,7 +18,6 @@ The media archive DB library.
 =cut
 
 package Macro::Media;
-$Macro::Media::VERSION='$Revision: 1.9 $';
 
 ### Module dependencies
 

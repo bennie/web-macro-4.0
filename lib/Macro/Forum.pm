@@ -1,7 +1,5 @@
 package Macro::Forum;
 
-$Macro::Forum::VERSION='$Revision: 1.22 $';
-
 use CGI;
 use DBI;
 use LocalAuth;
