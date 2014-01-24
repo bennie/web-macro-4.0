@@ -71,7 +71,8 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
 } else {
 
   my @stories = $w->list_stories;
-  $body .= '<div class=white>' . $cgi->hr . $cgi->start_ul;
+  $body .= '[ ' . $cgi->a({href=>'/login.cgi'},'Login') .' | '. $cgi->a({href=>'add-story.cgi'},'Add a story...') . ' ]'
+        .  '<div class=white>' . $cgi->hr . $cgi->start_ul;
 
   for my $story (@stories) {
     my $id    = $story->{id};
@@ -79,9 +80,7 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
     $body .= $cgi->li( $cgi->b($cgi->a({-href=>"stories.cgi?story=".$id},$title)),'by',$story->{user} );
   }
 
-  $body .= $cgi->end_ul . $cgi->hr
-        . $cgi->a({href=>'add-story.cgi'},'Add a story... ')
-        . '</div>';
+  $body .= $cgi->end_ul . '</div>';
   $debug = Dumper(@stories);
 
 }
