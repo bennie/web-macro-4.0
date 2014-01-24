@@ -3,14 +3,14 @@
 
 use CGI::Carp qw/fatalsToBrowser/;
 use Data::Dumper;
-use HTML::Template;
 use Macro;
 use Macro::Auth;
+use Macro::Template;
 use Writing;
 use strict;
 
 my $macro = new Macro;
-my $tmpl  = $macro->get_raw_text('main-template-css');
+my $tmpl  = new Macro::Template ('main-template-css');
 
 my $w = new Writing;
 
@@ -87,12 +87,7 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
 
 ### Output the page
 
-my $meta = HTML::Template->new(
-             die_on_bad_params => 0,
-             scalarref => \$tmpl
-           );
-
-$meta->param(
+print $tmpl->do({
   title => "Interactive Stories",
   body  => $body,
 
@@ -101,6 +96,4 @@ $meta->param(
 
   user  => $user,
   debug => $cgi->pre($debug) . $cgi->pre(Dumper($macro_auth)),
-);
-
-print $meta->output;
+});

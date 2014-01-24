@@ -2,14 +2,14 @@
 
 use CGI::Carp qw/fatalsToBrowser/;
 use Data::Dumper;
-use HTML::Template;
 use Macro;
 use Macro::Auth;
+use Macro::Template;
 use Writing;
 use strict;
 
 my $macro = new Macro;
-my $tmpl  = $macro->get_raw_text('main-template-css');
+my $tmpl  = new Macro::Template ('main-template-css');
 
 my $w = new Writing;
 
@@ -62,9 +62,7 @@ if ( $cgi->param('title') and $cgi->param('description') and $cgi->param('userna
 
 ### Print out the page from $body
 
-my $page = HTML::Template->new( die_on_bad_params => 0, scalarref => \$tmpl );
-
-$page->param(
+print $tmpl->do({
   title => "Add a Story",
   body  => $body,
 
@@ -73,6 +71,4 @@ $page->param(
 
   user  => $user,
   debug => $cgi->pre($debug),
-);
-
-print $page->output;
+});

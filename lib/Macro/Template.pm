@@ -11,19 +11,15 @@ sub new {
   $self->{db} = ref $_[1] ? $_[1] : new Macro::DB;
 
   # Odd config
-  $self->{'html_prefix'}  = 'http://www.macrophile.com/';
-  $self->{'image_prefix'} = 'http://www.macrophile.com/images/';
+  $self->{html_prefix}  = 'http://www.macrophile.com/';
+  $self->{image_prefix} = 'http://www.macrophile.com/images/';
 
-  $self->{'start_table'} = "<table border='0' bgcolor='#003300' cellpadding='1' "
-                 . "cellspacing='0'>\n<tr><td>\n<table border='0' "
-                 . "bgcolor='#FFFFFF' cellpadding='5' cellspacing='0'>\n";
-  $self->{'end_table'} = "</table>\n</td></tr>\n</table>\n<img height='1' "
-                 . "width='1' vspace='1' src='/images/space.gif'><br>\n";
-
+  $self->{start_table} = "<table border='0' bgcolor='#003300' cellpadding='1' cellspacing='0'>\n<tr><td>\n<table border='0' bgcolor='#FFFFFF' cellpadding='5' cellspacing='0'>\n";
+  $self->{end_table} = "</table>\n</td></tr>\n</table>\n<img height='1' width='1' vspace='1' src='/images/space.gif'><br>\n";
 
   # Default info set for templates
-  $self->{'tmpl_name'} = 'main-template';
-  $self->{'tmpl_base'} = { 
+  $self->{tmpl_name} = defined $_[1] ? $_[1] : 'main-template';
+  $self->{tmpl_base} = { 
      'title' => 'Default Title',
      'body'  => 'Default Body',
      'time'  => 'default time generation string',
@@ -60,11 +56,9 @@ sub do {
 sub get_raw_text {
   my $self = shift @_;
   my $name = shift @_;
-
   my $raw_text = $self->{db}->get_config('raw_text');
 
-  my $sql = "select value from $raw_text where name = "
-          . $self->{db}->quote($name);
+  my $sql = "select value from $raw_text where name=" . $self->{db}->quote($name);
   return $self->{db}->single($sql);
 }
 

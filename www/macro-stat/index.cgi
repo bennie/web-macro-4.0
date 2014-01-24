@@ -5,15 +5,13 @@ use Convert::Area;
 use Convert::Length;
 use Convert::Volume;
 use Convert::Weight;
-use Macro::DB;
 use Macro::Template;
 use strict;
 
 my $cgi = new CGI;
 print $cgi->header;
 
-my $db     = new Macro::DB;
-my $tmpl   = new Macro::Template ($db);
+my $tmpl   = new Macro::Template ('main-template-css');
 my $length = new Convert::Length;
 my $area   = new Convert::Area;
 my $volume = new Convert::Volume;
@@ -45,8 +43,6 @@ my $body = $cgi->start_form
          . $cgi->Tr($cgi->td(@body))
          . $tmpl->{end_table}
          . $cgi->end_form;
-
-$tmpl->{tmpl_name} = 'main-template-css';
 
 print $tmpl->do({
   title        => 'MacroStat',
