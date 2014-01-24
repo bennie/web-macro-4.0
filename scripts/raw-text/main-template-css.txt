@@ -63,10 +63,11 @@
 	</div>
 </div>
 <div id="footer">
-
-<p class="fineprint">Usage of this site is goverend by the <a class="fineprint" href="http://www.macrophile.com/html/legal.html">AUP</a><br /> 
+<p class="fineprint">&nbsp;<br />Usage of this site is goverend by the <a class="fineprint" href="http://www.macrophile.com/html/legal.html">AUP</a><br /> 
 &copy; 1997-<tmpl_var name='year'>, <a class="fineprint" href="http://www.crescendo.net/madeby.html">Crescendo Communications</a><br /> 
 <tmpl_var name='time'><br /> 
-&lt;bennie&nbsp;&#64;&nbsp;macrophile.com&gt;<br /> 
-<!--[username]--></p></div>
-<div id="debug" class="white"><tmpl_var name='debug'></div></body></html>
+<!--&lt;bennie&nbsp;&#64;&nbsp;macrophile.com&gt;<br />-->
+Welcome <tmpl_var name='user'>!</p>
+</div>
+<div id="debug" class="white"><tmpl_var name='debug'></div>
+</body></html>

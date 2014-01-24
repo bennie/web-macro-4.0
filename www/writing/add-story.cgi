@@ -14,7 +14,8 @@ my $tmpl  = $macro->get_raw_text('main-template-css');
 my $w = new Writing;
 
 my $macro_auth = new Macro::Auth;
-my $cgi = $macro_auth->{cgi};
+my $cgi        = $macro_auth->{cgi};
+my $user       = $macro_auth->{username} ? $macro_auth->{username} : 'guest';
 
 my $body;
 my $debug = Dumper($macro_auth) . "\n";
@@ -29,8 +30,6 @@ if ( $cgi->param('title') and $cgi->param('description') and $cgi->param('userna
         . $cgi->p('Description:',$cgi->param('description'))
         . $cgi->p('Chapter:',$cgi->param('chapter'))
         . $cgi->p('Username:',$cgi->param('username'));
-
-  my $user = $macro_auth->{username};
 
   my $story_id = $w->create_story({
     user => $user,
@@ -51,8 +50,6 @@ if ( $cgi->param('title') and $cgi->param('description') and $cgi->param('userna
 
 } else {
 
-  my $user = $macro_auth->{username};
-
   $body = $cgi->start_form
         . $cgi->p('Title:',$cgi->textfield('title'))
         . $cgi->p('Description:',$cgi->textfield('description'))
@@ -68,13 +65,14 @@ if ( $cgi->param('title') and $cgi->param('description') and $cgi->param('userna
 my $page = HTML::Template->new( die_on_bad_params => 0, scalarref => \$tmpl );
 
 $page->param(
-    title        => "Add a Story",
-    body         => $body,
+  title => "Add a Story",
+  body  => $body,
 
-    time         => scalar localtime,
-    year         => ((localtime)[5]+1900),
+  time  => scalar localtime,
+  year  => ((localtime)[5]+1900),
 
-    debug        => $cgi->pre($debug),
+  user  => $user,
+  debug => $cgi->pre($debug),
 );
 
 print $page->output;

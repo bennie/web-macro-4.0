@@ -15,7 +15,8 @@ my $tmpl  = $macro->get_raw_text('main-template-css');
 my $w = new Writing;
 
 my $macro_auth = new Macro::Auth;
-my $cgi = $macro_auth->{cgi};
+my $cgi        = $macro_auth->{cgi};
+my $user       = $macro_auth->{username} ? $macro_auth->{username} : 'guest';
 
 ### Main
 
@@ -93,13 +94,14 @@ my $meta = HTML::Template->new(
            );
 
 $meta->param(
-  title        => "Interactive Stories",
-  body         => $body,
+  title => "Interactive Stories",
+  body  => $body,
 
-  time         => scalar localtime,
-  year         => ((localtime)[5]+1900),
+  time  => scalar localtime,
+  year  => ((localtime)[5]+1900),
 
-  debug        => $cgi->pre($debug),
+  user  => $user,
+  debug => $cgi->pre($debug),
 );
 
 print $meta->output;
