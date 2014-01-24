@@ -48,7 +48,7 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
   $debug .= "Story: " . Dumper($story_ref) ."\n\nCurrent Chapter: " . Dumper($chapter_ref)
          . "\n\nNext Chapters: " . Dumper(@next_chapters);
 
-  $body = '<div class=white>' . $cgi->hr
+  $body = $cgi->hr
         . $cgi->center($cgi->b($cgi->a({-href=>'stories.cgi?story='.$story_id},$story_ref->{title})))
         . $cgi->hr
         . $cgi->b('Author: ') . $story_ref->{user} . $cgi->br
@@ -65,14 +65,13 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
   }
   
   $body .= $cgi->hr
-        . $cgi->b($cgi->a({href=>'add-chapter.cgi?chapter='.$chapter_id},'Add a chapter... '))
-        . '</div>';
+        . $cgi->b($cgi->a({href=>'add-chapter.cgi?chapter='.$chapter_id},'Add a chapter... '));
 
 } else {
 
   my @stories = $w->list_stories;
   $body .= '[ ' . $cgi->a({href=>'/login.cgi?redirect=/writing/stories.cgi'},'Login') .' | '. $cgi->a({href=>'add-story.cgi'},'Add a story...') . ' ]'
-        .  '<div class=white>' . $cgi->hr . $cgi->start_ul;
+        . $cgi->hr . $cgi->start_ul;
 
   for my $story (@stories) {
     my $id    = $story->{id};
@@ -80,7 +79,7 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
     $body .= $cgi->li( $cgi->b($cgi->a({-href=>"stories.cgi?story=".$id},$title)),'by',$story->{user} );
   }
 
-  $body .= $cgi->end_ul . '</div>';
+  $body .= $cgi->end_ul;
   $debug = Dumper(@stories);
 
 }
