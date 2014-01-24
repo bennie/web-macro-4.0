@@ -25,7 +25,8 @@ my $user       = $macro_auth->{username} ? $macro_auth->{username} : 'guest';
 
 print $cgi->header();
 
-my $body; my $debug;
+my $body; 
+my $debug;
 
 if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
   my $story_id = $cgi->param('story');
@@ -70,7 +71,7 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
 } else {
 
   my @stories = $w->list_stories;
-  $body .= '[ ' . $cgi->a({href=>'/login.cgi?redirect=/writing/stories.cgi'},'Login') .' | '. $cgi->a({href=>'add-story.cgi'},'Add a story...') . ' ]'
+  $body .= '[ ' . ($macro_auth->{username} ? "Logged in: $user" : $cgi->a({href=>'/login.cgi?redirect=/writing/stories.cgi'},'Login')) .' | '. $cgi->a({href=>'add-story.cgi'},'Add a story...') . ' ]'
         . $cgi->hr . $cgi->start_ul;
 
   for my $story (@stories) {
@@ -80,7 +81,7 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
   }
 
   $body .= $cgi->end_ul;
-  $debug = Dumper(@stories);
+  $debug .= Dumper(@stories);
 
 }
 
@@ -99,7 +100,7 @@ $meta->param(
   year  => ((localtime)[5]+1900),
 
   user  => $user,
-  debug => $cgi->pre($debug),
+  debug => $cgi->pre($debug) . $cgi->pre(Dumper($macro_auth)),
 );
 
 print $meta->output;
