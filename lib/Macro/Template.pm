@@ -1,5 +1,4 @@
 package Macro::Template;
-$Macro::Template::VERSION='1.0.3 (4/28/2001)';
 
 use Macro::DB;
 use HTML::Template;

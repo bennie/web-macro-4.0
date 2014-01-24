@@ -46,6 +46,8 @@ my $body = $cgi->start_form
          . $tmpl->{end_table}
          . $cgi->end_form;
 
+$tmpl->{tmpl_name} = 'main-template-css';
+
 print $tmpl->do({
   title        => "Macrophile.com - MacroStat",
   body         => $body,
@@ -287,7 +289,7 @@ before, or whatnot.'),
 sub default {
   $title = $cgi->center($cgi->font({-size=>'+3'},$cgi->tt('MacroSTAT 1.0')));
   return
-    $cgi->img({-src=>'../images/computer.gif',-width=>'179',-height=>'211',
+    $cgi->img({-src=>'/resources/images/computer.gif',-width=>'179',-height=>'211',
     -align=>'left'}),
     $cgi->p('This is a statistical generation program for those of you who
 are thinking in Macro sizes. It asks a few questions and helps you
