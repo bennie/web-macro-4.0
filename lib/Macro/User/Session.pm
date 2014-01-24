@@ -4,8 +4,6 @@
 
 package Macro::User::Session;
 
-$Macro::User::Session::VERSION='$Revision: 1.4 $';
-
 ### Module dependencies
 
 use Digest::MD5 'md5_hex';

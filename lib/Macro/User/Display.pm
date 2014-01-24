@@ -18,7 +18,6 @@
 =cut
 
 package Macro::User::Display;
-       $Macro::User::Display::VERSION='$Revision: 1.1 $';
 
 use Macro::DB;
 use strict;
