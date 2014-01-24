@@ -4,6 +4,7 @@ use Authen::Passphrase::PHPass;
 use CGI;
 use CGI::Carp qw/fatalsToBrowser/;
 use Data::Dumper;
+use Data::UUID;
 use HTML::Template;
 use LocalAuth;
 use Macro;
@@ -31,56 +32,84 @@ for my $param ( $cgi->param ) {
   $debug .= $param .' : '. $cgi->param($param)."</ br>\n";
 }
 
-### Prep the DBs
+### Default vars
 
-my @webdb = ('dbi:mysql:dbname='.$LocalAuth::WEB_DB, $LocalAuth::WEB_USER, $LocalAuth::WEB_PASS);
+my $username = $cgi->param('username');
+my $password = $cgi->param('password');
+my $redirect = $cgi->param('redirect');
 
-### Print a page
-
+my $cookie; # Session cookie to write
+my $crypt; # Password crypt if pulled from DB
 my $error; # Report any login check errors
 my $match; # Set true if the authen check work
-my $redirect; # Go back to where we were told
 
 ### Check password if submitted
 
-if ( $cgi->param('username') and $cgi->param('password') ) {
-
-  $debug .= $cgi->p('Checking password out of phpBB');
-  my $crypt = check_password($cgi->param('username'));
+if ( $username and $password ) {
+  $debug .= $cgi->p('Checking password against phpBB');
+  $crypt = get_password_hash($username);
   $crypt =~ s/H/P/;
   $debug .= $cgi->p($cgi->b('crypt:'),$crypt);
+}
 
-  if ( $crypt ) {
-    my $ppr = Authen::Passphrase::PHPass->from_crypt($crypt);
-    $match = $ppr->match($cgi->param('password'));
-    $error = 'Incorrect password.'
+if ( $crypt ) {
+  my $ppr = Authen::Passphrase::PHPass->from_crypt($crypt);
+  $match = $ppr->match($password);
+  $error = 'Incorrect password.' unless $match;
+} else {
+  $error = 'User does not exist.' if $username;
+}
+  
+$debug .= $cgi->p($cgi->b('match:'),$match);
+
+### Create session if a good login
+
+if ( $match ) {
+  my $ug   = new Data::UUID;
+  my $uuid = $ug->create_str();
+
+  my $expire = time + ( 60 * 3600 );
+
+  my $dbh = DBI->connect('dbi:mysql:dbname='.$LocalAuth::WEB_DB, $LocalAuth::WEB_USER, $LocalAuth::WEB_PASS)
+              or die "DB Connect Error: $DBI::errstr";  
+  my $sth = $dbh->prepare('select count(*) from sessions where username=?');
+  my $ret = $sth->execute($username);
+  my $count = $sth->fetchrow_arrayref->[0];
+  
+  if ( $count ) {
+    $sth = $dbh->prepare('update sessions set session_id=?, expire=? where username=?');
   } else {
-    $error = 'User does not exist.'
+    $sth = $dbh->prepare('insert into sessions (session_id,expire,username) values (?,?,?)');
   }
+  my $ret = $sth->execute($uuid,$expire,$username);
 
-  $debug .= $cgi->p($cgi->b('match:'),$match);
-}  
+  $error = "Session insert returned: $ret" unless $ret = 1;
+  
+  $cookie = $cgi->cookie(-name=>'new_macro_session', -value=> $uuid, -expires=>'+1y', -domain=>'macrophile.com' );
+}
 
 ### If authentication was good, redirect!
 
-if ( $match ) {
+if ( $match and not $error ) {
   my $location = 'http://new.macrophile.com' . $cgi->param('redirect');
-  print $cgi->redirect($location);
+  print $cgi->redirect( -uri=> $location, -cookie=> $cookie );
 }
 
 ### Otherwise, login
 
-my $body = ( $error ? $cgi->i($error) : '' )
+my $body = ( $error ? $cgi->p($cgi->i($error)) : '' )
       . $cgi->start_form
       . ( $cgi->param('redirect') ? $cgi->hidden('redirect',$cgi->param('redirect')) : '' )
-      . $cgi->textfield('username')
-      . $cgi->password_field('password')
+      . $cgi->table(
+          $cgi->Tr($cgi->td('Username:'),$cgi->td($cgi->textfield('username'))),
+          $cgi->Tr($cgi->td('Password:'),$cgi->td($cgi->password_field('password')))
+        )
       . $cgi->submit
       . $cgi->end_form;
 
 ### Print out the page from $body
 
-print $cgi->header();
+print $cookie ? $cgi->header(-cookie=>$cookie) : $cgi->header();
 
 my $macro = new Macro;
 my $tmpl  = $macro->get_raw_text('main-template-css');
@@ -101,7 +130,7 @@ print $page->output;
 
 ### Subroutines
 
-sub check_password {
+sub get_password_hash {
   my $usr = shift @_;
   my $dbh = DBI->connect('dbi:mysql:dbname='.$LocalAuth::FORUM_DB, $LocalAuth::FORUM_USER, $LocalAuth::FORUM_PASS)
               or die "DB Connect Error: $DBI::errstr";  
@@ -109,4 +138,7 @@ sub check_password {
   my $ret = $sth->execute($usr);
   my $ref = $sth->fetchrow_arrayref;
   return $ref ? $ref->[0] : undef;
+}
+
+sub create_session {
 }

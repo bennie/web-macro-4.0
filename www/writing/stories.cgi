@@ -71,7 +71,7 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
 } else {
 
   my @stories = $w->list_stories;
-  $body .= '[ ' . $cgi->a({href=>'/login.cgi'},'Login') .' | '. $cgi->a({href=>'add-story.cgi'},'Add a story...') . ' ]'
+  $body .= '[ ' . $cgi->a({href=>'/login.cgi?redirect=/writing/stories.cgi'},'Login') .' | '. $cgi->a({href=>'add-story.cgi'},'Add a story...') . ' ]'
         .  '<div class=white>' . $cgi->hr . $cgi->start_ul;
 
   for my $story (@stories) {
