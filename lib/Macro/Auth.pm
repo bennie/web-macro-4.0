@@ -10,32 +10,46 @@ sub new {
   my     $self = {};
   bless  $self;
 
-  # Conf
-  
-  my $cookie_prefix = 'macrophile_bb';
-  my $table_prefix  = 'phpbb';
-
-  my $db_driver = 'mysql';
-  my $db_name   = $LocalAuth::FORUM_DB;
-  my $db_host   = $LocalAuth::FORUM_HOST;
-  my $db_user   = $LocalAuth::FORUM_USER;
-  my $db_pass   = $LocalAuth::FORUM_PASS;
-
-  # Do it
-
   my %out = ( username => undef );
-
-  my @db_connect = ("dbi:$db_driver:dbname=$db_name:host=$db_host", $db_user, $db_pass);
-
-  my $dbh = DBI->connect(@db_connect)
-    or $out{error} = "DB Connect Error: $DBI::errstr" && return \%out;
-
   $out{cgi} = new CGI;
+
+  # Check for "our" auth first, and handle that if present
+
+  if ( $out{cgi}->cookie('new_macro_session') ) {
+    $out{cookie} = $out{cgi}->cookie('new_macro_session');
+
+    $out{sql} = 'select username, expire, last_modified from sessions where session_id=?';
+
+    my $dbh = DBI->connect('dbi:mysql:dbname='.$LocalAuth::WEB_DB, $LocalAuth::WEB_USER, $LocalAuth::WEB_PASS)
+                or $out{error} = "DB Connect Error: $DBI::errstr" && return \%out;
+
+    my $sth = $dbh->prepare($out{sql});
+    my $ret = $sth->execute($out{cookie});
+
+    if ( $ret == 1 ) {
+      $out{uuid} = $out{cookie};
+      my $ref = $sth->fetchrow_arrayref;
+      $out{username}      = $ref->[0];
+      $out{expire}        = $ref->[0];
+      $out{last_modified} = $ref->[0];
+    } else {
+      $out{error} = "Bad DB return code of $ret";
+    }
+
+    $sth->finish;
+    $dbh->disconnect;
+    
+    return \%out;
+  }
+
+  # Handle phpbb3 cookies and auth on that as a fallback
  
-  $out{cookie_sid}     = $out{cgi}->cookie($cookie_prefix.'_sid');
-  $out{cookie_t}       = $out{cgi}->cookie($cookie_prefix.'_t');
-  $out{cookie_data}    = $out{cgi}->cookie($cookie_prefix.'_data');
-  $out{cookie_session} = $out{cgi}->cookie($cookie_prefix.'_session');
+  $out{cookie_sid}     = $out{cgi}->cookie('macrophile_bb_sid');
+  $out{cookie_t}       = $out{cgi}->cookie('macrophile_bb_t');
+  $out{cookie_data}    = $out{cgi}->cookie('macrophile_bb_data');
+  $out{cookie_session} = $out{cgi}->cookie('macrophile_bb_session');
+
+  my $dbh; # only populate if needed, close when done
 
   # Values
 
@@ -46,7 +60,10 @@ sub new {
   # always-login cookie
 
   if ( $out{userid} and $out{keyid} and not $out{username} ) {
-    $out{sql} = 'select username from '.$table_prefix.'_users u, '.$table_prefix.'_sessions_keys s where u.user_active=1 and u.user_id = s.user_id and u.user_id=? and s.key_id=?';
+    $out{sql} = 'select username from phpbb_users u, phpbb_sessions_keys s where u.user_active=1 and u.user_id = s.user_id and u.user_id=? and s.key_id=?';
+
+    $dbh = DBI->connect('dbi:mysql:dbname='.$LocalAuth::FORUM_DB, $LocalAuth::FORUM_USER, $LocalAuth::FORUM_PASS)
+             or $out{error} = "DB Connect Error: $DBI::errstr" && return \%out;
 
     my $sth = $dbh->prepare($out{sql});
     my $ret = $sth->execute($out{userid},$out{keyid});
@@ -63,8 +80,12 @@ sub new {
   # by session
 
   if ( $out{sid} and $out{userid} and $out{userid} != -1 and not $out{username} ) {
-    $out{sql} = 'select username from '.$table_prefix.'_users u, '.$table_prefix.'_sessions s where u.user_id = s.session_user_id and session_logged_in=1 and session_id=? 
-and session_user_id=?';
+    $out{sql} = 'select username from phpbb_users u, phpbb_sessions s where u.user_id = s.session_user_id and session_logged_in=1 and session_id=? and session_user_id=?';
+
+    unless ( defined $dbh ) {
+      $dbh = DBI->connect('dbi:mysql:dbname='.$LocalAuth::FORUM_DB, $LocalAuth::FORUM_USER, $LocalAuth::FORUM_PASS)
+               or $out{error} = "DB Connect Error: $DBI::errstr" && return \%out;
+    }
 
     my $sth = $dbh->prepare($out{sql});
     my $ret = $sth->execute($out{sid},$out{userid});
@@ -78,11 +99,11 @@ and session_user_id=?';
     $sth->finish;
   }
 
-  $dbh->disconnect;
+  $dbh->disconnect if defined $dbh;
 
   # Final check
 
-  if ( $out{userid} < 0 ) {
+  if ( $out{userid} < 0 ) { # -1 is guest
     $out{userid} = undef
     $out{username} = undef
   }
