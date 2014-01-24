@@ -49,7 +49,7 @@ my $body = $cgi->start_form
 $tmpl->{tmpl_name} = 'main-template-css';
 
 print $tmpl->do({
-  title        => "Macrophile.com - MacroStat",
+  title        => 'MacroStat',
   body         => $body,
   time         => "This page was dynamically generated",
   year         => ((localtime)[5] + 1900)
