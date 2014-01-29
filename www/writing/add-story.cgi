@@ -2,14 +2,12 @@
 
 use CGI::Carp qw/fatalsToBrowser/;
 use Data::Dumper;
-use Macro;
 use Macro::Auth;
 use Macro::Template;
 use Writing;
 use strict;
 
-my $macro = new Macro;
-my $tmpl  = new Macro::Template ('main-template-css');
+my $tmpl = new Macro::Template ('main-template-css');
 
 my $w = new Writing;
 
