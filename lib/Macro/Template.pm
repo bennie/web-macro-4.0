@@ -7,8 +7,9 @@ use strict;
 sub new {
   my     $self = {};
   bless  $self;
+  my $class = shift @_;
 
-  $self->{db} = ref $_[1] ? $_[1] : new Macro::DB;
+  $self->{db} = ref $_[0] ? shift @_ : new Macro::DB;
 
   # Odd config
   $self->{html_prefix}  = 'http://www.macrophile.com/';
@@ -18,7 +19,7 @@ sub new {
   $self->{end_table} = "</table>\n</td></tr>\n</table>\n<img height='1' width='1' vspace='1' src='/images/space.gif'><br>\n";
 
   # Default info set for templates
-  $self->{tmpl_name} = defined $_[1] ? $_[1] : 'main-template';
+  $self->{tmpl_name} = defined $_[0] ? $_[0] : 'main-template';
   $self->{tmpl_base} = { 
      'title' => 'Default Title',
      'body'  => 'Default Body',
