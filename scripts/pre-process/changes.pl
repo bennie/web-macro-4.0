@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w -I/var/www/macrophile.com/lib
 
 # This page generates the changes.txt from info in the DB.
-# (c) 2001-2006, Phillip Pollard <bennie@macrophile.com>
+# (c) 2001-2014, Phillip Pollard <bennie@macrophile.com>
 
 ###
 ### Config
@@ -9,6 +9,8 @@
 
 my $in_table   = 'change_log';
 my $out_name   = 'changes';
+
+my $debug = ( $ARGV[0] and $ARGV[0] eq '--debug=1' ) ? 1:0;
 
 ###
 ### Pre-process
@@ -26,7 +28,7 @@ my $change_log = $macro->get_config($in_table);
 ### Program
 ###
 
-print "PRE: $change_log table ";
+print "PRE: $change_log table " if $debug;
 
 my $sql   = "select change_time, change_desc from $change_log order by id desc";
 my $sth   = $macro->_dbh()->prepare($sql);
@@ -42,7 +44,7 @@ while (my ($time,$desc) = $sth->fetchrow_array) {
 
 $ret = $sth->finish;
 
-print "--> raw_pages table ";
+print "--> raw_pages table " if $debug;
 
 my $body = $cgi->table({ class=>"innertable", cellspacing=>0, cellpadding=>3 },
              $cgi->Tr($cgi->td({-class=>'innertablehead'},'The Change Log')),
@@ -53,5 +55,4 @@ my $body = $cgi->table({ class=>"innertable", cellspacing=>0, cellpadding=>3 },
 
 $ret = $macro->update_raw_page($out_name,$body);
 
-print "--> done! (return $ret)\n";
-
+print "--> done! (return $ret)\n" if $debug;

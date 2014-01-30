@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w -I/var/www/macrophile.com/lib
 
 # This page generates the userlist page from info in the DB.
-# (c) 2001-2006, Phillip Pollard <bennie@macrophile.com>
+# (c) 2001-2014, Phillip Pollard <bennie@macrophile.com>
 
 ###
 ### Config
@@ -12,6 +12,8 @@ my $out_name = 'store';
 my $tb_links      = 'links';
 my $tb_users      = 'users';
 my $tb_users_data = 'users_data';
+
+my $debug = ( $ARGV[0] and $ARGV[0] eq '--debug=1' ) ? 1:0;
 
 ###
 ### Pre-process
@@ -32,7 +34,7 @@ my $actual_tb_users_data = $macro->get_config($tb_users_data);
 ### Program
 ###
 
-print "PRE: $actual_tb_users table ";
+print "PRE: $actual_tb_users table " if $debug;
 
 my $sql = "select username from $actual_tb_users order by username";
 my $sth = $dbh->prepare($sql);
@@ -48,7 +50,7 @@ while (my $user = $sth->fetchrow_array) {
 
 $ret = $sth->finish;
 
-print "--> $actual_tb_users_data table ";
+print "--> $actual_tb_users_data table " if $debug;
 
 my @chunks; # Grab and organize the data for each user
 
@@ -61,7 +63,7 @@ for my $next_trick (@users) {
   push @internal_links, $cgi->li("($name) ",$cgi->a({-href=>$web},$title));
 }
 
-print "--> $actual_tb_links table ";
+print "--> $actual_tb_links table " if $debug;
 
 my %remote;
 
@@ -75,7 +77,7 @@ while ( my $ref = $sth->fetchrow_hashref ) {
 
 $sth->finish;
 
-print "--> raw_pages table ";
+print "--> raw_pages table " if $debug;
 
 ## Assemble the file
 
@@ -124,4 +126,4 @@ my $body = join(
 
 $ret = $macro->update_raw_page($out_name,$body);
 
-print "--> done! (return $ret)\n";
+print "--> done! (return $ret)\n" if $debug;

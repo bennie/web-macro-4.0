@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w -I/var/www/macrophile.com/lib
 
 # This page generates the art page from info in the DB.
-# (c) 2006, Phillip Pollard <bennie@macrophile.com>
+# (c) 2006-2014, Phillip Pollard <bennie@macrophile.com>
 
 use Image::Size;
 use Macro;
@@ -11,7 +11,7 @@ use strict;
 
 ### Conf
 
-my $debug = 0;
+my $debug = ( $ARGV[0] and $ARGV[0] eq '--debug=1' ) ? 1:0;
 
 my $name      = 'art';
 my $sourcedir = '/home/httpd/html/macrophile.com/forums/files';
@@ -38,7 +38,7 @@ my $mf = new Macro::Forum;
 
 ### Sort out the thumbnails
 
-print 'PRE: phpbb_attachments';
+print 'PRE: phpbb_attachments' if $debug;
 
 my %attach;
 $attach{'Macro Art'} = $mf->recent_attachments({ forum => 3, limit => 16 });
@@ -50,7 +50,7 @@ my $body = "<table class=\"innertable\" cellspacing=\"0\" cellpadding=\"3\">\n<t
 
 ###
 
-print "--> raw_pages table ";
+print "--> raw_pages table " if $debug;
 
 my @table;
 my @row1;
@@ -88,19 +88,10 @@ $body .= "</td></tr></table>\n";
 
 my $ret = $macro->update_raw_page($name,$body);
 
-print "--> done! (return $ret)\n";
+print "--> done! (return $ret)\n" if $debug;
 
 
 ### Subs
-
-sub debug {
-  if ( $debug ) {
-    for my $line (@_) {
-      chomp $line;
-      print "DEBUG: $line\n";
-    }
-  }
-}
 
 sub files {
   opendir INDIR, $_[0] || die "Can't open directory: $_[0]";

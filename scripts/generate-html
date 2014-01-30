@@ -1,12 +1,14 @@
 #!/usr/bin/perl -w -I/var/www/macrophile.com/lib
 
 # Generic web-site generation engine.
-# (c) 2000-2011, Phillip Pollard <bennie@macrophile.com>
+# (c) 2000-2014, Phillip Pollard <bennie@macrophile.com>
 
 ### Config
 
 my $tmpl_name  = 'main-template';
 my $html_dir = '/var/www/macrophile.com/';
+
+my $debug = ( $ARGV[0] and $ARGV[0] eq '--debug=1' ) ? 1:0;
 
 ### Pre-process
 
@@ -45,7 +47,7 @@ while (my ($name,$url,$title,$body,$last) = $sth->fetchrow_array) {
 
   next unless $check > $mtime or $ARGV[0];
 
-  print $tmpl_name;
+  print $tmpl_name if $debug;
 
   ### Read in the raw body file with template and process.
 
@@ -63,7 +65,7 @@ while (my ($name,$url,$title,$body,$last) = $sth->fetchrow_array) {
 
   my $body_out = $body_tmpl->output;
 
-  print " --> $name ";
+  print " --> $name " if $debug;
 
   ### Schalam Dunk
 
@@ -85,13 +87,13 @@ while (my ($name,$url,$title,$body,$last) = $sth->fetchrow_array) {
     end_table    => $end_table
   );
 
-  print "--> $outfile ";
+  print "--> $outfile " if $debug;
    
   open OUTFILE, ">$outfile";
   print OUTFILE $meta->output;
   close OUTFILE;
 
-  print "--> done!\n";
+  print "--> done!\n" if $debug;
 }
 
 sub zt {

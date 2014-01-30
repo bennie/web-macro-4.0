@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w -I/var/www/macrophile.com/lib
 
 # Generate media portions of the website.
-# (c) 2006, Phillip Pollard <bennie@macrophile.com>
+# (c) 2006-2014, Phillip Pollard <bennie@macrophile.com>
 
 use HTML::Template;
 use Macro;
@@ -17,6 +17,8 @@ my $cgi = $macro->{cgi};
 
 my $tmpl_name  = 'main-template';
 my $html_dir = '/var/www/macrophile.com/main/media';
+
+my $debug = ( $ARGV[0] and $ARGV[0] eq '--debug=1' ) ? 1:0;
 
 ### Bootstrap
 
@@ -43,9 +45,12 @@ for my $id (@$ids) {
   my $dir = join('/',$html_dir,split('',$media{id}));
   my $outfile = $dir.'/index.html';
 
-  mkdir($dir,0755) && print "Making $dir\n" unless -d $dir;
-  
-  print "$media{id}: $media{title}";
+  unless ( -d $dir ) {
+    mkdir($dir,0755);
+    print "Making $dir\n" if $debug;
+  }
+    
+  print "$media{id}: $media{title}" if $debug;
 
   ### Sort attributes into easier to handle format
 
@@ -224,13 +229,13 @@ for my $id (@$ids) {
   print OUTFILE $meta->output;
   close OUTFILE;
 
-  print " (done)\n";
+  print " (done)\n" if $debug;
 }
 
 ### Flag pages
 
 for my $flag ( sort keys %allflags ) {
-  print "Flag: $flag";
+  print "Flag: $flag" if $debug;
   my $file = $html_dir .'/'. &link($flag) .'.html';
   
   my $title = $flag;
@@ -255,7 +260,7 @@ for my $flag ( sort keys %allflags ) {
 
 # Formats page
 
-print "Formats page";
+print "Formats page" if $debug;
 my $file  = $html_dir .'/formats.html';
 my $title = 'All Available Formats';
 
@@ -269,7 +274,7 @@ my $body = $cgi->ul(@formats);
 
 # Genres page
 
-print "Genres page";
+print "Genres page" if $debug;
 $file  = $html_dir .'/genres.html';
 $title = 'All Available Genres';
 
@@ -283,7 +288,7 @@ $body = $cgi->ul(@genres);
 
 # Interests page
 
-print "Interests page";
+print "Interests page" if $debug;
 $file  = $html_dir .'/interests.html';
 $title = 'All Available Interests';
 
@@ -297,7 +302,7 @@ $body = $cgi->ul(@interests);
 
 # Index page
 
-print "Index page";
+print "Index page" if $debug;
 $file  = $html_dir .'/index.html';
 $title = 'Macrophile Media Archive';
 
@@ -345,7 +350,7 @@ sub simple_page {
   print OUTFILE $meta->output;
   close OUTFILE;
 
-  print " (done)\n";
+  print " (done)\n" if $debug;
 }
 
 sub link {

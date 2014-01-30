@@ -1,11 +1,13 @@
 #!/usr/bin/perl -w -I/var/www/macrophile.com/lib
 
 # Macrophile.com front page CGI
-# (c) 2001-2006, Phillip Pollard <bennoe@macrophile.com>
+# (c) 2001-2014, Phillip Pollard <bennoe@macrophile.com>
 
 ### Config
 
 my $out_name = 'index';
+
+my $debug = ( $ARGV[0] and $ARGV[0] eq '--debug=1' ) ? 1:0;
 
 ### Pre-process
 
@@ -27,7 +29,7 @@ my $users_data = $macro->get_config('users_data');
 
 # Grab user-new info for the body
 
-print "PRE: $users & $users_data tables ";
+print "PRE: $users & $users_data tables " if $debug;
 
 my $user_new_text;
 
@@ -57,7 +59,7 @@ $ret = $sth->finish;
 
 # Grab recent FTP
 
-print "--> $ftp ";
+print "--> $ftp " if $debug;
 
 my $ftp_new_text;
 
@@ -122,7 +124,7 @@ my $recent = $cgi->table({ class=>"innertable", cellspacing=>0, cellpadding=>3 }
 
 # build the body
 
-print "--> raw_pages table ";
+print "--> raw_pages table " if $debug;
 
 my $body = $cgi->table({-width=>775},
              $cgi->Tr({-valign=>'top'},
@@ -212,4 +214,4 @@ my $body = $cgi->table({-width=>775},
 
 $ret = $macro->update_raw_page($out_name,$body);
 
-print "--> done! (return $ret)\n";
+print "--> done! (return $ret)\n" if $debug;

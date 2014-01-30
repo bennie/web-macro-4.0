@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w -I/var/www/macrophile.com/lib
 
 # This page generates the art page from info in the DB.
-# (c) 2006, Phillip Pollard <bennie@macrophile.com>
+# (c) 2006-2014, Phillip Pollard <bennie@macrophile.com>
 
 use Macro;
 use Macro::Forum;
@@ -10,7 +10,7 @@ use strict;
 
 ### Conf
 
-my $debug = 0;
+my $debug = ( $ARGV[0] and $ARGV[0] eq '--debug=1' ) ? 1:0;
 my $name  = 'stories';
 
 my @forums = qw/2 9/;
@@ -30,7 +30,7 @@ my $mf = new Macro::Forum;
 
 ### Sort out the thumbnails
 
-print 'PRE: phpbb_attachments';
+print 'PRE: phpbb_attachments' if $debug;
 
 ### Build the page
 
@@ -38,7 +38,7 @@ my $body = "<table class=\"innertable\" cellspacing=\"0\" cellpadding=\"3\">\n\n
 
 ###
 
-print "--> raw_pages table ";
+print "--> raw_pages table " if $debug;
 
 my @table;
 
@@ -85,19 +85,9 @@ $body .= "</td></tr></table>\n";
 
 my $ret = $macro->update_raw_page($name,$body);
 
-print "--> done! (return $ret)\n";
-
+print "--> done! (return $ret)\n" if $debug;
 
 ### Subs
-
-sub debug {
-  if ( $debug ) {
-    for my $line (@_) {
-      chomp $line;
-      print "DEBUG: $line\n";
-    }
-  }
-}
 
 sub username {
   my $id = shift @_ || return '';
