@@ -1,7 +1,11 @@
 #!/bin/sh
 
-cd /var/www/macrophile.com/scripts/cron/
+set -e
+cd /var/www/macrophile.com/scripts/
 
-./userlist.pl --debug=0
+./cron/userlist.pl --debug=0
 
-../make.sh
+for file in pre-process/*.pl; do ./$file; done;
+
+./generate-html
+./generate-media
