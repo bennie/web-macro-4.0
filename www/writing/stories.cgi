@@ -37,7 +37,7 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
     $debug .= "Pulling the chapter from the given id: $chapter_id\n\n";
     $chapter_ref = $w->get_chapter($chapter_id);
   } else { # Figure out the first chapter of the story
-    $debug .= "Figuring thechapter from the start of the story id.\n\n";
+    $debug .= "Figuring the chapter from the start of the story id.\n\n";
     my @chapters = $w->list_chapters($story_id,0);  
     $chapter_ref = $chapters[0];
     $chapter_id = $chapter_ref->{id};
