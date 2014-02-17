@@ -18,16 +18,17 @@ my $user       = $macro_auth->{username} ? $macro_auth->{username} : 'guest';
 
 ### Main
 
+my $body;
+my $debug;
+
 #my $story = $w->get_story(1);
 #print Dumper($story), "\n";
 
 print $cgi->header();
 
-my $body = '[ ' . ($macro_auth->{username} ? "Logged in: $user" : $cgi->a({href=>'/login.cgi?redirect=/writing/stories.cgi'},'Login')) .' | '. $cgi->a({href=>'add-story.cgi'},'Add a story...') . ' ]' . $cgi->hr;
-
-my $debug;
-
 if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
+  $body = '[ ' . ($macro_auth->{username} ? "Logged in: $user" : $cgi->a({href=>'/login.cgi?redirect=/writing/stories.cgi'},'Login')) . ' ]' . $cgi->hr;
+
   my $story_id = $cgi->param('story');
   my $chapter_id = $cgi->param('chapter');
   
@@ -48,22 +49,27 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
   $debug .= "Story: " . Dumper($story_ref) ."\n\nCurrent Chapter: " . Dumper($chapter_ref)
          . "\n\nNext Chapters: " . Dumper(@next_chapters);
 
-  $body .= $cgi->center($cgi->b('"' . $cgi->a({-href=>'stories.cgi?story='.$story_id},$story_ref->{title})) . '"','by',$story_ref->{user})
+  $body .= $cgi->b('This Story: "' . $story_ref->{title}) . '" by ' . $story_ref->{user}
         . $cgi->hr
         . $cgi->b('This Chapter: ') . '"' . $chapter_ref->{title} . '" by ' . $chapter_ref->{user}
         . $cgi->hr
+        . $cgi->center('[',$cgi->a({-href=>'stories.cgi?story='.$story_id},'back to the beginning'),'|',$cgi->a({-href=>'stories.cgi?story='.$story_id.'&chapter='.$chapter_ref->{previous_chapter}},'back a chapter'),']')
+        . $cgi->hr
         . $cgi->blockquote($chapter_ref->{body})
         . $cgi->hr
-        . $cgi->b('Next steps: ');
+        . $cgi->b('Next steps: ')
+        . $cgi->start_ul;
         
   for my $next (@next_chapters) {
-    $body .= $cgi->p($cgi->a({-href=>'stories.cgi?story='.$story_id.'&chapter='.$next->{id}},'"'.$next->{title}.'"'),'by',$next->{user});
+    $body .= $cgi->li($cgi->a({-href=>'stories.cgi?story='.$story_id.'&chapter='.$next->{id}},'"'.$next->{title}.'"'),'by',$next->{user});
   }
   
-  $body .= $cgi->hr
-        . $cgi->b($cgi->a({href=>'add-chapter.cgi?chapter='.$chapter_id},'Add a chapter... '));
+  $body .= $cgi->end_ul;
+  $body .= $cgi->p('[', ($macro_auth->{username} ? $cgi->a({href=>'add-chapter.cgi?chapter='.$chapter_id},'Add a chapter... ') : $cgi->a({href=>'/login.cgi?redirect=/writing/stories.cgi'},'Login to add a chapter') ), ']');
 
 } else {
+
+  $body = '[ ' . ($macro_auth->{username} ? "Logged in: $user" : $cgi->a({href=>'/login.cgi?redirect=/writing/stories.cgi'},'Login')) .' ]' . $cgi->hr;
 
   my @stories = $w->list_stories;
   $body .= $cgi->start_ul;
@@ -75,6 +81,7 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
   }
 
   $body .= $cgi->end_ul;
+  $body .= '[ '. $cgi->a({href=>'add-story.cgi'},'Add a story...') . ' ]';
   $debug .= Dumper(@stories);
 
 }
