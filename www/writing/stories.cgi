@@ -23,7 +23,8 @@ my $user       = $macro_auth->{username} ? $macro_auth->{username} : 'guest';
 
 print $cgi->header();
 
-my $body; 
+my $body = '[ ' . ($macro_auth->{username} ? "Logged in: $user" : $cgi->a({href=>'/login.cgi?redirect=/writing/stories.cgi'},'Login')) .' | '. $cgi->a({href=>'add-story.cgi'},'Add a story...') . ' ]' . $cgi->hr;
+
 my $debug;
 
 if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
@@ -47,20 +48,16 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
   $debug .= "Story: " . Dumper($story_ref) ."\n\nCurrent Chapter: " . Dumper($chapter_ref)
          . "\n\nNext Chapters: " . Dumper(@next_chapters);
 
-  $body = $cgi->hr
-        . $cgi->center($cgi->b($cgi->a({-href=>'stories.cgi?story='.$story_id},$story_ref->{title})))
+  $body .= $cgi->center($cgi->b('"' . $cgi->a({-href=>'stories.cgi?story='.$story_id},$story_ref->{title})) . '"','by',$story_ref->{user})
         . $cgi->hr
-        . $cgi->b('Author: ') . $story_ref->{user} . $cgi->br
-        . $cgi->b('Descrition: ') . $story_ref->{description}
+        . $cgi->b('This Chapter: ') . '"' . $chapter_ref->{title} . '" by ' . $chapter_ref->{user}
         . $cgi->hr
-        . $cgi->b('Chapter title: ') . $chapter_ref->{title}
-        . $cgi->hr
-        . $cgi->b('Chapter text: ') . $cgi->blockquote($chapter_ref->{body})
+        . $cgi->blockquote($chapter_ref->{body})
         . $cgi->hr
         . $cgi->b('Next steps: ');
         
   for my $next (@next_chapters) {
-    $body .= $cgi->p($cgi->a({-href=>'stories.cgi?story='.$story_id.'&chapter='.$next->{id}},$next->{title}));
+    $body .= $cgi->p($cgi->a({-href=>'stories.cgi?story='.$story_id.'&chapter='.$next->{id}},'"'.$next->{title}.'"'),'by',$next->{user});
   }
   
   $body .= $cgi->hr
@@ -69,8 +66,7 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
 } else {
 
   my @stories = $w->list_stories;
-  $body .= '[ ' . ($macro_auth->{username} ? "Logged in: $user" : $cgi->a({href=>'/login.cgi?redirect=/writing/stories.cgi'},'Login')) .' | '. $cgi->a({href=>'add-story.cgi'},'Add a story...') . ' ]'
-        . $cgi->hr . $cgi->start_ul;
+  $body .= $cgi->start_ul;
 
   for my $story (@stories) {
     my $id    = $story->{id};
