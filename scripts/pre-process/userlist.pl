@@ -3,7 +3,7 @@
 # This script reads info from individual accounts concerning the users.
 # If there is none, defaults are generated.
 
-# This is then stored in the DB, from which the userlist page is generated.
+# This is then stored in the DB, and from which the userlist page is generated.
 
 # (c) 2001-2014, Phillip Pollard <bennie@macrophile.com>
 
