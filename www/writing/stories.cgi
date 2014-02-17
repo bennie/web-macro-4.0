@@ -13,25 +13,47 @@ my $tmpl = new Macro::Template ('main-template-css');
 my $w = new Writing;
 
 my $macro_auth = new Macro::Auth;
-my $cgi        = $macro_auth->{cgi};
-my $user       = $macro_auth->{username} ? $macro_auth->{username} : 'guest';
+my $cgi  = $macro_auth->{cgi};
+my $user = $macro_auth->{username} ? $macro_auth->{username} : 'guest';
 
 ### Main
 
 my $body;
 my $debug;
 
-#my $story = $w->get_story(1);
-#print Dumper($story), "\n";
-
 print $cgi->header();
 
-if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
-  $body = '[ ' . ($macro_auth->{username} ? "Logged in: $user" : $cgi->a({href=>'/login.cgi?redirect=/writing/stories.cgi'},'Login')) . ' ]' . $cgi->hr;
+my $story_id = $cgi->param('story');
+my $chapter_id = $cgi->param('chapter');
 
-  my $story_id = $cgi->param('story');
-  my $chapter_id = $cgi->param('chapter');
+$body = '[ ' . ($macro_auth->{username} ? "Logged in: $user" : $cgi->a({href=>'/login.cgi?redirect=/writing/stories.cgi'},'Login')) . ' ]' . $cgi->hr;
+
+if ( $story_id and $story_id =~ /^\d+$/ and $chapter_id and $chapter_id =~ /^\d+$/ and $cgi->param('all') eq '1' ) {
+
+  my $story_ref = $w->get_story($story_id);
+
+  $body .= $cgi->b('Story: "' . $cgi->a({-href=>'stories.cgi?story='.$story_id.'&chapter='.$chapter_id},$story_ref->{title})) . '" by ' . $story_ref->{user}
+        . $cgi->hr;
+
+  my $chapter_ref = $w->get_chapter($chapter_id);  
+  my @story = ( $chapter_ref );
   
+  while ( $chapter_ref->{previous_chapter} ) {
+    $chapter_ref = $w->get_chapter($chapter_ref->{previous_chapter});
+    unshift @story, $chapter_ref;
+  }
+
+  for my $ref ( @story ) {
+    $body .= $cgi->b('Chapter: ') . '"' . $ref->{title} . '" by ' . $ref->{user}
+          .  $cgi->hr
+          .  $cgi->blockquote($ref->{body})
+          .  $cgi->hr;
+  }
+  
+  $body .= $cgi->small("Displaying the full story up to this point.");
+
+} elsif ( $story_id and $story_id =~ /^\d+$/ ) {
+
   my $story_ref = $w->get_story($story_id);
   my $chapter_ref;
   
@@ -49,11 +71,18 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
   $debug .= "Story: " . Dumper($story_ref) ."\n\nCurrent Chapter: " . Dumper($chapter_ref)
          . "\n\nNext Chapters: " . Dumper(@next_chapters);
 
-  $body .= $cgi->b('This Story: "' . $story_ref->{title}) . '" by ' . $story_ref->{user}
+  $body .= $cgi->b('Story: "' . $story_ref->{title}) . '" by ' . $story_ref->{user}
         . $cgi->hr
         . $cgi->b('This Chapter: ') . '"' . $chapter_ref->{title} . '" by ' . $chapter_ref->{user}
         . $cgi->hr
-        . $cgi->center('[',$cgi->a({-href=>'stories.cgi?story='.$story_id},'back to the beginning'),'|',$cgi->a({-href=>'stories.cgi?story='.$story_id.'&chapter='.$chapter_ref->{previous_chapter}},'back a chapter'),']')
+        . $cgi->center(
+            '[',
+            $cgi->a({-href=>'stories.cgi?story='.$story_id},'back to the beginning'),
+            '|',
+            $cgi->a({-href=>'stories.cgi?story='.$story_id.'&chapter='.$chapter_ref->{previous_chapter}},'back a chapter'),
+            '|',
+            $cgi->a({-href=>'stories.cgi?all=1&story='.$story_id.'&chapter='.$chapter_id},'whole story to this point'),
+            ']')
         . $cgi->hr
         . $cgi->blockquote($chapter_ref->{body})
         . $cgi->hr
@@ -68,8 +97,6 @@ if ( $cgi->param('story') and $cgi->param('story') =~ /^\d+$/ ) {
   $body .= $cgi->p('[', ($macro_auth->{username} ? $cgi->a({href=>'add-chapter.cgi?chapter='.$chapter_id},'Add a chapter... ') : $cgi->a({href=>'/login.cgi?redirect=/writing/stories.cgi'},'Login to add a chapter') ), ']');
 
 } else {
-
-  $body = '[ ' . ($macro_auth->{username} ? "Logged in: $user" : $cgi->a({href=>'/login.cgi?redirect=/writing/stories.cgi'},'Login')) .' ]' . $cgi->hr;
 
   my @stories = $w->list_stories;
   $body .= $cgi->start_ul;
