@@ -2,6 +2,9 @@ share/htpasswd
 lib/LocalAuth.pm
 
 scripts/archive/avatars.tar.*
+scripts/raw-pages/*.txt
+www/*.html
+www/*/*.html
 
 dev
 forums
@@ -9,3 +12,4 @@ main
 phpBB3
 secure
 users
+
