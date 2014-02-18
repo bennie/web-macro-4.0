@@ -9,7 +9,8 @@
 
 my $debug = 1;
 
-my $out_name    = 'streaming';
+my $out_name = 'streaming';
+my $timeout = 10;
 
 ### PROGRAM
 
@@ -29,12 +30,15 @@ for my $arg (@ARGV) {
 ### Grab the info
 
 my %sites = (
-  'Cougr' => 'http://tv.pumapaw.com/',
   'Beherit' => 'http://beherit.tv.macrophile.com/',
-  'Matelk' => 'https://furstre.am/stream/matelk',
-  'Tyrnn' => 'http://www.tigerdile.com/stream/tyrnn/?accept_given=1',
-  'Wolf' => 'http://wolf.tv.macrophile.com/'
+  'Cougr'   => 'http://tv.pumapaw.com/',
+  'Matelk'  => 'https://furstre.am/stream/matelk',
+  'Robomax' => 'http://www.livestream.com/robomax',
+  'Tyrnn'   => 'http://www.tigerdile.com/stream/tyrnn/?accept_given=1',
+  'Wolf'    => 'http://wolf.tv.macrophile.com/'
 );
+
+$sites{test} = 'http://www.tigerdile.com/stream/blackears/?accept_given=1';
 
 my %status;
 
@@ -44,10 +48,10 @@ for my $key ( sort keys %sites ) {
   print " * Downloaded ".length($page)." bytes.\n";
   my $rtmp = parse_rtmp($page);
   print " * Found the streaming URI: $rtmp\n";
-  my ( $ret, $data ) = check_rtmp($rtmp);
-  print " * Returned $ret (0 is up, 1 is down, 2 is timeout)\n\n";
+  my $ret = check_rtmp($rtmp);
+  print " * Returned $ret bytes of stream data\n\n";
   #print $data;
-  $status{$key} = $ret == 0 ? 'UP' : 'DOWN';
+  $status{$key} = $ret > 0 ? 'UP' : 'DOWN';
 }
 
 ### Generate the page
@@ -78,26 +82,21 @@ print "--> done! (return $ret)\n" if $debug;
 sub check_rtmp {
   my $uri = shift @_;
   my ( $exit_value, $data );
-  eval {
-    local $SIG{ALRM} = sub { die "alarm\n" };
-    alarm 20;
 
-	my $command = "ffmpeg -i $uri -acodec copy -vcodec copy -y -t 0 /tmp/delete.flv 2>&1";
-    print " * $command\n";
-    $data = `$command`;
+  unlink('/tmp/delete.flv') if -f '/tmp/delete.flv';
 
-    $exit_value = $? >> 8;
-  };
-  if ($@) {
-    die $@ unless $@ eq "alarm\n"; # Propagate non-alarm errors.
-    # We timed out - so it must be down?
-    return ( 2, undef ); 
-  }  
-  # Exit value is shell: 0 is success, 1 is fail
-  return $exit_value, $data;
+  my $command = $uri =~ /tigerdile/i
+              ? "rtmpdump --live -r $uri -o /tmp/delete.flv --timeout $timeout 2>&1 & sleep $timeout ; kill \$!"
+              : "ffmpeg -i $uri -acodec copy -vcodec copy -y -t $timeout /tmp/delete.flv 2>&1 & sleep $timeout ; kill \$!";
+
+  print " * $command\n";
+  $data = `$command`;
+
+  return 0 unless -f '/tmp/delete.flv';
+  
+  my @stat = stat '/tmp/delete.flv';
+  return $stat[7];
 }
-
-# ./rtmpdump --live -r rtmp://stream.tigerdile.com/live/drake-tigerclaw -o /dev/null --stop 2
 
 sub parse_rtmp {
   return $1 if $_[0] =~ /(rtmp\:\/\/[\-\_\.a-z0-9\/]+)/i;
