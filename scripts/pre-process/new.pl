@@ -1,4 +1,4 @@
-#!/usr/bin/perl -I /home/httpd/html/macrophile.com/lib
+#!/usr/bin/perl -I /var/www/macrophile.com/lib
 
 my $debug = $ARGV[0] ? 1 : 0;
 my $skip_non_html = 1;
