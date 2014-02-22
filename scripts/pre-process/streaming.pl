@@ -29,6 +29,8 @@ for my $arg (@ARGV) {
 
 ### Grab the info
 
+exit if $quiet; # For now
+
 my %sites = (
   'Beherit' => 'http://beherit.tv.macrophile.com/',
   'Cougr'   => 'http://tv.pumapaw.com/',
