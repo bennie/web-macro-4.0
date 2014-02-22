@@ -3,7 +3,7 @@
 set -e
 cd /var/www/macrophile.com/scripts/
 
-for file in pre-process/*.pl; do ./$file --debug=0; done;
+for file in pre-process/*.pl; do ./$file --quiet; done;
 
-./generate-html  --debug=0
-./generate-media --debug=0
+./generate-html  --quiet
+./generate-media --quiet

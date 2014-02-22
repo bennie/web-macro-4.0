@@ -7,7 +7,13 @@
 
 my $out_name = 'index';
 
-my $debug = ( $ARGV[0] and $ARGV[0] eq '--debug=1' ) ? 1:0;
+my $quiet = 0;
+
+# Parse args
+
+for my $arg (@ARGV) {
+  $quiet = 1 if $arg eq '--quiet';
+}
 
 ### Pre-process
 
@@ -29,7 +35,7 @@ my $users_data = $macro->get_config('users_data');
 
 # Grab user-new info for the body
 
-print "PRE: $users & $users_data tables " if $debug;
+print "PRE: $users & $users_data tables " unless $quiet;
 
 my $user_new_text;
 
@@ -59,7 +65,7 @@ $ret = $sth->finish;
 
 # Grab recent FTP
 
-print "--> $ftp " if $debug;
+print "--> $ftp " unless $quiet;
 
 my $ftp_new_text;
 
@@ -124,7 +130,7 @@ my $recent = $cgi->table({ class=>"innertable", cellspacing=>0, cellpadding=>3 }
 
 # build the body
 
-print "--> raw_pages table " if $debug;
+print "--> raw_pages table " unless $quiet;
 
 my $body = $cgi->table({-width=>775},
              $cgi->Tr({-valign=>'top'},
@@ -214,4 +220,4 @@ my $body = $cgi->table({-width=>775},
 
 $ret = $macro->update_raw_page($out_name,$body);
 
-print "--> done! (return $ret)\n" if $debug;
+print "--> done! (return $ret)\n" unless $quiet;

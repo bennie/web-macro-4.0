@@ -10,7 +10,7 @@ use strict;
 
 ### Conf
 
-my $debug = ( $ARGV[0] and $ARGV[0] eq '--debug=1' ) ? 1:0;
+my $quiet = 0;
 my $name  = 'stories';
 
 my @forums = qw/2 9/;
@@ -21,6 +21,12 @@ my %forums = (
 
 my %usernames;
 
+# Parse args
+
+for my $arg (@ARGV) {
+  $quiet = 1 if $arg eq '--quiet';
+}
+
 ### Main
 
 my $macro = new Macro;
@@ -30,7 +36,7 @@ my $mf = new Macro::Forum;
 
 ### Sort out the thumbnails
 
-print 'PRE: phpbb_attachments' if $debug;
+print 'PRE: phpbb_attachments' unless $quiet;
 
 ### Build the page
 
@@ -38,7 +44,7 @@ my $body = "<table class=\"innertable\" cellspacing=\"0\" cellpadding=\"3\">\n\n
 
 ###
 
-print "--> raw_pages table " if $debug;
+print "--> raw_pages table " unless $quiet;
 
 my @table;
 
@@ -85,7 +91,7 @@ $body .= "</td></tr></table>\n";
 
 my $ret = $macro->update_raw_page($name,$body);
 
-print "--> done! (return $ret)\n" if $debug;
+print "--> done! (return $ret)\n" unless $quiet;
 
 ### Subs
 

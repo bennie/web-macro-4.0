@@ -13,7 +13,13 @@ my $tb_links      = 'links';
 my $tb_users      = 'users';
 my $tb_users_data = 'users_data';
 
-my $debug = ( $ARGV[0] and $ARGV[0] eq '--debug=1' ) ? 1:0;
+my $quiet = 0;
+
+# Parse args
+
+for my $arg (@ARGV) {
+  $quiet = 1 if $arg eq '--quiet';
+}
 
 ###
 ### Pre-process
@@ -34,7 +40,7 @@ my $actual_tb_users_data = $macro->get_config($tb_users_data);
 ### Program
 ###
 
-print "PRE: $actual_tb_users table " if $debug;
+print "PRE: $actual_tb_users table " unless $quiet;
 
 my $sql = "select username from $actual_tb_users order by username";
 my $sth = $dbh->prepare($sql);
@@ -50,7 +56,7 @@ while (my $user = $sth->fetchrow_array) {
 
 $ret = $sth->finish;
 
-print "--> $actual_tb_users_data table " if $debug;
+print "--> $actual_tb_users_data table " unless $quiet;
 
 my @chunks; # Grab and organize the data for each user
 
@@ -63,7 +69,7 @@ for my $next_trick (@users) {
   push @internal_links, $cgi->li("($name) ",$cgi->a({-href=>$web},$title));
 }
 
-print "--> $actual_tb_links table " if $debug;
+print "--> $actual_tb_links table " unless $quiet;
 
 my %remote;
 
@@ -77,7 +83,7 @@ while ( my $ref = $sth->fetchrow_hashref ) {
 
 $sth->finish;
 
-print "--> raw_pages table " if $debug;
+print "--> raw_pages table " unless $quiet;
 
 ## Assemble the file
 
@@ -126,4 +132,4 @@ my $body = join(
 
 $ret = $macro->update_raw_page($out_name,$body);
 
-print "--> done! (return $ret)\n" if $debug;
+print "--> done! (return $ret)\n" unless $quiet;

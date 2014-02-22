@@ -9,7 +9,7 @@
 
 ### CONFIG
 
-my $debug = 1;
+my $quiet = 0;
 
 my $users_table = 'users';
 my $data_table  = 'users_data';
@@ -37,10 +37,10 @@ use strict;
 
 my $macro = new Macro;
 
-# Parse debug
+# Parse args
 
 for my $arg (@ARGV) {
-  $debug = $1 if $arg =~ /--debug=(.+)/i;
+  $quiet = 1 if $arg eq '--quiet';
 }
 
 # Grab the users
@@ -62,7 +62,7 @@ $sth->finish;
 # Grab the info and load the DB
 
 foreach my $username (@users) {
-  print "\n* $username\n\n" if $debug;
+  print "\n* $username\n\n" unless $quiet;
 
   # Defaults
   my $comment = 'User has yet to configure .info file.';
@@ -102,7 +102,7 @@ foreach my $username (@users) {
 
   # Summary
 
-  if ( $debug ) {
+  unless ( $quiet ) {
     print " - comment : $comment\n";
     print " - email   : $email\n";
     print " - img     : $img\n";
@@ -160,7 +160,7 @@ my $dbh = $macro->_dbh();
 my $actual_tb_users      = $macro->get_config($users_table);
 my $actual_tb_users_data = $macro->get_config($data_table);
 
-print "\nPRE: $actual_tb_users table --> $actual_tb_users_data table " if $debug;
+print "\nPRE: $actual_tb_users table --> $actual_tb_users_data table " unless $quiet;
 
 my @chunks; # Grab and organize the data for each user
 
@@ -200,7 +200,7 @@ for my $next_trick (@users) {
 
 }
 
-print "--> raw_pages table " if $debug;
+print "--> raw_pages table " unless $quiet;
 
 # Assemble the table;
 
@@ -221,7 +221,7 @@ my $body = '<p class="subnav" align="center">[&nbsp;<b>Original</b>&nbsp;|&nbsp;
 
 $ret = $macro->update_raw_page($out_name,$body);
 
-print "--> done! (return $ret)\n" if $debug;
+print "--> done! (return $ret)\n" unless $quiet;
 
 ### Subroutines
 

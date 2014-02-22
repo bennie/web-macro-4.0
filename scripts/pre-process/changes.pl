@@ -10,7 +10,13 @@
 my $in_table   = 'change_log';
 my $out_name   = 'changes';
 
-my $debug = ( $ARGV[0] and $ARGV[0] eq '--debug=1' ) ? 1:0;
+my $quiet = 0;
+
+# Parse args
+
+for my $arg (@ARGV) {
+  $quiet = 1 if $arg eq '--quiet';
+}
 
 ###
 ### Pre-process
@@ -28,7 +34,7 @@ my $change_log = $macro->get_config($in_table);
 ### Program
 ###
 
-print "PRE: $change_log table " if $debug;
+print "PRE: $change_log table " unless $quiet;
 
 my $sql   = "select change_time, change_desc from $change_log order by id desc";
 my $sth   = $macro->_dbh()->prepare($sql);
@@ -44,7 +50,7 @@ while (my ($time,$desc) = $sth->fetchrow_array) {
 
 $ret = $sth->finish;
 
-print "--> raw_pages table " if $debug;
+print "--> raw_pages table " unless $quiet;
 
 my $body = $cgi->table({ class=>"innertable", cellspacing=>0, cellpadding=>3 },
              $cgi->Tr($cgi->td({-class=>'innertablehead'},'The Change Log')),
@@ -55,4 +61,4 @@ my $body = $cgi->table({ class=>"innertable", cellspacing=>0, cellpadding=>3 },
 
 $ret = $macro->update_raw_page($out_name,$body);
 
-print "--> done! (return $ret)\n" if $debug;
+print "--> done! (return $ret)\n" unless $quiet;

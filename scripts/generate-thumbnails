@@ -12,13 +12,17 @@ use strict;
 
 ### Conf
 
-my $debug = 0;
+my $quiet = 0;
 
 my $name      = 'art';
 my $thumbsize = 150;
 my $sourcedir = '/var/www/macrophile.com/phpBB3/files';
 my $thumbdir  = '/var/www/macrophile.com/main/images/preview';
 my $htmldir   = '/images/preview';
+
+for my $arg (@ARGV) {
+  $quiet = 1 if $arg eq '--quiet';
+}
 
 ### Main
 
@@ -147,11 +151,10 @@ print "Added: $added\nDeleted: $deleted\n";
 ### Subs
 
 sub debug {
-  if ( $debug ) {
-    my @lines = @_;
-    for my $line (@lines) {
-      chomp $line;
-      print "$line\n";
-    }
+  return if $quiet;
+  my @lines = @_;
+  for my $line (@lines) {
+    chomp $line;
+    print "$line\n";
   }
 }

@@ -18,7 +18,11 @@ my $cgi = $macro->{cgi};
 my $tmpl_name  = 'main-template';
 my $html_dir = '/var/www/macrophile.com/main/media';
 
-my $debug = ( $ARGV[0] and $ARGV[0] eq '--debug=1' ) ? 1:0;
+my $quiet = 0;
+
+for my $arg (@ARGV) {
+  $quiet = 1 if $arg eq '--quiet';
+}
 
 ### Bootstrap
 
@@ -47,10 +51,10 @@ for my $id (@$ids) {
 
   unless ( -d $dir ) {
     mkdir($dir,0755);
-    print "Making $dir\n" if $debug;
+    print "Making $dir\n" unless $quiet;
   }
     
-  print "$media{id}: $media{title}" if $debug;
+  print "$media{id}: $media{title}" unless $quiet;
 
   ### Sort attributes into easier to handle format
 
@@ -229,13 +233,13 @@ for my $id (@$ids) {
   print OUTFILE $meta->output;
   close OUTFILE;
 
-  print " (done)\n" if $debug;
+  print " (done)\n" unless $quiet;
 }
 
 ### Flag pages
 
 for my $flag ( sort keys %allflags ) {
-  print "Flag: $flag" if $debug;
+  print "Flag: $flag" unless $quiet;
   my $file = $html_dir .'/'. &link($flag) .'.html';
   
   my $title = $flag;
@@ -260,7 +264,7 @@ for my $flag ( sort keys %allflags ) {
 
 # Formats page
 
-print "Formats page" if $debug;
+print "Formats page" unless $quiet;
 my $file  = $html_dir .'/formats.html';
 my $title = 'All Available Formats';
 
@@ -274,7 +278,7 @@ my $body = $cgi->ul(@formats);
 
 # Genres page
 
-print "Genres page" if $debug;
+print "Genres page" unless $quiet;
 $file  = $html_dir .'/genres.html';
 $title = 'All Available Genres';
 
@@ -288,7 +292,7 @@ $body = $cgi->ul(@genres);
 
 # Interests page
 
-print "Interests page" if $debug;
+print "Interests page" unless $quiet;
 $file  = $html_dir .'/interests.html';
 $title = 'All Available Interests';
 
@@ -302,7 +306,7 @@ $body = $cgi->ul(@interests);
 
 # Index page
 
-print "Index page" if $debug;
+print "Index page" unless $quiet;
 $file  = $html_dir .'/index.html';
 $title = 'Macrophile Media Archive';
 
@@ -350,7 +354,7 @@ sub simple_page {
   print OUTFILE $meta->output;
   close OUTFILE;
 
-  print " (done)\n" if $debug;
+  print " (done)\n" unless $quiet;
 }
 
 sub link {

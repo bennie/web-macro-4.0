@@ -1,7 +1,14 @@
 #!/usr/bin/perl -I /var/www/macrophile.com/lib
+# (c) ????-2014 Phillip Pollard, <bennie@macrophile.com>
 
-my $debug = $ARGV[0] ? 1 : 0;
+my $quiet = 0;
 my $skip_non_html = 1;
+
+# Parse args
+
+for my $arg (@ARGV) {
+  $quiet = 1 if $arg eq '--quiet';
+}
 
 use Digest::MD5 'md5_hex';
 use HTML::Parse;
@@ -89,7 +96,7 @@ sub scan_url {
 }
   
 sub debug {
-  print 'DEBUG: ', @_, "\n" if $debug;
+  print 'DEBUG: ', @_, "\n" unless $quiet;
 }
 
 sub is_local {

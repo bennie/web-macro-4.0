@@ -11,7 +11,7 @@ use strict;
 
 ### Conf
 
-my $debug = ( $ARGV[0] and $ARGV[0] eq '--debug=1' ) ? 1:0;
+my $quiet = 0;
 
 my $name      = 'art';
 my $sourcedir = '/home/httpd/html/macrophile.com/forums/files';
@@ -28,6 +28,11 @@ my %forums = (
   8 => 'Macro Art (Adult)',
 );
 
+# Parse args
+
+for my $arg (@ARGV) {
+  $quiet = 1 if $arg eq '--quiet';
+}
 
 ### Main
 
@@ -38,7 +43,7 @@ my $mf = new Macro::Forum;
 
 ### Sort out the thumbnails
 
-print 'PRE: phpbb_attachments' if $debug;
+print 'PRE: phpbb_attachments' unless $quiet;
 
 my %attach;
 $attach{'Macro Art'} = $mf->recent_attachments({ forum => 3, limit => 16 });
@@ -50,7 +55,7 @@ my $body = "<table class=\"innertable\" cellspacing=\"0\" cellpadding=\"3\">\n<t
 
 ###
 
-print "--> raw_pages table " if $debug;
+print "--> raw_pages table " unless $quiet;
 
 my @table;
 my @row1;
@@ -88,7 +93,7 @@ $body .= "</td></tr></table>\n";
 
 my $ret = $macro->update_raw_page($name,$body);
 
-print "--> done! (return $ret)\n" if $debug;
+print "--> done! (return $ret)\n" unless $quiet;
 
 
 ### Subs

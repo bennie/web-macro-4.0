@@ -7,7 +7,11 @@
 
 my $html_dir = '/var/www/macrophile.com/';
 
-my $debug = ( $ARGV[0] and $ARGV[0] eq '--debug=1' ) ? 1:0;
+my $quiet = 0; # verbose output
+
+for my $arg (@ARGV) {
+  $quiet = 1 if $arg eq '--quiet';
+}
 
 ### Pre-process
 
@@ -50,7 +54,7 @@ while (my ($name,$url,$title,$body,$last) = $sth->fetchrow_array) {
   my $tmpl_name = $url =~ /^www/ ? 'main-template-css' : 'main-template';
   my $tmpl      = $macro->get_raw_text($tmpl_name);
  
-  print $tmpl_name if $debug;
+  print $tmpl_name unless $quiet;
 
   ### Read in the raw body file with template and process.
 
@@ -68,7 +72,7 @@ while (my ($name,$url,$title,$body,$last) = $sth->fetchrow_array) {
 
   my $body_out = $body_tmpl->output;
 
-  print " --> $name " if $debug;
+  print " --> $name " unless $quiet;
 
   ### Schalam Dunk
 
@@ -90,13 +94,13 @@ while (my ($name,$url,$title,$body,$last) = $sth->fetchrow_array) {
     end_table    => $end_table
   );
 
-  print "--> $outfile " if $debug;
+  print "--> $outfile " unless $quiet;
    
   open OUTFILE, ">$outfile";
   print OUTFILE $meta->output;
   close OUTFILE;
 
-  print "--> done!\n" if $debug;
+  print "--> done!\n" unless $quiet;
 }
 
 sub zt {

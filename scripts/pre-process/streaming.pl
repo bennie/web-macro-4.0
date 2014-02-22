@@ -3,11 +3,11 @@
 # This script scans streaming sites to see what is up and generates the
 # streaming page in the DB
 
-# (c) Phillip Pollard <bennie@macrophile.com>
+# (c) ????-2014 Phillip Pollard <bennie@macrophile.com>
 
 ### CONFIG
 
-my $debug = 1;
+my $quiet = 0;
 
 my $out_name = 'streaming';
 my $timeout = 10;
@@ -21,10 +21,10 @@ use strict;
 
 my $macro = new Macro;
 
-# Parse debug
+# Parse args
 
 for my $arg (@ARGV) {
-  $debug = $1 if $arg =~ /--debug=(.+)/i;
+  $quiet = 1 if $arg eq '--quiet';
 }
 
 ### Grab the info
@@ -59,11 +59,11 @@ for my $key ( sort keys %sites ) {
 my $cgi = $macro->{cgi};
 my $dbh = $macro->_dbh();
 
-print "\nPRE: streaming sites " if $debug;
+print "\nPRE: streaming sites " unless $quiet;
 
 # Assemble the file
 
-print "--> raw_pages table " if $debug;
+print "--> raw_pages table " unless $quiet;
 
 my $body;
 
@@ -75,7 +75,7 @@ for my $key ( sort keys %sites ) {
 
 my $ret = $macro->update_raw_page($out_name,$body);
 
-print "--> done! (return $ret)\n" if $debug;
+print "--> done! (return $ret)\n" unless $quiet;
 
 ### Subroutines
 

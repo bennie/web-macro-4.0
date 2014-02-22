@@ -1,14 +1,18 @@
 #!/usr/bin/perl -w
 
 # This script generates the user directories
-# (c) 2006, Phillip Pollard <bennie@macrophile.com>
+# (c) 2006-2014, Phillip Pollard <bennie@macrophile.com>
 
 use strict;
 
 ### Conf
 
-my $debug = 0; # Debug output
+my $quiet = 0;
 my $file = '/var/www/macrophile.com/share/htaccess';
+
+for my $arg (@ARGV) {
+  $quiet = 1 if $arg eq '--quiet';
+}
 
 ### Spam IPs
 
@@ -81,7 +85,7 @@ print "Writing $file\n";
 open OUTFILE, '>', $file;
 print OUTFILE "order deny,allow\n";
 
-print OUTFILE "deny from $me\n" if $debug;
+print OUTFILE "deny from $me\n" unless $quiet;
 
 for my $spammer ( sort keys %spams ) {
   print OUTFILE "deny from $spammer\n";

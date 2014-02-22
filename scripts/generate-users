@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w -I/var/www/macrophile.com/lib
 
 # This script generates the user directories
-# (c) 2006, Phillip Pollard <bennie@macrophile.com>
+# (c) 2006-2014, Phillip Pollard <bennie@macrophile.com>
 
 $| = 1;
 
@@ -18,7 +18,7 @@ use strict;
 
 ### Conf
 
-my $debug = 0; # Debug output
+my $quiet = 0; # verbose output
 my $force = 0; # Force ALL directories written
 
 my $single_force = -100;
@@ -31,6 +31,7 @@ my $dbfile = '/var/www/macrophile.com/users/generated.db';
 
 for my $arg (@ARGV) {
   $force = 1 if $arg eq '--force';
+  $quiet = 1 if $arg eq '--quiet';
 }
 
 my $cgi = new CGI;
@@ -100,7 +101,7 @@ for my $dir ( keys %dirs ) {
   if ( $dirs{$dir} == -1 ) { # Created needed directory
     my $fsdir = dir($base,$dir);
     mkdir($fsdir);
-    print "mkdir($fsdir)\n" if $debug;
+    print "mkdir($fsdir)\n" unless $quiet;
     $new++;
     print 'n';
     $force = 1;
