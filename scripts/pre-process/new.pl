@@ -26,19 +26,19 @@ my $users = $db->get_config('users');
 my @users = $db->column("select username from $users");
 
 for my $user ( @users ) {
-  print STDERR sprintf '%12.12s', "$user:";
+  print STDERR sprintf '%12.12s', "$user:" unless $quiet;
   my ($count,$hash) = &scan_url("http://localhost/~$user");
-  print STDERR "  $hash : ", sprintf('%6.6s',$count), " : ";
+  print STDERR "  $hash : ", sprintf('%6.6s',$count), " : " unless $quiet;
   my $sql = "update $users set hash='$hash', num_files='$count' where username='$user'";
   my $ret = $db->do($sql);
-  print STDERR $ret;
+  print STDERR $ret unless $quiet;
 
   if ( $ret == 1 ) {
     my $ret = $db->do("update $users set modified = now() where username='$user'");
-    print STDERR " update!";
+    print STDERR " update!" unless $quiet;
   }
 
-  print STDERR "\n";
+  print STDERR "\n" unless $quiet;
 }
 
 # subs
