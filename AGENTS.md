@@ -1,9 +1,9 @@
 # Current State
 
 ## Project
-- Directory: `/vagrant/js`
-- Primary file: `index.html`
-- Reference assets: `/vagrant/js/reference-images`
+- Directory: `/vagrant/sizeviewer`
+- Application file: `index.html`
+- Reference assets: `reference-images/`
 
 ## Implemented UI
 - Left-side vertical scale fixed to viewport:
@@ -12,63 +12,67 @@
   - Scale label can be `inches`, `feet`, or `miles`
   - Scale renders with no more than `20` divisions
 - Dark grey viewport background (`#3f3f46`).
+- HTML title: `Sizeviewer`.
 - Main heading: `Sizeviewer Demo`.
-- Top-right control panel buttons:
+- Top-right control panel includes:
   - `Add image`
   - `Bigger`
   - `Smaller`
   - `Reset`
+- Control panel is always on top (`z-index: 1000`).
 - Lower-left two-line status display:
   - `Status:`
   - `Height: ...`
-- Right-side reference image:
-  - `reference-images/man.png`
-  - Bottom-right anchored
-  - Height mapped against the same scale as the main image
-
-## Control Button Behavior
-- `Bigger`, `Smaller`, and `Reset` start disabled.
-- They are enabled only after an image is added/placed.
-- `Bigger`: increases by `10%` of current value.
-- `Smaller`: decreases by `10%` of current value.
-- `Reset`: restores to initial dialog height default (`20`).
-- All changes immediately resize the placed image.
 
 ## Image Upload Flow
 - `Add image` opens a centered modal dialog.
 - Dialog contains:
   - `Choose image`
   - hidden image file input (`accept="image/*"`)
-  - `Height` numeric input (default `20`) followed by `feet`
+  - `Height` numeric input (default `20`) with `feet` unit label
   - preview area
   - `Ok` button
 - Dialog closes by `Ok` or overlay click.
 - On close with a selected image:
-  - Image is placed center-bottom of main viewport
-  - Height is applied relative to current scale
+  - Image is placed center-bottom of viewport
+  - Image height is mapped to current scale
+
+## Size Controls
+- `Bigger`, `Smaller`, and `Reset` start disabled.
+- They become enabled after an image is placed.
+- `Bigger`: increases current height by `10%`.
+- `Smaller`: decreases current height by `10%`.
+- `Reset`: restores to initial dialog default (`20`).
+- All size changes immediately update placed image and references.
 
 ## Scale and Unit Logic
-- If height exceeds current scale max, scale max becomes `ceil(height * 1.1)`.
-- If height drops below `10%` of current scale max, scale max resets to `ceil(height * 1.1)`.
+- Scale max grows to `ceil(height * 1.1)` when height exceeds current scale max.
+- Scale max shrinks to `ceil(height * 1.1)` when height drops below `40%` of current scale max.
 - Unit mode by current height:
-  - `< 5` feet: scale labels display `inches` (`feet * 12`)
-  - `5` to `2500` feet: scale labels display `feet`
-  - `> 2500` feet: scale labels display `miles` (`feet / 5280`)
-- Tick spacing uses a `1/2/5 x 10^n` strategy to keep total divisions <= `20`.
+  - `< 5` feet: scale labels shown in `inches` (`feet * 12`)
+  - `5` to `2500` feet: scale labels shown in `feet`
+  - `> 2500` feet: scale labels shown in `miles` (`feet / 5280`)
+- Tick spacing uses a `1/2/5 x 10^n` strategy to keep divisions <= `20`.
 
 ## Status Formatting
-- Status height value is rounded for display.
-- Feet values in status use comma formatting when large.
-- In miles mode (`> 2500` feet):
+- Displayed height is rounded for status text.
+- Feet in status use comma formatting when large.
+- In miles mode:
   - default: `Height: X miles (Y feet)`
-  - above `100,000` feet: show miles only (`Height: X miles`)
+  - above `100,000` feet: miles only (`Height: X miles`)
 
-## Reference Image Data
-- `reference-images/man.json` contains `{ "height": 6 }`.
-- `reference-images/woman.json` contains `{ "height": 5 }`.
-- App currently loads `man.json` and applies `man.png` height using the same `scaleMax` mapping.
+## Reference Images (Lower Right)
+- Displays two references in lower-right:
+  - man on the left (`reference-images/man.png`)
+  - woman on the right (`reference-images/woman.png`)
+- Both are bottom-aligned and scale-mapped to the same dynamic scale.
+- Heights loaded from:
+  - `reference-images/man.json` (`height: 6`)
+  - `reference-images/woman.json` (`height: 5`)
 
-## Implementation Notes
-- Selected image is read using `FileReader` data URL.
-- Height input is sanitized to minimum `1`.
-- No commit has been created in this session.
+## Additional Reference Assets
+- `reference-images/empire-state.png`
+- `reference-images/empire-state.json` (`height: 1454`)
+
+## Notes
+- No commit was created during this session.

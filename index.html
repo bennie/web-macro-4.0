@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Left Vertical Scale</title>
+  <title>Sizeviewer</title>
   <style>
     :root {
       --scale-width: 72px;
@@ -99,6 +99,7 @@
       background: rgba(24, 24, 27, 0.9);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
       width: 260px;
+      z-index: 1000;
     }
 
     .add-image-btn {
@@ -264,15 +265,21 @@
       display: none;
     }
 
-    .reference-man {
+    .reference-figures {
       position: fixed;
       right: 16px;
       bottom: 16px;
-      width: auto;
-      max-width: min(24vw, 280px);
-      max-height: calc(100vh - 32px);
       z-index: 9;
       pointer-events: none;
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+    }
+
+    .reference-man,
+    .reference-woman {
+      width: auto;
+      max-width: min(20vw, 240px);
     }
 
     .height-readout {
@@ -321,7 +328,10 @@
     </div>
   </section>
   <img class="placed-image" alt="Placed uploaded image" />
-  <img class="reference-man" src="reference-images/man.png" alt="Reference man outline" />
+  <section class="reference-figures" aria-label="Reference figures">
+    <img class="reference-man" src="reference-images/man.png" alt="Reference man outline" />
+    <img class="reference-woman" src="reference-images/woman.png" alt="Reference woman outline" />
+  </section>
   <p class="height-readout">Status:
 Height: 20 feet</p>
   <main class="content">
@@ -344,12 +354,14 @@ Height: 20 feet</p>
     const imagePreviewWrap = document.querySelector('.dialog-preview-wrap');
     const placedImage = document.querySelector('.placed-image');
     const referenceManImage = document.querySelector('.reference-man');
+    const referenceWomanImage = document.querySelector('.reference-woman');
     const heightReadout = document.querySelector('.height-readout');
     const scaleLabel = document.querySelector('.scale-label');
     let selectedImageDataUrl = '';
     let scaleMax = 100;
     let scaleUnit = 'feet';
     let referenceManHeight = 6;
+    let referenceWomanHeight = 5;
 
     const getClampedHeightValue = (value) => {
       const parsedHeight = Number(value);
@@ -376,8 +388,9 @@ Height: 20 feet</p>
       return Math.round(feetValue).toLocaleString('en-US');
     };
 
-    const applyReferenceManHeight = () => {
+    const applyReferenceFigureHeights = () => {
       referenceManImage.style.height = ((referenceManHeight / scaleMax) * 100) + 'vh';
+      referenceWomanImage.style.height = ((referenceWomanHeight / scaleMax) * 100) + 'vh';
     };
 
     const renderScale = (maxValue, unit) => {
@@ -456,29 +469,43 @@ Height: 20 feet</p>
       if (placedImage.style.display === 'block') {
         placedImage.style.height = ((clampedHeight / scaleMax) * 100) + 'vh';
       }
-      applyReferenceManHeight();
+      applyReferenceFigureHeights();
       return clampedHeight;
     };
 
     renderScale(scaleMax, scaleUnit);
-    applyReferenceManHeight();
+    applyReferenceFigureHeights();
 
-    const loadReferenceManConfig = async () => {
+    const loadReferenceFigureConfigs = async () => {
       try {
-        const response = await fetch('reference-images/man.json');
-        if (!response.ok) return;
-        const config = await response.json();
-        const parsedHeight = Number(config.height);
-        if (Number.isFinite(parsedHeight) && parsedHeight > 0) {
-          referenceManHeight = parsedHeight;
-          applyReferenceManHeight();
+        const [manResponse, womanResponse] = await Promise.all([
+          fetch('reference-images/man.json'),
+          fetch('reference-images/woman.json')
+        ]);
+
+        if (manResponse.ok) {
+          const manConfig = await manResponse.json();
+          const parsedManHeight = Number(manConfig.height);
+          if (Number.isFinite(parsedManHeight) && parsedManHeight > 0) {
+            referenceManHeight = parsedManHeight;
+          }
         }
+
+        if (womanResponse.ok) {
+          const womanConfig = await womanResponse.json();
+          const parsedWomanHeight = Number(womanConfig.height);
+          if (Number.isFinite(parsedWomanHeight) && parsedWomanHeight > 0) {
+            referenceWomanHeight = parsedWomanHeight;
+          }
+        }
+
+        applyReferenceFigureHeights();
       } catch (error) {
-        // Keep default height if config can't be read.
+        // Keep default heights if config files cannot be read.
       }
     };
 
-    loadReferenceManConfig();
+    loadReferenceFigureConfigs();
 
     addImageBtn.addEventListener('click', () => {
       modalOverlay.classList.add('open');
