@@ -276,10 +276,24 @@
       gap: 12px;
     }
 
-    .reference-man,
-    .reference-woman {
+    .reference-figure-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .reference-item-img {
       width: auto;
       max-width: min(20vw, 240px);
+    }
+
+    .reference-label {
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+      white-space: nowrap;
     }
 
     .height-readout {
@@ -329,8 +343,14 @@
   </section>
   <img class="placed-image" alt="Placed uploaded image" />
   <section class="reference-figures" aria-label="Reference figures">
-    <img class="reference-man" src="reference-images/man.png" alt="Reference man outline" />
-    <img class="reference-woman" src="reference-images/woman.png" alt="Reference woman outline" />
+    <div class="reference-figure-wrap">
+      <img class="reference-item-img reference-first-image" alt="Reference image 1" />
+      <div class="reference-label reference-first-label"></div>
+    </div>
+    <div class="reference-figure-wrap">
+      <img class="reference-item-img reference-second-image" alt="Reference image 2" />
+      <div class="reference-label reference-second-label"></div>
+    </div>
   </section>
   <p class="height-readout">Status:
 Height: 20 feet</p>
@@ -353,15 +373,23 @@ Height: 20 feet</p>
     const imageInput = document.querySelector('.image-input');
     const imagePreviewWrap = document.querySelector('.dialog-preview-wrap');
     const placedImage = document.querySelector('.placed-image');
-    const referenceManImage = document.querySelector('.reference-man');
-    const referenceWomanImage = document.querySelector('.reference-woman');
+    const referenceFirstImage = document.querySelector('.reference-first-image');
+    const referenceSecondImage = document.querySelector('.reference-second-image');
+    const referenceFirstLabel = document.querySelector('.reference-first-label');
+    const referenceSecondLabel = document.querySelector('.reference-second-label');
     const heightReadout = document.querySelector('.height-readout');
     const scaleLabel = document.querySelector('.scale-label');
     let selectedImageDataUrl = '';
     let scaleMax = 100;
     let scaleUnit = 'feet';
-    let referenceManHeight = 6;
-    let referenceWomanHeight = 5;
+
+    const defaultReferences = [
+      { name: 'Man', fileBase: 'man', height: 6 },
+      { name: 'Woman', fileBase: 'woman', height: 5 },
+      { name: 'Empire State Building', fileBase: 'empire-state', height: 1454 }
+    ];
+    let referenceCatalog = [...defaultReferences];
+    let displayedReferences = [];
 
     const getClampedHeightValue = (value) => {
       const parsedHeight = Number(value);
@@ -369,7 +397,9 @@ Height: 20 feet</p>
         ? Math.max(1, parsedHeight)
         : 20;
     };
+
     const initialHeightValue = getClampedHeightValue(heightInput.defaultValue || heightInput.value);
+
     const setSizeControlsEnabled = (enabled) => {
       biggerBtn.disabled = !enabled;
       smallerBtn.disabled = !enabled;
@@ -388,9 +418,38 @@ Height: 20 feet</p>
       return Math.round(feetValue).toLocaleString('en-US');
     };
 
+    const getReferenceImagePath = (reference) => {
+      return 'reference-images/' + reference.fileBase + '.png';
+    };
+
+    const setReferenceSlot = (imageEl, labelEl, reference) => {
+      if (!reference) {
+        imageEl.removeAttribute('src');
+        imageEl.style.display = 'none';
+        labelEl.textContent = '';
+        return;
+      }
+      imageEl.src = getReferenceImagePath(reference);
+      imageEl.alt = reference.name;
+      imageEl.style.display = 'block';
+      imageEl.style.height = ((reference.height / scaleMax) * 100) + 'vh';
+      labelEl.textContent = reference.name + ': ' + Math.round(reference.height) + ' ft';
+    };
+
     const applyReferenceFigureHeights = () => {
-      referenceManImage.style.height = ((referenceManHeight / scaleMax) * 100) + 'vh';
-      referenceWomanImage.style.height = ((referenceWomanHeight / scaleMax) * 100) + 'vh';
+      setReferenceSlot(referenceFirstImage, referenceFirstLabel, displayedReferences[0]);
+      setReferenceSlot(referenceSecondImage, referenceSecondLabel, displayedReferences[1]);
+    };
+
+    const updateNearestReferences = (targetHeight) => {
+      const sorted = [...referenceCatalog].sort((a, b) => {
+        const da = Math.abs(a.height - targetHeight);
+        const db = Math.abs(b.height - targetHeight);
+        if (da !== db) return da - db;
+        return a.height - b.height;
+      });
+      displayedReferences = sorted.slice(0, 2);
+      applyReferenceFigureHeights();
     };
 
     const renderScale = (maxValue, unit) => {
@@ -469,39 +528,30 @@ Height: 20 feet</p>
       if (placedImage.style.display === 'block') {
         placedImage.style.height = ((clampedHeight / scaleMax) * 100) + 'vh';
       }
-      applyReferenceFigureHeights();
+      updateNearestReferences(clampedHeight);
       return clampedHeight;
     };
 
     renderScale(scaleMax, scaleUnit);
-    applyReferenceFigureHeights();
+    updateNearestReferences(getClampedHeightValue(heightInput.value));
 
     const loadReferenceFigureConfigs = async () => {
       try {
-        const [manResponse, womanResponse] = await Promise.all([
-          fetch('reference-images/man.json'),
-          fetch('reference-images/woman.json')
-        ]);
+        const loaded = await Promise.all(defaultReferences.map(async (reference) => {
+          const response = await fetch('reference-images/' + reference.fileBase + '.json');
+          if (!response.ok) return reference;
+          const config = await response.json();
+          const parsedHeight = Number(config.height);
+          return {
+            ...reference,
+            height: Number.isFinite(parsedHeight) && parsedHeight > 0 ? parsedHeight : reference.height
+          };
+        }));
 
-        if (manResponse.ok) {
-          const manConfig = await manResponse.json();
-          const parsedManHeight = Number(manConfig.height);
-          if (Number.isFinite(parsedManHeight) && parsedManHeight > 0) {
-            referenceManHeight = parsedManHeight;
-          }
-        }
-
-        if (womanResponse.ok) {
-          const womanConfig = await womanResponse.json();
-          const parsedWomanHeight = Number(womanConfig.height);
-          if (Number.isFinite(parsedWomanHeight) && parsedWomanHeight > 0) {
-            referenceWomanHeight = parsedWomanHeight;
-          }
-        }
-
-        applyReferenceFigureHeights();
+        referenceCatalog = loaded;
+        updateNearestReferences(getClampedHeightValue(heightInput.value));
       } catch (error) {
-        // Keep default heights if config files cannot be read.
+        // Keep default catalog if JSON files cannot be read.
       }
     };
 
