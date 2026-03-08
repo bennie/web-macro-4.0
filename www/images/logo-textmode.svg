@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="76" viewBox="0 3 440 76" role="img" aria-labelledby="title desc">
+  <title id="title">Macrophile logo</title>
+  <desc id="desc">Bright green Macrophile wordmark on a transparent background.</desc>
+  <defs>
+    <linearGradient id="logoFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#39d874"/>
+      <stop offset="100%" stop-color="#24bf5c"/>
+    </linearGradient>
+  </defs>
+  <text
+    x="-2"
+    y="66"
+    fill="url(#logoFill)"
+    font-family="Tahoma, Verdana, Arial, sans-serif"
+    font-size="78"
+    letter-spacing="-1.4"
+  >Macrophile</text>
+</svg>
