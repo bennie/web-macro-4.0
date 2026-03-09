@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sizeviewer</title>
+  <style>
+    :root {
+      --scale-width: 72px;
+      --line-color: #1f2937;
+      --tick-color: #374151;
+      --label-color: #111827;
+      --bg: #3f3f46;
+      --text: #f8fafc;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .scale {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: var(--scale-width);
+      border-right: 2px solid var(--line-color);
+      background: #ffffff;
+    }
+
+    .scale-label {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #111827;
+      text-transform: lowercase;
+    }
+
+    .tick {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      transform: translateY(50%);
+      color: var(--label-color);
+      font-size: 12px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-left: 6px;
+    }
+
+    .tick::after {
+      content: "";
+      display: block;
+      height: 1px;
+      flex: 1;
+      margin-right: 6px;
+      background: var(--tick-color);
+    }
+
+    .tick.major {
+      font-weight: 600;
+    }
+
+    .tick.minor {
+      font-size: 0;
+      color: transparent;
+    }
+
+    .tick.minor::after {
+      flex: 0 0 45%;
+      margin-left: auto;
+    }
+
+    .content {
+      margin-left: calc(var(--scale-width) + 20px);
+      padding: 24px;
+    }
+
+    .control-panel {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      padding: 12px;
+      border: 1px solid #52525b;
+      border-radius: 10px;
+      background: rgba(24, 24, 27, 0.9);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      width: 260px;
+      z-index: 1000;
+    }
+
+    .add-image-btn {
+      border: 1px solid #71717a;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #f4f4f5;
+      background: #27272a;
+      cursor: pointer;
+    }
+
+    .add-image-btn:hover {
+      background: #3f3f46;
+    }
+
+    .control-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .control-btn {
+      border: 1px solid #71717a;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #f4f4f5;
+      background: #27272a;
+      cursor: pointer;
+    }
+
+    .control-btn:hover {
+      background: #3f3f46;
+    }
+
+    .control-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      background: #27272a;
+    }
+
+    .upload-modal-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(9, 9, 11, 0.58);
+      z-index: 20;
+    }
+
+    .upload-modal-overlay.open {
+      display: flex;
+    }
+
+    .upload-modal {
+      width: min(460px, calc(100vw - 32px));
+      background: #18181b;
+      border: 1px solid #52525b;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.4);
+    }
+
+    .upload-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      color: #f4f4f5;
+    }
+
+    .upload-modal-title {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .close-modal-btn {
+      border: 1px solid #71717a;
+      background: #27272a;
+      color: #f4f4f5;
+      border-radius: 8px;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+
+    .pick-image-btn {
+      border: 1px solid #71717a;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #f4f4f5;
+      background: #27272a;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: #f4f4f5;
+      font-size: 14px;
+    }
+
+    .field-row input {
+      width: 80px;
+      border: 1px solid #71717a;
+      border-radius: 6px;
+      background: #27272a;
+      color: #f4f4f5;
+      padding: 6px 8px;
+      font-size: 14px;
+    }
+
+    .field-unit {
+      color: #f4f4f5;
+      font-size: 14px;
+    }
+
+    .dialog-preview-wrap {
+      border: 1px dashed #71717a;
+      border-radius: 8px;
+      min-height: 120px;
+      display: grid;
+      place-items: center;
+      padding: 8px;
+      background: rgba(63, 63, 70, 0.35);
+    }
+
+    .dialog-preview-wrap img {
+      max-width: 100%;
+      max-height: 180px;
+      border-radius: 6px;
+      display: block;
+    }
+
+    .preview-hint {
+      margin: 0;
+      font-size: 12px;
+      color: #d4d4d8;
+      text-align: center;
+    }
+
+    .placed-image {
+      position: fixed;
+      left: calc(var(--scale-width) + ((100vw - var(--scale-width)) / 2));
+      bottom: 16px;
+      transform: translateX(-50%);
+      max-width: min(50vw, 520px);
+      max-height: calc(100vh - 32px);
+      width: auto;
+      border: 1px solid #52525b;
+      border-radius: 8px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+      background: #18181b;
+      z-index: 10;
+      display: none;
+      transition: height 220ms ease;
+    }
+
+    .reference-figures {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 9;
+      pointer-events: none;
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+    }
+
+    .reference-figure-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .reference-item-img {
+      width: auto;
+      max-width: min(20vw, 240px);
+      transition: height 220ms ease;
+    }
+
+    .reference-label {
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+      white-space: nowrap;
+    }
+
+    .height-readout {
+      position: fixed;
+      left: calc(var(--scale-width) + 12px);
+      bottom: 12px;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 600;
+      z-index: 11;
+      pointer-events: none;
+      margin: 0;
+      line-height: 1.3;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+  <aside class="scale" aria-label="Vertical scale from 0 to 100">
+    <div class="scale-label">feet</div>
+  </aside>
+  <section class="control-panel" aria-label="Control panel">
+    <button class="add-image-btn" type="button">Add image</button>
+    <div class="control-actions">
+      <button class="control-btn bigger-btn" type="button" disabled>Bigger</button>
+      <button class="control-btn smaller-btn" type="button" disabled>Smaller</button>
+      <button class="control-btn reset-btn" type="button" disabled>Reset</button>
+    </div>
+  </section>
+  <section class="upload-modal-overlay" aria-label="Image upload dialog">
+    <div class="upload-modal" role="dialog" aria-modal="true" aria-labelledby="upload-title">
+      <header class="upload-modal-head">
+        <h2 id="upload-title" class="upload-modal-title">Upload image</h2>
+        <button class="close-modal-btn" type="button">Ok</button>
+      </header>
+      <button class="pick-image-btn" type="button">Choose image</button>
+      <label class="field-row">
+        <span>Height</span>
+        <input class="height-input" type="number" value="20" min="1" />
+        <span class="field-unit">feet</span>
+      </label>
+      <input class="image-input" type="file" accept="image/*" hidden />
+      <div class="dialog-preview-wrap" aria-live="polite">
+        <p class="preview-hint">No image selected</p>
+      </div>
+    </div>
+  </section>
+  <img class="placed-image" alt="Placed uploaded image" />
+  <section class="reference-figures" aria-label="Reference figures">
+    <div class="reference-figure-wrap">
+      <img class="reference-item-img reference-first-image" alt="Reference image 1" />
+      <div class="reference-label reference-first-label"></div>
+    </div>
+    <div class="reference-figure-wrap">
+      <img class="reference-item-img reference-second-image" alt="Reference image 2" />
+      <div class="reference-label reference-second-label"></div>
+    </div>
+  </section>
+  <p class="height-readout">Status:
+Height: 20 feet</p>
+  <main class="content">
+    <h1>Sizeviewer</h1>
+    <p>Upload an image to view and shift its size.</p>
+  </main>
+
+  <script>
+    const scale = document.querySelector('.scale');
+    const addImageBtn = document.querySelector('.add-image-btn');
+    const modalOverlay = document.querySelector('.upload-modal-overlay');
+    const closeModalBtn = document.querySelector('.close-modal-btn');
+    const pickImageBtn = document.querySelector('.pick-image-btn');
+    const biggerBtn = document.querySelector('.bigger-btn');
+    const smallerBtn = document.querySelector('.smaller-btn');
+    const resetBtn = document.querySelector('.reset-btn');
+    const heightInput = document.querySelector('.height-input');
+    const imageInput = document.querySelector('.image-input');
+    const imagePreviewWrap = document.querySelector('.dialog-preview-wrap');
+    const placedImage = document.querySelector('.placed-image');
+    const referenceFirstImage = document.querySelector('.reference-first-image');
+    const referenceSecondImage = document.querySelector('.reference-second-image');
+    const referenceFirstLabel = document.querySelector('.reference-first-label');
+    const referenceSecondLabel = document.querySelector('.reference-second-label');
+    const heightReadout = document.querySelector('.height-readout');
+    const scaleLabel = document.querySelector('.scale-label');
+    let selectedImageDataUrl = '';
+    let scaleMax = 100;
+    let scaleUnit = 'feet';
+
+    const defaultReferences = [
+      { name: 'Man', fileBase: 'man', height: 6 },
+      { name: 'Woman', fileBase: 'woman', height: 5 },
+      { name: 'Kodiak Bear', fileBase: 'bear', height: 9 },
+      { name: 'King Kong (1933)', fileBase: 'king-kong-1933', height: 24 },
+      { name: 'Nancy (50ft Woman)', fileBase: 'nancy-50ft-woman', height: 50 },
+      { name: 'Godzilla (1954)', fileBase: 'godzilla-1954', height: 165 },
+      { name: 'Godzilla Earth (2018)', fileBase: 'godzilla-earth-2018', height: 1043.3 },
+      { name: 'Epcot Center', fileBase: 'epcot-center', height: 180 },
+      { name: 'Great Pyramid', fileBase: 'great-pyramid', height: 456 },
+      { name: 'Washington Monument', fileBase: 'washington-monument', height: 555 },
+      { name: 'Eiffel Tower', fileBase: 'eiffel', height: 1083 },
+      { name: 'Sears Tower', fileBase: 'sears-tower', height: 1451 },
+      { name: 'CN Tower', fileBase: 'cn-tower', height: 1815 },
+      { name: 'Empire State Building', fileBase: 'empire-state', height: 1454 }
+    ];
+    let referenceCatalog = [...defaultReferences];
+    let displayedReferences = [];
+
+    const getClampedHeightValue = (value) => {
+      const parsedHeight = Number(value);
+      return Number.isFinite(parsedHeight)
+        ? Math.max(1, parsedHeight)
+        : 20;
+    };
+
+    const initialHeightValue = getClampedHeightValue(heightInput.defaultValue || heightInput.value);
+
+    const setSizeControlsEnabled = (enabled) => {
+      biggerBtn.disabled = !enabled;
+      smallerBtn.disabled = !enabled;
+      resetBtn.disabled = !enabled;
+    };
+
+    const formatScaleNumber = (value) => {
+      return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(2)));
+    };
+
+    const formatMiles = (feetValue) => {
+      return Number((feetValue / 5280).toFixed(2));
+    };
+
+    const formatFeetWithCommas = (feetValue) => {
+      return Math.round(feetValue).toLocaleString('en-US');
+    };
+
+    const getReferenceImagePath = (reference) => {
+      return 'reference-images/' + reference.fileBase + '.png';
+    };
+
+    const setReferenceSlot = (imageEl, labelEl, reference) => {
+      if (!reference) {
+        imageEl.removeAttribute('src');
+        imageEl.style.display = 'none';
+        labelEl.textContent = '';
+        return;
+      }
+      imageEl.src = getReferenceImagePath(reference);
+      imageEl.alt = reference.name;
+      imageEl.style.display = 'block';
+      imageEl.style.height = ((reference.height / scaleMax) * 100) + 'vh';
+      labelEl.textContent = reference.name + ': ' + Math.round(reference.height) + ' ft';
+    };
+
+    const applyReferenceFigureHeights = () => {
+      setReferenceSlot(referenceFirstImage, referenceFirstLabel, displayedReferences[0]);
+      setReferenceSlot(referenceSecondImage, referenceSecondLabel, displayedReferences[1]);
+    };
+
+    const updateNearestReferences = (targetHeight) => {
+      const sorted = [...referenceCatalog].sort((a, b) => {
+        const da = Math.abs(a.height - targetHeight);
+        const db = Math.abs(b.height - targetHeight);
+        if (da !== db) return da - db;
+        return a.height - b.height;
+      });
+      displayedReferences = sorted.slice(0, 2);
+      applyReferenceFigureHeights();
+    };
+
+    const renderScale = (maxValue, unit) => {
+      const existingTicks = scale.querySelectorAll('.tick');
+      existingTicks.forEach((tick) => tick.remove());
+      scaleLabel.textContent = unit;
+
+      const safeMax = Math.max(1, maxValue);
+      const maxDivisions = 20;
+      const minimumStep = safeMax / maxDivisions;
+      const power = 10 ** Math.floor(Math.log10(minimumStep));
+      const stepBase = minimumStep / power;
+      let normalizedStep = 10;
+
+      if (stepBase <= 1) normalizedStep = 1;
+      else if (stepBase <= 2) normalizedStep = 2;
+      else if (stepBase <= 5) normalizedStep = 5;
+
+      const minorStep = normalizedStep * power;
+      const majorStep = minorStep * 2;
+      const values = [];
+
+      for (let value = 0; value <= safeMax + Number.EPSILON; value += minorStep) {
+        values.push(value);
+      }
+      if (Math.abs(values[values.length - 1] - safeMax) > Number.EPSILON) {
+        values.push(safeMax);
+      }
+
+      values.forEach((value) => {
+        const tick = document.createElement('div');
+        const isMajor = value % majorStep === 0 || value === safeMax;
+        const displayValue = unit === 'miles'
+          ? (value / 5280)
+          : unit === 'inches'
+            ? (value * 12)
+            : value;
+        tick.className = 'tick' + (isMajor ? ' major' : ' minor');
+        tick.style.bottom = (value / safeMax) * 100 + '%';
+        tick.textContent = isMajor ? formatScaleNumber(displayValue) : '';
+        scale.appendChild(tick);
+      });
+    };
+
+    const syncScaleWithHeight = (heightValue) => {
+      const expandedFromHeight = Math.max(1, Math.ceil(heightValue * 1.1));
+      const isAboveCurrentScale = heightValue > scaleMax;
+      const isBelowTenPercentOfScale = heightValue < (scaleMax * 0.1);
+      const nextMax = (isAboveCurrentScale || isBelowTenPercentOfScale)
+        ? expandedFromHeight
+        : scaleMax;
+      const nextScaleUnit = heightValue > 2500
+        ? 'miles'
+        : heightValue < 5
+          ? 'inches'
+          : 'feet';
+      if (nextMax !== scaleMax || nextScaleUnit !== scaleUnit) {
+        scaleMax = nextMax;
+        scaleUnit = nextScaleUnit;
+        renderScale(scaleMax, scaleUnit);
+      }
+    };
+
+    const applyPlacedImageHeight = () => {
+      const clampedHeight = getClampedHeightValue(heightInput.value);
+      heightInput.value = String(clampedHeight);
+      syncScaleWithHeight(clampedHeight);
+      const formattedFeet = formatFeetWithCommas(clampedHeight);
+      if (clampedHeight > 100000) {
+        heightReadout.textContent = 'Status:\nHeight: ' + formatMiles(clampedHeight) + ' miles';
+      } else if (scaleUnit === 'miles') {
+        heightReadout.textContent = 'Status:\nHeight: ' + formatMiles(clampedHeight) + ' miles (' + formattedFeet + ' feet)';
+      } else {
+        heightReadout.textContent = 'Status:\nHeight: ' + formattedFeet + ' feet';
+      }
+      if (placedImage.style.display === 'block') {
+        placedImage.style.height = ((clampedHeight / scaleMax) * 100) + 'vh';
+      }
+      updateNearestReferences(clampedHeight);
+      return clampedHeight;
+    };
+
+    renderScale(scaleMax, scaleUnit);
+    updateNearestReferences(getClampedHeightValue(heightInput.value));
+
+    const loadReferenceFigureConfigs = async () => {
+      try {
+        const loaded = await Promise.all(defaultReferences.map(async (reference) => {
+          const response = await fetch('reference-images/' + reference.fileBase + '.json');
+          if (!response.ok) return reference;
+          const config = await response.json();
+          const parsedHeight = Number(config.height);
+          return {
+            ...reference,
+            height: Number.isFinite(parsedHeight) && parsedHeight > 0 ? parsedHeight : reference.height
+          };
+        }));
+
+        referenceCatalog = loaded;
+        updateNearestReferences(getClampedHeightValue(heightInput.value));
+      } catch (error) {
+        // Keep default catalog if JSON files cannot be read.
+      }
+    };
+
+    loadReferenceFigureConfigs();
+
+    addImageBtn.addEventListener('click', () => {
+      modalOverlay.classList.add('open');
+    });
+
+    const closeModalAndPlaceImage = () => {
+      modalOverlay.classList.remove('open');
+      if (!selectedImageDataUrl) return;
+
+      placedImage.src = selectedImageDataUrl;
+      placedImage.style.display = 'block';
+      applyPlacedImageHeight();
+      setSizeControlsEnabled(true);
+    };
+
+    closeModalBtn.addEventListener('click', closeModalAndPlaceImage);
+
+    modalOverlay.addEventListener('click', (event) => {
+      if (event.target === modalOverlay) {
+        closeModalAndPlaceImage();
+      }
+    });
+
+    pickImageBtn.addEventListener('click', () => {
+      imageInput.click();
+    });
+
+    biggerBtn.addEventListener('click', () => {
+      const currentHeight = getClampedHeightValue(heightInput.value);
+      const delta = currentHeight * 0.1;
+      const nextHeight = currentHeight + delta;
+      heightInput.value = String(nextHeight);
+      applyPlacedImageHeight();
+    });
+
+    smallerBtn.addEventListener('click', () => {
+      const currentHeight = getClampedHeightValue(heightInput.value);
+      const delta = currentHeight * 0.1;
+      const nextHeight = currentHeight - delta;
+      heightInput.value = String(Math.max(1, nextHeight));
+      applyPlacedImageHeight();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      heightInput.value = String(initialHeightValue);
+      applyPlacedImageHeight();
+    });
+
+    heightInput.addEventListener('input', () => {
+      applyPlacedImageHeight();
+    });
+
+    imageInput.addEventListener('change', () => {
+      const file = imageInput.files && imageInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        selectedImageDataUrl = String(reader.result || '');
+        imagePreviewWrap.innerHTML = '';
+
+        const image = document.createElement('img');
+        image.src = selectedImageDataUrl;
+        image.alt = file.name || 'Uploaded image preview';
+        imagePreviewWrap.appendChild(image);
+      });
+      reader.readAsDataURL(file);
+    });
+  </script>
+</body>
+</html>
