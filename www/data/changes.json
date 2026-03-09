@@ -1,0 +1,258 @@
+[
+  {
+    "date": "March 8, 2026",
+    "change": "Updating to a modern design. Adding a sizeviewer."
+  },
+  {
+    "date": "April 8, 2011",
+    "change": "Coverting existing webdesign fully to CSS."
+  },
+  {
+    "change": "Contest voting booth now open.",
+    "date": "September 23, 2008"
+  },
+  {
+    "date": "September 12, 2006",
+    "change": "Created basic alphabetical index pages for all users."
+  },
+  {
+    "change": "Stories page now automatically displaying most recent story posts.",
+    "date": "September 7, 2006"
+  },
+  {
+    "date": "September 7, 2006",
+    "change": "User info and session handler completed. Front page and art sections now automagically check adult status and block inappropriate images."
+  },
+  {
+    "date": "August 29, 2006",
+    "change": "Obscured email addesses on forum user pages."
+  },
+  {
+    "change": "The front page is now dynamic! It is now showing previews of the 8 most recent art attachments.",
+    "date": "August 18, 2006"
+  },
+  {
+    "change": "Updated phpBB from 2.0.17 to 2.0.21. Manually resolved a half dozen of the patches.",
+    "date": "August 17, 2006"
+  },
+  {
+    "change": "Created a CSS version of the macro green style. Implemented it's use in the core of the art and users pages.",
+    "date": "August 16, 2006"
+  },
+  {
+    "change": "Basic user page creation script written. Some 7000+ user directories and web pages created",
+    "date": "August 14-16, 2006"
+  },
+  {
+    "change": "All machine users moved to their own subdomains. Redirects for the old locations loaded and verified.",
+    "date": "August 11, 2006"
+  },
+  {
+    "date": "August 10, 2006",
+    "change": "Started processing all attachments for thumbnails. This is ground work for user pages."
+  },
+  {
+    "date": "May 6, 2006",
+    "change": "Split art page into sections by forum."
+  },
+  {
+    "date": "April 13-18, 2006",
+    "change": "Altered the Art page to be a real-time preview of art attachments with thumbnails."
+  },
+  {
+    "change": "Updated links page. It's been way too long.",
+    "date": "February 23, 2006"
+  },
+  {
+    "change": "For the first time since the move to Rackforce and thanks to some simple script hacking in MRTG, Network monitoring (/html/stats.html) was restarted.",
+    "date": "January 5, 2005"
+  },
+  {
+    "date": "December 27, 2004",
+    "change": "To avoid the phpBB worm, the discussion boards are upgraded to phpBB v 2.0.11"
+  },
+  {
+    "date": "February 12, 2004",
+    "change": "Purchased account with RackFoce.net. For the first time since 1997, macrophile.com is hosted in a colocation facility and not on private property. Bandwidth is increased, as should be uptime and reliability."
+  },
+  {
+    "date": "August 22, 2003",
+    "change": "Discussion boards were moved to their own URL (http://forums.macrophile.com/) to make things a little neater. The CVS tree was altered to retain historic work in the code."
+  },
+  {
+    "date": "August 3, 2003",
+    "change": "At user request, the account 'wolfmech' has been removed."
+  },
+  {
+    "change": "The new BB System is up for folks. Logo provided by Lisa Sample. Thanks for working on such short notice.",
+    "date": "July 4, 2003"
+  },
+  {
+    "change": "The final tan portion of the site. The macro-sign image was remove.",
+    "date": "June 20, 2003"
+  },
+  {
+    "change": "As of today, the macrostat has been ported over to a newer single CGI. Macrostat represents the second oldest code that I still have in production back from when I was teaching myself perl. Cleaned up massively. Now I can FINALLY make improvements.",
+    "date": "June 19, 2003"
+  },
+  {
+    "date": "June 14, 2003",
+    "change": "The code section's (/code) cvsweb.cgi has been updated to the new source location."
+  },
+  {
+    "date": "June 14, 2003",
+    "change": "Statistics page (/html/stats.html) updated to read from the new line."
+  },
+  {
+    "change": "Lots of background changes. Over the past week, the codebase has slowly been updated and manipulated in preparation for refactoring. The BB now has the right copyright year too.",
+    "date": "June 14, 2003"
+  },
+  {
+    "date": "June 3, 2002",
+    "change": "Added user Zirien."
+  },
+  {
+    "date": "June 21, 2001",
+    "change": "Updated the links page to be dynamic from the user data. Also deleted all of the dead links. Next step will be to set up a submission process and to categorize. Whee!"
+  },
+  {
+    "date": "May 13, 2001",
+    "change": "Slowly getting the Code section (/code/) prepared for curious folks to read about. Also doing some work on the story engine."
+  },
+  {
+    "change": "Ferris is added as a user.",
+    "date": "April 25, 2001"
+  },
+  {
+    "date": "April 17, 2001",
+    "change": "The story section now matches the rest of the site. Now all I have to do is make it so folks can log in and post and edit their own stories."
+  },
+  {
+    "date": "April 15, 2001",
+    "change": "Loaded up a Discussion button for the discussion board."
+  },
+  {
+    "date": "April 11, 2001",
+    "change": "I created a change script that allows me to input these chunks of information into the change log with ease. I have half a mind to release the code that runs macrophile into general use."
+  },
+  {
+    "date": "April 8, 2001",
+    "change": "A story forum was created within the discussion board (/bb/)."
+  },
+  {
+    "change": "Major site redesign. We now have a new color scheme (that was NOT taken from Duncan_roo) as well as a major revisions of the underlying code for the site. Seph was added. So were discussion boards and a visual index to the FTP. Busy.",
+    "date": "March, 2001"
+  },
+  {
+    "change": "Fixed the 'new script (/auto/new.html)' to point all new FTP selections into the HTML interface (http://www.macrophile.com/ftp/) to the FTP server.",
+    "date": "May 17, 2000"
+  },
+  {
+    "date": "May 5, 2000",
+    "change": "The \"I Luv you\" virus hit the machine. Pine told me \"I Luv you.\" I told Pine \"I Luv you, Pine.\" and happily deleted the mail without incident."
+  },
+  {
+    "change": "Put the whole thing into a CVS archive. Of course, checking the CVS archive back out made the enteire site look new so the 'new script (/auto/new.html)' thinks everything is new.",
+    "date": "May 4, 2000"
+  },
+  {
+    "change": "Been a long time? Fixed up the user list and brought on board Teaselbone.",
+    "date": "May 3, 2000"
+  },
+  {
+    "date": "April 2000",
+    "change": "Stats engine shows Cerine strongly in the lead. Only about a dozen folks did a recursive get of the web equivelent of FTP."
+  },
+  {
+    "change": "All quiet. No problems.",
+    "date": "Jan 1, 2000"
+  },
+  {
+    "date": "Late 1999",
+    "change": "FTP problems. Many users are constantly sucking the entire site. 15 simultaneous recursive FTP gets (in addition to to the machine processes) would clog the line and overload the CPU. Had to limit the FTP server to 5 entries. Eventually I got a better dataline, better CPU, and linked the FTP section into the web."
+  },
+  {
+    "date": "April 17, 1999",
+    "change": "Small updates here and there. The userlist is now a cron job, makes it faster. The copyright statement now reflects the correct year."
+  },
+  {
+    "change": "Updated the 'new (/auto/new.html)' script to run it as a regular cron job and speed up the section. Oh yeah, it also scans the FTP section. At user requestes, the script merely points to the users' pages instead of specific files that have changed.",
+    "date": "April 12, 1999"
+  },
+  {
+    "change": "Added alt tags to the buttons. Whoops. How did I miss that?",
+    "date": "April 11, 1999"
+  },
+  {
+    "date": "April 10, 1999",
+    "change": "Sure hope you didn't see those files that shouldn't have been shown in that script."
+  },
+  {
+    "change": "We're switching to NT! Yeah, right. For an April Fool maybe. I have users to serve.",
+    "date": "April 1, 1999"
+  },
+  {
+    "date": "March 12, 1999",
+    "change": "New Record daily transfer! 25,507 access comprising 522 Megabytes of material."
+  },
+  {
+    "change": "Updated the woefully outdated links (links.html) page.",
+    "date": "March 9, 1999"
+  },
+  {
+    "date": "March 3, 1999",
+    "change": "Created the new.cgi that automatically identifies files altered or created in the last week. Need to add the FTP section."
+  },
+  {
+    "date": "February 16, 1999",
+    "change": "Dropped one user, but gained 'mm'"
+  },
+  {
+    "date": "August 15, 1998",
+    "change": "Added Dogfire's contributed story."
+  },
+  {
+    "change": "Tinker, tinker on Macro stat.",
+    "date": "July 12, 1998"
+  },
+  {
+    "change": "Cleaned up art page to show artist web pages.",
+    "date": "July 10, 1998 (been a while, eh?)"
+  },
+  {
+    "date": "May 5, 1998",
+    "change": "Listed Rogue's stories on the story section. (This should have been done weeks ago)"
+  },
+  {
+    "change": "Preliminary work on a stat-generating program for the hits on this web site. Already the log since february has more than 400,000 entries.",
+    "date": "April 25 - May 4, 1998"
+  },
+  {
+    "date": "April 9-10, 1998",
+    "change": "Dynamic userlist created and fine-tuned. Randomizer code for front page tuned as well (14 lines to 2)."
+  },
+  {
+    "date": "April 7, 1998",
+    "change": "Randomized front page created. Annoying under-construction Javascript disabled."
+  },
+  {
+    "date": "March 31, 1998",
+    "change": "Connection records exceede a quarter of a million seperate FTP transfers."
+  },
+  {
+    "change": "Public FTP space is opened for image archives for Cougr, Ermine, and Wolf",
+    "date": "March 24, 1998"
+  },
+  {
+    "date": "March 14, 1998",
+    "change": "At request, site opened to public consumption"
+  },
+  {
+    "date": "October 8, 1997 - March 14, 1998",
+    "change": "Temporary site in place. Artist accounts created."
+  },
+  {
+    "date": "October 6, 1997",
+    "change": "Macrophile.com registered."
+  }
+]

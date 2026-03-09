@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Macrophile | Change Log</title>
+    <meta
+      name="description"
+      content="Macrophile change log rendered from JSON data."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../style/main.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <div class="site-shell">
+      <header class="site-header">
+        <div class="brand-block">
+          <p class="eyebrow">Since 1997</p>
+          <h1 class="logo-mark">
+            <a href="../index.html" aria-label="Macrophile home">
+              <img src="../images/logo.svg" alt="Macrophile" />
+            </a>
+          </h1>
+          <p class="tagline">Home of the big ones</p>
+        </div>
+        <div class="header-panel" aria-label="Header actions">
+          <div class="header-actions">
+            <a class="btn btn-secondary" href="links.html">Links</a>
+            <a class="btn btn-primary" href="#changes">Change Log</a>
+          </div>
+        </div>
+      </header>
+
+      <nav class="main-nav" aria-label="Primary">
+        <a href="../index.html">Front</a>
+        <a href="../index.html#art">Art</a>
+        <a href="stories.html">Stories</a>
+        <a href="/sizeviewer/">Sizeviewer</a>
+        <a href="/macro-stat/">MacroStat</a>
+        <a href="links.html">Links</a>
+      </nav>
+
+      <main id="main" class="content-main">
+        <section id="changes" class="panel panel-feature" aria-label="Change log entries">
+          <h2>Change Log</h2>
+          <p id="changes-count">Loading entries...</p>
+          <div id="changes-root" class="changes-list" aria-live="polite"></div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>&copy; 1997-2026 Crescendo Communications. Usage of this site is governed by the <a href="legal.html">AUP</a>.</p>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        const root = document.getElementById("changes-root");
+        const countNode = document.getElementById("changes-count");
+
+        function renderError(message) {
+          root.innerHTML = "";
+          const item = document.createElement("article");
+          item.className = "change-item";
+          item.innerHTML = `<h3>Unable to load change log</h3><p>${message}</p>`;
+          root.appendChild(item);
+          countNode.textContent = "0 entries loaded.";
+        }
+
+        fetch("../data/changes.json")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+          })
+          .then((items) => {
+            if (!Array.isArray(items)) {
+              throw new Error("Invalid data format");
+            }
+
+            root.innerHTML = "";
+
+            items.forEach((entry) => {
+              const item = document.createElement("article");
+              item.className = "change-item";
+
+              const heading = document.createElement("h3");
+              heading.textContent = entry.date || "Undated";
+              item.appendChild(heading);
+
+              const text = document.createElement("p");
+              text.textContent = entry.change || "";
+              item.appendChild(text);
+
+              root.appendChild(item);
+            });
+
+            countNode.textContent = `${items.length} change entries loaded.`;
+          })
+          .catch((error) => {
+            renderError(error.message);
+          });
+      })();
+    </script>
+  </body>
+</html>

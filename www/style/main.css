@@ -318,6 +318,29 @@ body {
   font-size: 0.9rem;
 }
 
+.changes-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.change-item {
+  background: #0b1d12;
+  border: 1px solid #245b36;
+  border-radius: 10px;
+  padding: 0.8rem;
+}
+
+.change-item h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.change-item p {
+  margin: 0;
+  color: var(--muted);
+}
+
 .legal-stack {
   display: grid;
   gap: 0.8rem;
