@@ -291,7 +291,7 @@ before, or whatnot.'),
 }
 
 sub default {
-  $title = title_h2('MacroSTAT 1.0');
+  $title = title_h2('MacroSTAT 1.1');
   return
     $cgi->img({-src=>'../images/computer.png',-width=>'233',-height=>'274',
     -align=>'left'}),
