@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Macrophile | Links</title>
+    <meta
+      name="description"
+      content="Community links directory grouped by category and rendered from JSON data."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../style/main.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <div class="site-shell">
+      <header class="site-header">
+        <div class="brand-block">
+          <p class="eyebrow">Since 1997</p>
+          <h1 class="logo-mark">
+            <a href="../index.html" aria-label="Macrophile home">
+              <img src="../images/logo.svg" alt="Macrophile" />
+            </a>
+          </h1>
+          <p class="tagline">Home of the big ones</p>
+        </div>
+        <div class="header-panel" aria-label="Header actions">
+          <div class="header-actions">
+            <a class="btn btn-secondary" href="#links">Browse Links</a>
+            <a class="btn btn-primary" href="stories.html">Stories</a>
+          </div>
+        </div>
+      </header>
+
+      <nav class="main-nav" aria-label="Primary">
+        <a href="../index.html#art">Art</a>
+        <a href="stories.html">Stories</a>
+        <a href="#forum">Discussion</a>
+        <a href="#contest">Contest</a>
+        <a href="#stats">Stats</a>
+        <a href="links.html" aria-current="page">Links</a>
+      </nav>
+
+      <main id="main" class="content-main">
+        <section id="links" class="panel panel-feature" aria-label="Links by category">
+          <h2>Community Links</h2>
+          <p id="link-count">Loading link totals...</p>
+          <div id="links-root" class="category-grid category-grid-three" aria-live="polite"></div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>
+          Usage of this site is governed by the AUP. Example redesign for local
+          review.
+        </p>
+        <p>&copy; 1997-2026 Crescendo Communications</p>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        const root = document.getElementById("links-root");
+        const countNode = document.getElementById("link-count");
+
+        function renderError(message) {
+          root.innerHTML = "";
+          const panel = document.createElement("article");
+          panel.className = "category-card";
+          panel.innerHTML = `<h3>Unable to load links</h3><p class=\"link-entry-desc\">${message}</p>`;
+          root.appendChild(panel);
+          countNode.textContent = "0 links loaded.";
+        }
+
+        fetch("../data/links.json")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+          })
+          .then((items) => {
+            if (!Array.isArray(items)) {
+              throw new Error("Invalid data format");
+            }
+
+            const grouped = items.reduce((acc, item) => {
+              const category = item.category || "Uncategorized";
+              if (!acc[category]) {
+                acc[category] = [];
+              }
+              acc[category].push(item);
+              return acc;
+            }, {});
+
+            const preferredOrder = [
+              "Artist and Writer Websites",
+              "Art, Stories, and Media Sites",
+              "Community Forums",
+              "Local Accounts",
+              "Non-Furry Macro Sites",
+              "Tangential Interests"
+            ];
+
+            const orderedCategories = [
+              ...preferredOrder.filter((category) => grouped[category]),
+              ...Object.keys(grouped).filter(
+                (category) => !preferredOrder.includes(category)
+              )
+            ];
+
+            root.innerHTML = "";
+
+            orderedCategories.forEach((category) => {
+              const entries = grouped[category];
+              const card = document.createElement("article");
+              card.className = "category-card";
+              if (category === "Local Accounts") {
+                card.classList.add("category-card-internal");
+              }
+
+              const heading = document.createElement("h3");
+              heading.textContent = `${category} (${entries.length})`;
+              card.appendChild(heading);
+
+              entries.forEach((entry) => {
+                const row = document.createElement("div");
+                row.className = "link-entry";
+
+                const title = document.createElement("p");
+                title.className = "link-entry-title";
+
+                if (entry.username) {
+                  title.append(document.createTextNode(`${entry.username}: `));
+                }
+
+                const anchor = document.createElement("a");
+                anchor.href = entry.link;
+                anchor.textContent = entry.title;
+                anchor.target = "_blank";
+                anchor.rel = "noopener noreferrer";
+                title.appendChild(anchor);
+                row.appendChild(title);
+
+                if (entry.description) {
+                  const desc = document.createElement("p");
+                  desc.className = "link-entry-desc";
+                  desc.textContent = entry.description;
+                  row.appendChild(desc);
+                }
+
+                card.appendChild(row);
+              });
+
+              root.appendChild(card);
+            });
+
+            countNode.textContent = `${items.length} links across ${Object.keys(grouped).length} categories.`;
+          })
+          .catch((error) => {
+            renderError(error.message);
+          });
+      })();
+    </script>
+  </body>
+</html>
