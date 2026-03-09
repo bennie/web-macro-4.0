@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Macrophile | <tmpl_var name="title"></title>
+    <meta
+      name="description"
+      content="MacroStat calculator in the updated Macrophile layout."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="<tmpl_var name='html_prefix'>style/main.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <div class="site-shell">
+      <header class="site-header">
+        <div class="brand-block">
+          <p class="eyebrow">Since 1997</p>
+          <h1 class="logo-mark">
+            <a href="<tmpl_var name='html_prefix'>index.html" aria-label="Macrophile home">
+              <img src="<tmpl_var name='image_prefix'>logo.svg" alt="Macrophile" />
+            </a>
+          </h1>
+          <p class="tagline">Home of the big ones</p>
+        </div>
+      </header>
+
+      <nav class="main-nav" aria-label="Primary">
+        <a href="<tmpl_var name='html_prefix'>index.html">Front</a>
+        <a href="<tmpl_var name='html_prefix'>index.html#art">Art</a>
+        <a href="<tmpl_var name='html_prefix'>html/stories.html">Stories</a>
+        <a href="#forum">Discussion</a>
+        <a href="<tmpl_var name='html_prefix'>macro-stat/" aria-current="page">Macrostat</a>
+        <a href="<tmpl_var name='html_prefix'>html/links.html">Links</a>
+      </nav>
+
+      <main id="main" class="content-main">
+        <section class="panel panel-feature">
+          <div class="macrostat-content"><tmpl_var name="body"></div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p><tmpl_var name="time"></p>
+        <p>&copy; 1997-<tmpl_var name="year"> Crescendo Communications. Usage of this site is governed by the <a href="<tmpl_var name='html_prefix'>html/legal.html">AUP</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>
