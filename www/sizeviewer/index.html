@@ -10,7 +10,10 @@
       --line-color: #1f2937;
       --tick-color: #374151;
       --label-color: #111827;
-      --bg: #3f3f46;
+      --bg:
+        radial-gradient(circle at 12% 95%, #1e4f2f 0%, transparent 35%),
+        radial-gradient(circle at 88% 100%, #123f28 0%, transparent 40%),
+        linear-gradient(180deg, #000000 0%, #144225 100%);
       --text: #f8fafc;
     }
 
@@ -35,6 +38,18 @@
       width: var(--scale-width);
       border-right: 2px solid var(--line-color);
       background: #ffffff;
+    }
+
+    .watermark-logo {
+      position: fixed;
+      top: 14px;
+      left: calc(var(--scale-width) + 14px);
+      width: min(38vw, 360px);
+      height: auto;
+      opacity: 0.30;
+      pointer-events: none;
+      user-select: none;
+      z-index: 2;
     }
 
     .scale-label {
@@ -85,8 +100,26 @@
     }
 
     .content {
-      margin-left: calc(var(--scale-width) + 20px);
-      padding: 24px;
+      position: fixed;
+      top: 16px;
+      left: calc(var(--scale-width) + 14px + min(38vw, 360px) + 18px);
+      right: 300px;
+      z-index: 8;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    .content h1 {
+      margin: 0 0 4px;
+      font-size: 30px;
+      line-height: 1.1;
+    }
+
+    .content p {
+      margin: 0;
+      color: #d9ecdd;
+      font-size: 15px;
     }
 
     .control-panel {
@@ -311,9 +344,18 @@
       line-height: 1.3;
       white-space: pre-line;
     }
+
+    @media (max-width: 980px) {
+      .content {
+        top: 110px;
+        left: calc(var(--scale-width) + 20px);
+        right: 16px;
+      }
+    }
   </style>
 </head>
 <body>
+  <img class="watermark-logo" src="../images/logo.svg" alt="" aria-hidden="true" />
   <aside class="scale" aria-label="Vertical scale from 0 to 100">
     <div class="scale-label">feet</div>
   </aside>
