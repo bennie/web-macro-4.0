@@ -38,6 +38,7 @@
       width: var(--scale-width);
       border-right: 2px solid var(--line-color);
       background: #ffffff;
+      z-index: 12;
     }
 
     .watermark-logo {
@@ -284,7 +285,7 @@
 
     .placed-image {
       position: fixed;
-      left: calc(var(--scale-width) + ((100vw - var(--scale-width)) / 2));
+      left: calc(var(--scale-width) + ((100vw - var(--scale-width)) * 0.33));
       bottom: 16px;
       transform: translateX(-50%);
       max-width: min(50vw, 520px);
@@ -299,7 +300,7 @@
       position: fixed;
       right: 16px;
       bottom: 16px;
-      z-index: 9;
+      z-index: 6;
       pointer-events: none;
       display: flex;
       align-items: flex-end;
@@ -315,7 +316,7 @@
 
     .reference-item-img {
       width: auto;
-      max-width: min(20vw, 240px);
+      height: auto;
       transition: height 220ms ease;
     }
 
@@ -391,6 +392,10 @@
       <img class="reference-item-img reference-second-image" alt="Reference image 2" />
       <div class="reference-label reference-second-label"></div>
     </div>
+    <div class="reference-figure-wrap">
+      <img class="reference-item-img reference-third-image" alt="Reference image 3" />
+      <div class="reference-label reference-third-label"></div>
+    </div>
   </section>
   <p class="height-readout">Status:
 Height: 20 feet</p>
@@ -414,10 +419,22 @@ Height: 20 feet</p>
     const placedImage = document.querySelector('.placed-image');
     const referenceFirstImage = document.querySelector('.reference-first-image');
     const referenceSecondImage = document.querySelector('.reference-second-image');
+    const referenceThirdImage = document.querySelector('.reference-third-image');
     const referenceFirstLabel = document.querySelector('.reference-first-label');
     const referenceSecondLabel = document.querySelector('.reference-second-label');
+    const referenceThirdLabel = document.querySelector('.reference-third-label');
     const heightReadout = document.querySelector('.height-readout');
     const scaleLabel = document.querySelector('.scale-label');
+    const referenceImageElements = [
+      referenceFirstImage,
+      referenceSecondImage,
+      referenceThirdImage
+    ];
+    const referenceLabelElements = [
+      referenceFirstLabel,
+      referenceSecondLabel,
+      referenceThirdLabel
+    ];
     let selectedImageDataUrl = '';
     let scaleMax = 100;
     let scaleUnit = 'feet';
@@ -488,8 +505,9 @@ Height: 20 feet</p>
     };
 
     const applyReferenceFigureHeights = () => {
-      setReferenceSlot(referenceFirstImage, referenceFirstLabel, displayedReferences[0]);
-      setReferenceSlot(referenceSecondImage, referenceSecondLabel, displayedReferences[1]);
+      referenceImageElements.forEach((imageEl, index) => {
+        setReferenceSlot(imageEl, referenceLabelElements[index], displayedReferences[index]);
+      });
     };
 
     const updateNearestReferences = (targetHeight) => {
@@ -499,7 +517,7 @@ Height: 20 feet</p>
         if (da !== db) return da - db;
         return a.height - b.height;
       });
-      displayedReferences = sorted.slice(0, 2);
+      displayedReferences = sorted.slice(0, 3).sort((a, b) => a.height - b.height);
       applyReferenceFigureHeights();
     };
 
