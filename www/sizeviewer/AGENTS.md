@@ -1,9 +1,10 @@
 # Current State
 
 ## Project
-- Directory: `/vagrant/sizeviewer`
+- Directory: `/home/phil/work/sizeviewer`
 - Application file: `index.html`
 - Reference assets: `reference-images/`
+- Avatar assets: `avatar-images/`
 
 ## Implemented UI
 - Left-side vertical scale fixed to viewport:
@@ -11,9 +12,9 @@
   - Top is dynamic based on current height behavior
   - Scale label can be `inches`, `feet`, or `miles`
   - Scale renders with no more than `20` divisions
-- Dark grey viewport background (`#3f3f46`).
+- Scenic green/black gradient viewport background via `--bg`.
 - HTML title: `Sizeviewer`.
-- Main heading: `Sizeviewer Demo`.
+- Main heading: `Sizeviewer`.
 - Top-right control panel includes:
   - `Add image`
   - `Bigger`
@@ -23,6 +24,7 @@
 - Lower-left two-line status display:
   - `Status:`
   - `Height: ...`
+- Watermark logo fixed near the top-left of the content area.
 
 ## Image Upload Flow
 - `Add image` opens a centered modal dialog.
@@ -36,6 +38,7 @@
 - On close with a selected image:
   - Image is placed center-bottom of viewport
   - Image height is mapped to current scale
+  - Transparent PNGs render without an added frame/background/border
 
 ## Size Controls
 - `Bigger`, `Smaller`, and `Reset` start disabled.
@@ -62,17 +65,25 @@
   - above `100,000` feet: miles only (`Height: X miles`)
 
 ## Reference Images (Lower Right)
-- Displays two references in lower-right:
-  - man on the left (`reference-images/man.png`)
-  - woman on the right (`reference-images/woman.png`)
-- Both are bottom-aligned and scale-mapped to the same dynamic scale.
-- Heights loaded from:
-  - `reference-images/man.json` (`height: 6`)
-  - `reference-images/woman.json` (`height: 5`)
+- Displays the two nearest references in lower-right based on current placed-image height.
+- Reference images are bottom-aligned and scale-mapped to the same dynamic scale.
+- Heights are loaded from matching JSON files in `reference-images/` when available.
 
 ## Additional Reference Assets
 - `reference-images/empire-state.png`
 - `reference-images/empire-state.json` (`height: 1454`)
+- `reference-images/great-pyramid.png` updated to a transparent-outline/light-grey fill version
+- `reference-images/nancy-50ft-woman.png` updated to a transparent cutout
+- `reference-images/nancy-50ft-woman.json` now names `Nancy Archer (50ft Woman)`
+- `reference-images/king-kong-skull-island-2017.png`
+- `reference-images/king-kong-skull-island-2017.json` (`height: 104`)
+- `avatar-images/Bennie-Zoot.png` with transparent background and light-grey fill
+
+## Repo Hygiene
+- `.gitignore` ignores:
+  - `.numba-cache/`
+  - `.u2net/`
+  - `.venv-rembg/`
 
 ## Notes
 - No commit was created during this session.
