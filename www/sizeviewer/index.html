@@ -355,11 +355,12 @@
       left: calc(var(--scale-width) + ((100vw - var(--scale-width)) * 0.33));
       bottom: 16px;
       transform: translateX(-50%);
-      max-width: min(50vw, 520px);
       max-height: calc(100vh - 32px);
       width: auto;
       z-index: 10;
       display: none;
+      vertical-align: bottom;
+      transform-origin: center bottom;
       transition: height 220ms ease;
     }
 
@@ -859,6 +860,7 @@ Height: 2 meters</p>
     const placeSelectedImage = () => {
       if (!selectedImageDataUrl) return;
       placedImage.src = selectedImageDataUrl;
+      placedImage.style.width = 'auto';
       placedImage.style.display = 'block';
       applyPlacedImageHeight();
       setSizeControlsEnabled(true);
