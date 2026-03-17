@@ -682,6 +682,7 @@ Height: 2 meters</p>
     let displayedReferences = [];
     let currentHeightMeters = measurementSystems.metric.defaultInputValue;
     const initialHeightMeters = currentHeightMeters;
+    let resetHeightMeters = initialHeightMeters;
 
     const getClampedDisplayHeightValue = (value, system = getActiveSystem()) => {
       const parsedHeight = Number(value);
@@ -896,6 +897,7 @@ Height: 2 meters</p>
       placedImage.style.width = 'auto';
       placedImage.style.display = 'block';
       applyPlacedImageHeight();
+      resetHeightMeters = currentHeightMeters;
       setSizeControlsEnabled(true);
     };
 
@@ -984,7 +986,7 @@ Height: 2 meters</p>
     });
 
     resetBtn.addEventListener('click', () => {
-      currentHeightMeters = initialHeightMeters;
+      currentHeightMeters = resetHeightMeters;
       syncInputFromCurrentHeight();
       applyPlacedImageHeight();
     });
