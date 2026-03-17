@@ -668,7 +668,15 @@ Height: 2 meters</p>
       { name: 'Sears Tower', fileBase: 'sears-tower', heightMeters: 1451 * FEET_TO_METERS },
       { name: 'CN Tower', fileBase: 'cn-tower', heightMeters: 1815 * FEET_TO_METERS },
       { name: 'Empire State Building', fileBase: 'empire-state', heightMeters: 1454 * FEET_TO_METERS },
-      { name: 'Moon', fileBase: 'moon', heightMeters: 3474000 }
+      { name: 'Mercury', fileBase: 'mercury', heightMeters: 4879400 },
+      { name: 'Mars', fileBase: 'mars', heightMeters: 6779000 },
+      { name: 'Pluto', fileBase: 'pluto', heightMeters: 2376600 },
+      { name: 'Moon', fileBase: 'moon', heightMeters: 3474000 },
+      { name: 'Earth', fileBase: 'earth', heightMeters: 12742000 },
+      { name: 'Jupiter', fileBase: 'jupiter', heightMeters: 139820000 },
+      { name: 'Uranus', fileBase: 'uranus', heightMeters: 50724000 },
+      { name: 'Neptune', fileBase: 'neptune', heightMeters: 49244000 },
+      { name: 'Sun', fileBase: 'sun', heightMeters: 1392700000 }
     ];
     let referenceCatalog = [...defaultReferences];
     let displayedReferences = [];
@@ -839,12 +847,15 @@ Height: 2 meters</p>
           const response = await fetch('reference-images/' + reference.fileBase + '.json');
           if (!response.ok) return reference;
           const config = await response.json();
-          const parsedHeight = Number(config.height);
+          const parsedHeightMeters = Number(config.heightMeters);
+          const parsedLegacyHeightFeet = Number(config.height);
           return {
             ...reference,
             name: typeof config.name === 'string' && config.name.trim() ? config.name.trim() : reference.name,
-            heightMeters: Number.isFinite(parsedHeight) && parsedHeight > 0
-              ? parsedHeight * FEET_TO_METERS
+            heightMeters: Number.isFinite(parsedHeightMeters) && parsedHeightMeters > 0
+              ? parsedHeightMeters
+              : Number.isFinite(parsedLegacyHeightFeet) && parsedLegacyHeightFeet > 0
+                ? parsedLegacyHeightFeet * FEET_TO_METERS
               : reference.heightMeters
           };
         }));
