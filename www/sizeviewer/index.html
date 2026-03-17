@@ -565,8 +565,8 @@ Height: 2 meters</p>
         ],
         formatStatus: (valueMeters) => {
           const feetValue = valueMeters / FEET_TO_METERS;
-          const milesValue = Number((feetValue / FEET_PER_MILE).toFixed(2));
-          const formattedFeet = Math.round(feetValue).toLocaleString('en-US');
+          const milesValue = formatDisplayNumber(feetValue / FEET_PER_MILE);
+          const formattedFeet = formatRoundedValue(feetValue);
           if (feetValue > 100000) {
             return 'Height: ' + milesValue + ' miles';
           }
@@ -620,7 +620,7 @@ Height: 2 meters</p>
         ],
         formatStatus: (valueMeters) => {
           if (valueMeters >= METRIC_KM_MIN_METERS) {
-            return 'Height: ' + Number((valueMeters / METERS_PER_KILOMETER).toFixed(2)) + ' kilometers (' + Math.round(valueMeters).toLocaleString('en-US') + ' meters)';
+            return 'Height: ' + formatDisplayNumber(valueMeters / METERS_PER_KILOMETER) + ' kilometers (' + formatRoundedValue(valueMeters) + ' meters)';
           }
           if (valueMeters < METRIC_MM_MAX_METERS) {
             return 'Height: ' + Math.round(valueMeters * 1000) + ' millimeters';
@@ -628,7 +628,7 @@ Height: 2 meters</p>
           if (valueMeters < METRIC_CM_MAX_METERS) {
             return 'Height: ' + Number((valueMeters * 100).toFixed(1)) + ' centimeters';
           }
-          return 'Height: ' + Math.round(valueMeters).toLocaleString('en-US') + ' meters';
+          return 'Height: ' + formatRoundedValue(valueMeters) + ' meters';
         },
         formatReference: (valueMeters) => {
           if (valueMeters >= METRIC_KM_MIN_METERS) {
@@ -698,6 +698,27 @@ Height: 2 meters</p>
 
     const formatScaleNumber = (value) => {
       return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(2)));
+    };
+
+    const formatRoundedValue = (value) => {
+      const roundedValue = Math.round(value);
+      return roundedValue >= 1000
+        ? roundedValue.toLocaleString('en-US')
+        : String(roundedValue);
+    };
+
+    const formatDisplayNumber = (value, digits = 2) => {
+      if (value >= 1000) {
+        return Math.round(value).toLocaleString('en-US');
+      }
+
+      const fixedValue = Number(value.toFixed(digits));
+      return fixedValue >= 1000
+        ? fixedValue.toLocaleString('en-US', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: digits
+          })
+        : String(fixedValue);
     };
 
     const getNiceStep = (minimumStep) => {
