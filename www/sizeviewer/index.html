@@ -148,7 +148,7 @@
       z-index: 1000;
     }
 
-    .add-image-btn {
+    .primary-action-btn {
       border: 1px solid #71717a;
       border-radius: 8px;
       padding: 8px 12px;
@@ -159,8 +159,23 @@
       cursor: pointer;
     }
 
-    .add-image-btn:hover {
+    .primary-action-btn:hover {
       background: #3f3f46;
+    }
+
+    .primary-actions {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .primary-actions-or {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #d4d4d8;
     }
 
     .control-actions {
@@ -216,6 +231,41 @@
       border-radius: 12px;
       padding: 14px;
       box-shadow: 0 16px 38px rgba(0, 0, 0, 0.4);
+    }
+
+    .character-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .character-option {
+      border: 1px solid #71717a;
+      border-radius: 10px;
+      background: #27272a;
+      color: #f4f4f5;
+      padding: 10px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .character-option:hover {
+      background: #3f3f46;
+    }
+
+    .character-option img {
+      display: block;
+      width: 100%;
+      max-height: 160px;
+      object-fit: contain;
+      margin: 0 auto 8px;
+    }
+
+    .character-option-height {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #d4d4d8;
     }
 
     .upload-modal-head {
@@ -374,7 +424,11 @@
     <div class="scale-label">feet</div>
   </aside>
   <section class="control-panel" aria-label="Control panel">
-    <button class="add-image-btn" type="button">Add image</button>
+    <div class="primary-actions">
+      <button class="primary-action-btn add-image-btn" type="button">Add image</button>
+      <span class="primary-actions-or" aria-hidden="true">or</span>
+      <button class="primary-action-btn select-character-btn" type="button">Select character</button>
+    </div>
     <button class="control-btn system-toggle-btn" type="button" aria-pressed="false">Use metric</button>
     <div class="control-actions">
       <button class="control-btn bigger-btn" type="button" disabled>Bigger</button>
@@ -398,6 +452,15 @@
       <div class="dialog-preview-wrap" aria-live="polite">
         <p class="preview-hint">No image selected</p>
       </div>
+    </div>
+  </section>
+  <section class="upload-modal-overlay character-modal-overlay" aria-label="Character selection dialog">
+    <div class="upload-modal" role="dialog" aria-modal="true" aria-labelledby="character-title">
+      <header class="upload-modal-head">
+        <h2 id="character-title" class="upload-modal-title">Select character</h2>
+        <button class="close-character-modal-btn" type="button">Close</button>
+      </header>
+      <div class="character-grid" aria-live="polite"></div>
     </div>
   </section>
   <img class="placed-image" alt="Placed uploaded image" />
@@ -425,8 +488,11 @@ Height: 2 meters</p>
   <script>
     const scale = document.querySelector('.scale');
     const addImageBtn = document.querySelector('.add-image-btn');
+    const selectCharacterBtn = document.querySelector('.select-character-btn');
     const modalOverlay = document.querySelector('.upload-modal-overlay');
+    const characterModalOverlay = document.querySelector('.character-modal-overlay');
     const closeModalBtn = document.querySelector('.close-modal-btn');
+    const closeCharacterModalBtn = document.querySelector('.close-character-modal-btn');
     const pickImageBtn = document.querySelector('.pick-image-btn');
     const biggerBtn = document.querySelector('.bigger-btn');
     const smallerBtn = document.querySelector('.smaller-btn');
@@ -435,6 +501,7 @@ Height: 2 meters</p>
     const heightInput = document.querySelector('.height-input');
     const imageInput = document.querySelector('.image-input');
     const imagePreviewWrap = document.querySelector('.dialog-preview-wrap');
+    const characterGrid = document.querySelector('.character-grid');
     const placedImage = document.querySelector('.placed-image');
     const referenceFirstImage = document.querySelector('.reference-first-image');
     const referenceSecondImage = document.querySelector('.reference-second-image');
@@ -576,6 +643,10 @@ Height: 2 meters</p>
         }
       }
     };
+
+    const avatarCatalog = [
+      { name: 'Bennie Zoot', filePath: 'avatar-images/Bennie-Zoot.png', heightMeters: 3.5 }
+    ];
 
     const getActiveSystem = () => measurementSystems[activeSystemKey];
 
@@ -785,25 +856,78 @@ Height: 2 meters</p>
 
     loadReferenceFigureConfigs();
 
-    addImageBtn.addEventListener('click', () => {
-      modalOverlay.classList.add('open');
-    });
-
-    const closeModalAndPlaceImage = () => {
-      modalOverlay.classList.remove('open');
+    const placeSelectedImage = () => {
       if (!selectedImageDataUrl) return;
-
       placedImage.src = selectedImageDataUrl;
       placedImage.style.display = 'block';
       applyPlacedImageHeight();
       setSizeControlsEnabled(true);
     };
 
+    const renderCharacterOptions = () => {
+      characterGrid.innerHTML = '';
+      avatarCatalog.forEach((avatar) => {
+        const button = document.createElement('button');
+        button.className = 'character-option';
+        button.type = 'button';
+
+        const image = document.createElement('img');
+        image.src = avatar.filePath;
+        image.alt = avatar.name;
+
+        const label = document.createElement('div');
+        label.textContent = avatar.name;
+
+        const height = document.createElement('div');
+        height.className = 'character-option-height';
+        height.textContent = getActiveSystem().formatReference(avatar.heightMeters);
+
+        button.appendChild(image);
+        button.appendChild(label);
+        button.appendChild(height);
+        button.addEventListener('click', () => {
+          selectedImageDataUrl = avatar.filePath;
+          if (Number.isFinite(avatar.heightMeters) && avatar.heightMeters > 0) {
+            currentHeightMeters = avatar.heightMeters;
+            syncInputFromCurrentHeight();
+          }
+          characterModalOverlay.classList.remove('open');
+          placeSelectedImage();
+        });
+
+        characterGrid.appendChild(button);
+      });
+    };
+
+    renderCharacterOptions();
+
+    addImageBtn.addEventListener('click', () => {
+      modalOverlay.classList.add('open');
+    });
+
+    selectCharacterBtn.addEventListener('click', () => {
+      characterModalOverlay.classList.add('open');
+    });
+
+    const closeModalAndPlaceImage = () => {
+      modalOverlay.classList.remove('open');
+      placeSelectedImage();
+    };
+
     closeModalBtn.addEventListener('click', closeModalAndPlaceImage);
+    closeCharacterModalBtn.addEventListener('click', () => {
+      characterModalOverlay.classList.remove('open');
+    });
 
     modalOverlay.addEventListener('click', (event) => {
       if (event.target === modalOverlay) {
         closeModalAndPlaceImage();
+      }
+    });
+
+    characterModalOverlay.addEventListener('click', (event) => {
+      if (event.target === characterModalOverlay) {
+        characterModalOverlay.classList.remove('open');
       }
     });
 
