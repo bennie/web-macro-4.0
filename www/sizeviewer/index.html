@@ -275,12 +275,16 @@
 
     .reference-picker-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
       margin-top: 10px;
       max-height: min(65vh, 560px);
       overflow-y: auto;
       padding-right: 4px;
+    }
+
+    .reference-picker-modal-overlay .upload-modal {
+      width: min(760px, calc(100vw - 32px));
     }
 
     .reference-option {
@@ -1170,7 +1174,7 @@ Height: 2 meters</p>
     const renderReferencePickerOptions = () => {
       referencePickerGrid.innerHTML = '';
 
-      referenceCatalog.forEach((reference) => {
+      [...referenceCatalog].sort((a, b) => b.heightMeters - a.heightMeters).forEach((reference) => {
         const option = document.createElement('label');
         option.className = 'reference-option';
 
