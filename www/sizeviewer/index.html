@@ -792,6 +792,7 @@ Height: 2 meters</p>
       { name: 'Bennie Zoot', filePath: 'avatar-images/Bennie-Zoot.png', heightMeters: 3.5 }
     ];
 
+    // Returns the currently selected measurement system config.
     const getActiveSystem = () => measurementSystems[activeSystemKey];
 
     const defaultReferences = [
@@ -865,6 +866,7 @@ Height: 2 meters</p>
     const initialHeightMeters = currentHeightMeters;
     let resetHeightMeters = initialHeightMeters;
 
+    // Parses a user-entered height and clamps it to the active system minimum.
     const getClampedDisplayHeightValue = (value, system = getActiveSystem()) => {
       const parsedHeight = Number(value);
       return Number.isFinite(parsedHeight)
@@ -872,16 +874,19 @@ Height: 2 meters</p>
         : system.defaultInputValue;
     };
 
+    // Enables or disables the size adjustment controls together.
     const setSizeControlsEnabled = (enabled) => {
       biggerBtn.disabled = !enabled;
       smallerBtn.disabled = !enabled;
       resetBtn.disabled = !enabled;
     };
 
+    // Formats tick labels for the left-side scale.
     const formatScaleNumber = (value) => {
       return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(2)));
     };
 
+    // Formats rounded whole-number values with commas only when needed.
     const formatRoundedValue = (value) => {
       const roundedValue = Math.round(value);
       return roundedValue >= 1000
@@ -889,6 +894,7 @@ Height: 2 meters</p>
         : String(roundedValue);
     };
 
+    // Formats a feet value as mixed feet and inches.
     const formatFeetAndInches = (feetValue) => {
       const totalInches = Math.round(feetValue * INCHES_PER_FOOT);
       const wholeFeet = Math.floor(totalInches / INCHES_PER_FOOT);
@@ -901,6 +907,7 @@ Height: 2 meters</p>
       return wholeFeet + ' foot ' + remainingInches + ' inches';
     };
 
+    // Formats inch-only values, preserving fractions for sub-foot sizes.
     const formatInchesValue = (inchesValue) => {
       if (inchesValue < 12) {
         return Number(inchesValue.toFixed(2)).toString();
@@ -909,6 +916,7 @@ Height: 2 meters</p>
       return formatRoundedValue(inchesValue);
     };
 
+    // Formats display values with optional decimals and comma separators.
     const formatDisplayNumber = (value, digits = 2) => {
       if (value >= 1000) {
         return Math.round(value).toLocaleString('en-US');
@@ -923,6 +931,7 @@ Height: 2 meters</p>
         : String(fixedValue);
     };
 
+    // Formats the editable height input while preserving tiny values.
     const formatInputValue = (value) => {
       if (value >= 1) {
         return String(Number(value.toFixed(2)));
@@ -935,6 +944,7 @@ Height: 2 meters</p>
       return value.toFixed(12).replace(/0+$/, '').replace(/\.$/, '');
     };
 
+    // Picks a human-friendly step size using a 1/2/5 progression.
     const getNiceStep = (minimumStep) => {
       const power = 10 ** Math.floor(Math.log10(minimumStep));
       const stepBase = minimumStep / power;
@@ -947,6 +957,7 @@ Height: 2 meters</p>
       return normalizedStep * power;
     };
 
+    // Expands the viewport scale slightly above the current character height.
     const getExpandedScaleMax = (heightMeters) => {
       if (heightMeters >= 1) {
         return Math.ceil(heightMeters * 1.1);
@@ -955,15 +966,18 @@ Height: 2 meters</p>
       return getNiceStep(heightMeters * 1.1);
     };
 
+    // Tests whether a tick value lines up with a major-step boundary.
     const isStepMultiple = (value, step) => {
       const roundedRatio = Math.round(value / step);
       return Math.abs(value - (roundedRatio * step)) < 1e-9;
     };
 
+    // Resolves the image path for a reference catalog entry.
     const getReferenceImagePath = (reference) => {
       return 'reference-images/' + reference.fileBase + '.png';
     };
 
+    // Populates one lower-right reference slot or clears it when empty.
     const setReferenceSlot = (imageEl, labelEl, reference) => {
       const activeSystem = getActiveSystem();
       if (!reference) {
@@ -980,16 +994,19 @@ Height: 2 meters</p>
       labelEl.textContent = reference.name + categoryLabel + ': ' + activeSystem.formatReference(reference.heightMeters);
     };
 
+    // Re-renders the currently chosen reference figures in their display slots.
     const applyReferenceFigureHeights = () => {
       referenceImageElements.forEach((imageEl, index) => {
         setReferenceSlot(imageEl, referenceLabelElements[index], displayedReferences[index]);
       });
     };
 
+    // Returns only the references currently enabled in the chooser.
     const getSelectableReferences = () => {
       return referenceCatalog.filter((reference) => selectedReferenceFileBases.has(reference.fileBase));
     };
 
+    // Chooses and renders the nearest eligible references for the current height.
     const updateNearestReferences = (targetHeight) => {
       const sorted = getSelectableReferences().filter((reference) => {
         return reference.heightMeters <= (scaleMaxMeters * 3);
@@ -1003,10 +1020,12 @@ Height: 2 meters</p>
       applyReferenceFigureHeights();
     };
 
+    // Selects the display unit mode for a meter value in the active system.
     const getScaleModeForMeters = (valueMeters, system = getActiveSystem()) => {
       return system.scaleModes.find((mode) => valueMeters < mode.maxMeters) || system.scaleModes[system.scaleModes.length - 1];
     };
 
+    // Draws the left-side vertical scale for the current viewport range.
     const renderScale = (maxValue, unit) => {
       const existingTicks = scale.querySelectorAll('.tick');
       existingTicks.forEach((tick) => tick.remove());
@@ -1038,6 +1057,7 @@ Height: 2 meters</p>
       });
     };
 
+    // Updates the viewport scale range and unit based on the current height.
     const syncScaleWithHeight = (heightMeters) => {
       const expandedFromHeight = Math.max(MIN_SCALE_MAX_METERS, getExpandedScaleMax(heightMeters));
       const isAboveCurrentScale = heightMeters > scaleMaxMeters;
@@ -1056,11 +1076,13 @@ Height: 2 meters</p>
       }
     };
 
+    // Mirrors the current internal height into the numeric input.
     const syncInputFromCurrentHeight = () => {
       const activeSystem = getActiveSystem();
       heightInput.value = formatInputValue(activeSystem.fromMeters(currentHeightMeters));
     };
 
+    // Re-renders all UI that depends on the current placed-image height.
     const renderCurrentHeightState = () => {
       const activeSystem = getActiveSystem();
       syncScaleWithHeight(currentHeightMeters);
@@ -1072,6 +1094,7 @@ Height: 2 meters</p>
       return currentHeightMeters;
     };
 
+    // Applies the input height to the placed image and refreshes dependent UI.
     const applyPlacedImageHeight = () => {
       const activeSystem = getActiveSystem();
       const clampedDisplayHeight = getClampedDisplayHeightValue(heightInput.value, activeSystem);
@@ -1080,6 +1103,7 @@ Height: 2 meters</p>
       return renderCurrentHeightState();
     };
 
+    // Refreshes labels, limits, and readouts after a unit-system change.
     const updateMeasurementSystemUi = () => {
       const activeSystem = getActiveSystem();
       document.querySelector('.field-unit').textContent = activeSystem.inputUnit;
@@ -1094,6 +1118,7 @@ Height: 2 meters</p>
     renderScale(scaleMaxMeters, scaleUnit);
     updateMeasurementSystemUi();
 
+    // Loads optional per-reference JSON overrides for names, sizes, and categories.
     const loadReferenceFigureConfigs = async () => {
       try {
         const loaded = await Promise.all(defaultReferences.map(async (reference) => {
@@ -1124,6 +1149,7 @@ Height: 2 meters</p>
 
     loadReferenceFigureConfigs();
 
+    // Places the currently chosen upload or avatar into the scene.
     const placeSelectedImage = () => {
       if (!selectedImageDataUrl) return;
       placedImage.src = selectedImageDataUrl;
@@ -1134,6 +1160,7 @@ Height: 2 meters</p>
       setSizeControlsEnabled(true);
     };
 
+    // Builds the avatar chooser grid from the current avatar catalog.
     const renderCharacterOptions = () => {
       characterGrid.innerHTML = '';
       avatarCatalog.forEach((avatar) => {
@@ -1171,6 +1198,7 @@ Height: 2 meters</p>
 
     renderCharacterOptions();
 
+    // Builds the reference chooser grid sorted from largest to smallest.
     const renderReferencePickerOptions = () => {
       referencePickerGrid.innerHTML = '';
 
@@ -1229,6 +1257,7 @@ Height: 2 meters</p>
       referencePickerModalOverlay.classList.add('open');
     });
 
+    // Closes the upload modal and places the selected image, if any.
     const closeModalAndPlaceImage = () => {
       modalOverlay.classList.remove('open');
       placeSelectedImage();

@@ -59,7 +59,10 @@
 ## Scale and Unit Logic
 - Internal state and calculations are meter-native.
 - Scale max grows to `ceil(height * 1.1)` when height exceeds current scale max.
-- Scale max shrinks to `ceil(height * 1.1)` when height drops below `10%` of current scale max.
+- For sub-meter heights, scale growth/shrink uses the same "nice step" logic instead of rounding everything up to `1`.
+- Scale max shrinks when height drops below `35%` of current scale max.
+- Minimum viewport scale max is `1.5` nanometers.
+- If the current height falls at or below the minimum viewport scale threshold, the scale snaps to that minimum.
 - Imperial display modes by current height:
   - `< 0.2` inches: scale labels shown in `mm`, `um`, or `nm` using the same tiny-unit breakpoints as metric mode
   - `< 3` feet: scale labels shown in `in`
@@ -94,16 +97,25 @@
 ## Reference Images (Lower Right)
 - Displays the three nearest references in lower-right based on current placed-image height.
 - Reference images are bottom-aligned and scale-mapped to the same dynamic scale.
+- References larger than `3x` the current viewport scale are excluded from display.
 - Heights are loaded from matching JSON files in `reference-images/` when available.
 - JSON metadata now prefers `heightMeters` and falls back to legacy `height` values in feet.
 - Reference captions follow the active measurement system and may include a category label.
-- Reference entries now support categories such as `creature`, `Kaiju`, `building`, `mountain`, and `planet`.
+- Reference entries now support categories such as `creature`, `Kaiju`, `building`, `mountain`, `planet`, `object`, `cell`, and `atom`.
 - A `Choose Reference Images` modal lets users enable/disable individual references.
+- The chooser uses a 4-column grid and is sorted from largest to smallest by `heightMeters`.
 - Only checked reference entries are eligible to appear in the lower-right comparison set.
 - The default active set includes:
   - `Man`
   - `Woman`
   - `Kodiak Bear`
+  - `Atom`
+  - `Bacteria`
+  - `Red Blood Cell`
+  - `Pollen`
+  - `Die`
+  - `Egg`
+  - `Basketball`
   - `King Kong (1933)`
   - `Nancy Archer (50ft Woman)`
   - `Godzilla (1954)`
@@ -118,7 +130,11 @@
   - `Sun`
 
 ## Additional Reference Assets
+- `reference-images/atom.png` is a transparent crop derived from Dropbox Rutherford atom art
+- `reference-images/bacteria.png` is a transparent crop derived from Dropbox bacteria/virus article art
+- `reference-images/basketball.png` is a transparent crop derived from Wikimedia `Basketball.png`
 - `reference-images/earth.png` is a transparent crop derived from Wikimedia Earth imagery
+- `reference-images/egg.png` is a transparent crop derived from Dropbox `egg.jpg`
 - `reference-images/eiffel.png` is now derived from the Wikimedia `Tour_Eiffel_Wikimedia_Commons` image with sky keyed to transparency
 - `reference-images/jupiter.png` is a transparent crop derived from Wikimedia Jupiter imagery
 - `reference-images/king-kong-1933.png` is a transparent, tightly cropped black-outline/light-grey-fill replacement derived from Dropbox source art
@@ -129,6 +145,8 @@
 - `reference-images/mount-rainier.png` is a transparent crop derived from a Wikimedia Mount Rainier photo
 - `reference-images/neptune.png` is a transparent crop derived from Wikimedia Neptune imagery
 - `reference-images/pluto.png` is a transparent crop derived from Wikimedia Pluto imagery
+- `reference-images/pollen.png` is a transparent crop derived from Dropbox pollen source art
+- `reference-images/red-blood-cell.png` is a transparent crop derived from Wikimedia `Red_White_Blood_cells.jpg`
 - `reference-images/empire-state.png`
 - `reference-images/empire-state.json` (`height: 1454`)
 - `reference-images/great-pyramid.png` updated to a transparent-outline/light-grey fill version
@@ -138,7 +156,7 @@
 - `reference-images/king-kong-skull-island-2017.json` (`height: 104`)
 - `reference-images/sun.png` currently uses the Wikimedia hydrogen-alpha Sun image with transparent outside pixels
 - `reference-images/uranus.png` is a transparent crop derived from Wikimedia Uranus imagery
-- `avatar-images/Bennie-Zoot.png` with transparent background and light-grey fill
+- `avatar-images/Bennie-Zoot.png` is now a trimmed alpha PNG derived from Dropbox `ZootSuitBennie_01-alpha.png`
 
 ## Current Large Body References
 - `Mercury` (`4,879,400` meters)
@@ -154,6 +172,15 @@
 ## Current Mountain References
 - `Mount Rainier` (`4,392` meters)
 - `Mount Everest` (`8,848.86` meters)
+
+## Current Small References
+- `Basketball` (`0.23876` meters)
+- `Egg` (`0.056` meters)
+- `Die` (`0.016` meters)
+- `Pollen` (`0.0001` meters)
+- `Red Blood Cell` (`0.000007` meters)
+- `Bacteria` (`0.000001` meters)
+- `Atom` (`0.0000000001` meters)
 
 ## Repo Hygiene
 - `.gitignore` ignores:
