@@ -793,6 +793,9 @@ Height: 2 meters</p>
       { name: 'Man', fileBase: 'man', heightMeters: 6 * FEET_TO_METERS, category: 'creature' },
       { name: 'Woman', fileBase: 'woman', heightMeters: 5 * FEET_TO_METERS, category: 'creature' },
       { name: 'Kodiak Bear', fileBase: 'bear', heightMeters: 9 * FEET_TO_METERS, category: 'creature' },
+      { name: 'Red Blood Cell', fileBase: 'red-blood-cell', heightMeters: 0.000007, category: 'cell' },
+      { name: 'Die', fileBase: 'die', heightMeters: 0.016, category: 'object' },
+      { name: 'Basketball', fileBase: 'basketball', heightMeters: 0.23876, category: 'object' },
       { name: 'King Kong (1933)', fileBase: 'king-kong-1933', heightMeters: 24 * FEET_TO_METERS, category: 'Kaiju' },
       { name: 'Nancy Archer (50ft Woman)', fileBase: 'nancy-50ft-woman', heightMeters: 50 * FEET_TO_METERS, category: 'Kaiju' },
       { name: 'King Kong (Skull Island 2017)', fileBase: 'king-kong-skull-island-2017', heightMeters: 104 * FEET_TO_METERS, category: 'Kaiju' },
@@ -822,6 +825,9 @@ Height: 2 meters</p>
       'man',
       'woman',
       'bear',
+      'red-blood-cell',
+      'die',
+      'basketball',
       'king-kong-1933',
       'nancy-50ft-woman',
       'godzilla-1954',
@@ -928,6 +934,14 @@ Height: 2 meters</p>
       return normalizedStep * power;
     };
 
+    const getExpandedScaleMax = (heightMeters) => {
+      if (heightMeters >= 1) {
+        return Math.ceil(heightMeters * 1.1);
+      }
+
+      return getNiceStep(heightMeters * 1.1);
+    };
+
     const isStepMultiple = (value, step) => {
       const roundedRatio = Math.round(value / step);
       return Math.abs(value - (roundedRatio * step)) < 1e-9;
@@ -985,7 +999,7 @@ Height: 2 meters</p>
 
       const scaleMode = getScaleModeForMeters(maxValue);
 
-      const safeMax = Math.max(1, maxValue);
+      const safeMax = Math.max(0.00000001, maxValue); // 10 nm
       const maxDivisions = 20;
       const majorStep = getNiceStep(safeMax / 4);
       const minorStep = Math.max(getNiceStep(majorStep / 2), safeMax / maxDivisions);
@@ -1010,7 +1024,7 @@ Height: 2 meters</p>
     };
 
     const syncScaleWithHeight = (heightMeters) => {
-      const expandedFromHeight = Math.max(1, Math.ceil(heightMeters * 1.1));
+      const expandedFromHeight = Math.max(0.00000001, getExpandedScaleMax(heightMeters)); // 10 nm
       const isAboveCurrentScale = heightMeters > scaleMaxMeters;
       const isBelowTenPercentOfScale = heightMeters < (scaleMaxMeters * 0.1);
       const nextMax = (isAboveCurrentScale || isBelowTenPercentOfScale)
