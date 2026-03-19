@@ -602,6 +602,7 @@ Height: 2 meters</p>
     const METRIC_CM_MAX_METERS = 1.1;
     const METRIC_KM_MIN_METERS = 2500;
     const IMPERIAL_MM_MAX_METERS = (0.2 / INCHES_PER_FOOT) * FEET_TO_METERS;
+    const MIN_SCALE_MAX_METERS = 0.0000000015; // 1.5 nm
 
     const measurementSystems = {
       imperial: {
@@ -793,8 +794,12 @@ Height: 2 meters</p>
       { name: 'Man', fileBase: 'man', heightMeters: 6 * FEET_TO_METERS, category: 'creature' },
       { name: 'Woman', fileBase: 'woman', heightMeters: 5 * FEET_TO_METERS, category: 'creature' },
       { name: 'Kodiak Bear', fileBase: 'bear', heightMeters: 9 * FEET_TO_METERS, category: 'creature' },
+      { name: 'Atom', fileBase: 'atom', heightMeters: 0.0000000001, category: 'atom' },
+      { name: 'Bacteria', fileBase: 'bacteria', heightMeters: 0.000001, category: 'cell' },
       { name: 'Red Blood Cell', fileBase: 'red-blood-cell', heightMeters: 0.000007, category: 'cell' },
+      { name: 'Pollen', fileBase: 'pollen', heightMeters: 0.0001, category: 'cell' },
       { name: 'Die', fileBase: 'die', heightMeters: 0.016, category: 'object' },
+      { name: 'Egg', fileBase: 'egg', heightMeters: 0.056, category: 'object' },
       { name: 'Basketball', fileBase: 'basketball', heightMeters: 0.23876, category: 'object' },
       { name: 'King Kong (1933)', fileBase: 'king-kong-1933', heightMeters: 24 * FEET_TO_METERS, category: 'Kaiju' },
       { name: 'Nancy Archer (50ft Woman)', fileBase: 'nancy-50ft-woman', heightMeters: 50 * FEET_TO_METERS, category: 'Kaiju' },
@@ -825,8 +830,12 @@ Height: 2 meters</p>
       'man',
       'woman',
       'bear',
+      'atom',
+      'bacteria',
       'red-blood-cell',
+      'pollen',
       'die',
+      'egg',
       'basketball',
       'king-kong-1933',
       'nancy-50ft-woman',
@@ -978,7 +987,9 @@ Height: 2 meters</p>
     };
 
     const updateNearestReferences = (targetHeight) => {
-      const sorted = getSelectableReferences().sort((a, b) => {
+      const sorted = getSelectableReferences().filter((reference) => {
+        return reference.heightMeters <= (scaleMaxMeters * 3);
+      }).sort((a, b) => {
         const da = Math.abs(a.heightMeters - targetHeight);
         const db = Math.abs(b.heightMeters - targetHeight);
         if (da !== db) return da - db;
@@ -999,7 +1010,7 @@ Height: 2 meters</p>
 
       const scaleMode = getScaleModeForMeters(maxValue);
 
-      const safeMax = Math.max(0.00000001, maxValue); // 10 nm
+      const safeMax = Math.max(MIN_SCALE_MAX_METERS, maxValue);
       const maxDivisions = 20;
       const majorStep = getNiceStep(safeMax / 4);
       const minorStep = Math.max(getNiceStep(majorStep / 2), safeMax / maxDivisions);
@@ -1024,10 +1035,13 @@ Height: 2 meters</p>
     };
 
     const syncScaleWithHeight = (heightMeters) => {
-      const expandedFromHeight = Math.max(0.00000001, getExpandedScaleMax(heightMeters)); // 10 nm
+      const expandedFromHeight = Math.max(MIN_SCALE_MAX_METERS, getExpandedScaleMax(heightMeters));
       const isAboveCurrentScale = heightMeters > scaleMaxMeters;
-      const isBelowTenPercentOfScale = heightMeters < (scaleMaxMeters * 0.1);
-      const nextMax = (isAboveCurrentScale || isBelowTenPercentOfScale)
+      const isBelowShrinkThreshold = heightMeters < (scaleMaxMeters * 0.35);
+      const isBelowMinimumScaleThreshold = heightMeters <= MIN_SCALE_MAX_METERS;
+      const nextMax = isBelowMinimumScaleThreshold
+        ? MIN_SCALE_MAX_METERS
+        : (isAboveCurrentScale || isBelowShrinkThreshold)
         ? expandedFromHeight
         : scaleMaxMeters;
       const nextScaleUnit = getScaleModeForMeters(heightMeters).unit;
