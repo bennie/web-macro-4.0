@@ -614,7 +614,7 @@ Height: 2 meters</p>
         scaleModes: [
           {
             unit: 'in',
-            maxMeters: 5 * FEET_TO_METERS,
+            maxMeters: 3 * FEET_TO_METERS,
             convertFromMeters: (value) => value / FEET_TO_METERS * INCHES_PER_FOOT
           },
           {
@@ -630,13 +630,21 @@ Height: 2 meters</p>
         ],
         formatStatus: (valueMeters) => {
           const feetValue = valueMeters / FEET_TO_METERS;
+          const inchesValue = feetValue * INCHES_PER_FOOT;
           const milesValue = formatDisplayNumber(feetValue / FEET_PER_MILE);
           const formattedFeet = formatRoundedValue(feetValue);
+          const formattedInches = formatInchesValue(inchesValue);
           if (feetValue > 100000) {
             return 'Height: ' + milesValue + ' miles';
           }
           if (feetValue > 2500) {
             return 'Height: ' + milesValue + ' miles (' + formattedFeet + ' feet)';
+          }
+          if (feetValue < 3) {
+            return 'Height: ' + formattedInches + ' inches';
+          }
+          if (feetValue < 10) {
+            return 'Height: ' + formatFeetAndInches(feetValue);
           }
           return 'Height: ' + formattedFeet + ' feet';
         },
@@ -645,8 +653,8 @@ Height: 2 meters</p>
           if (feetValue > 2500) {
             return Number((feetValue / FEET_PER_MILE).toFixed(2)) + ' mi';
           }
-          if (feetValue < 5) {
-            return Math.round(feetValue * INCHES_PER_FOOT) + ' in';
+          if (feetValue < 3) {
+            return formatInchesValue(feetValue * INCHES_PER_FOOT) + ' in';
           }
           return Math.round(feetValue) + ' ft';
         }
@@ -796,6 +804,26 @@ Height: 2 meters</p>
       return roundedValue >= 1000
         ? roundedValue.toLocaleString('en-US')
         : String(roundedValue);
+    };
+
+    const formatFeetAndInches = (feetValue) => {
+      const totalInches = Math.round(feetValue * INCHES_PER_FOOT);
+      const wholeFeet = Math.floor(totalInches / INCHES_PER_FOOT);
+      const remainingInches = totalInches % INCHES_PER_FOOT;
+
+      if (remainingInches === 0) {
+        return wholeFeet + ' foot';
+      }
+
+      return wholeFeet + ' foot ' + remainingInches + ' inches';
+    };
+
+    const formatInchesValue = (inchesValue) => {
+      if (inchesValue < 12) {
+        return Number(inchesValue.toFixed(2)).toString();
+      }
+
+      return formatRoundedValue(inchesValue);
     };
 
     const formatDisplayNumber = (value, digits = 2) => {
