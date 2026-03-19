@@ -1,0 +1,13 @@
+{
+  "name": "web-macro-4-0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint:sizeviewer": "node scripts/extract-sizeviewer-inline-js.mjs | eslint --stdin --stdin-filename www/sizeviewer/index.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.3",
+    "globals": "^17.4.0"
+  }
+}

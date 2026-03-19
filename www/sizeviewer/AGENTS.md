@@ -19,7 +19,9 @@
 - Main heading: `Sizeviewer`.
 - Top-right control panel includes:
   - `Add image`
+  - `Select character`
   - `Use metric` / `Use imperial` toggle
+  - `Choose Reference Images`
   - `Bigger`
   - `Smaller`
   - `Reset`
@@ -50,7 +52,8 @@
 - They become enabled after an image is placed.
 - `Bigger`: increases current height by `10%`.
 - `Smaller`: decreases current height by `10%`.
-- `Reset`: restores to the initial imported-image default (`2` meters).
+- `Reset`: restores to the placed image's original height.
+- Avatar selections reset to their avatar-defined size.
 - All size changes immediately update placed image and references.
 
 ## Scale and Unit Logic
@@ -82,15 +85,37 @@
 - Reference images are bottom-aligned and scale-mapped to the same dynamic scale.
 - Heights are loaded from matching JSON files in `reference-images/` when available.
 - JSON metadata now prefers `heightMeters` and falls back to legacy `height` values in feet.
-- Reference captions follow the active measurement system.
+- Reference captions follow the active measurement system and may include a category label.
+- Reference entries now support categories such as `creature`, `Kaiju`, `building`, `mountain`, and `planet`.
+- A `Choose Reference Images` modal lets users enable/disable individual references.
+- Only checked reference entries are eligible to appear in the lower-right comparison set.
+- The default active set includes:
+  - `Man`
+  - `Woman`
+  - `Kodiak Bear`
+  - `King Kong (1933)`
+  - `Nancy Archer (50ft Woman)`
+  - `Godzilla (1954)`
+  - `Godzilla Earth (2018)`
+  - all `building` entries
+  - `Mount Everest`
+  - `Pluto`
+  - `Moon`
+  - `Earth`
+  - `Uranus`
+  - `Jupiter`
+  - `Sun`
 
 ## Additional Reference Assets
 - `reference-images/earth.png` is a transparent crop derived from Wikimedia Earth imagery
+- `reference-images/eiffel.png` is now derived from the Wikimedia `Tour_Eiffel_Wikimedia_Commons` image with sky keyed to transparency
 - `reference-images/jupiter.png` is a transparent crop derived from Wikimedia Jupiter imagery
 - `reference-images/king-kong-1933.png` is a transparent, tightly cropped black-outline/light-grey-fill replacement derived from Dropbox source art
 - `reference-images/mars.png` is a transparent crop derived from Wikimedia Mars imagery
 - `reference-images/mercury.png` is a transparent crop derived from Wikimedia Mercury imagery
 - `reference-images/moon.png` is present with meter-based metadata
+- `reference-images/mount-everest.png` is a transparent crop derived from a FreeSVG Everest graphic
+- `reference-images/mount-rainier.png` is a transparent crop derived from a Wikimedia Mount Rainier photo
 - `reference-images/neptune.png` is a transparent crop derived from Wikimedia Neptune imagery
 - `reference-images/pluto.png` is a transparent crop derived from Wikimedia Pluto imagery
 - `reference-images/empire-state.png`
@@ -115,11 +140,20 @@
 - `Neptune` (`49,244,000` meters)
 - `Sun` (`1,392,700,000` meters)
 
+## Current Mountain References
+- `Mount Rainier` (`4,392` meters)
+- `Mount Everest` (`8,848.86` meters)
+
 ## Repo Hygiene
 - `.gitignore` ignores:
   - `.numba-cache/`
   - `.u2net/`
   - `.venv-rembg/`
 
+## Linting
+- Repository root now contains a minimal ESLint setup for the inline `sizeviewer` script.
+- Run `npm run lint:sizeviewer` from the repo root to lint `www/sizeviewer/index.html`.
+- A repo-local Git pre-commit hook in `.githooks/pre-commit` runs `npm run lint:sizeviewer` automatically before commits.
+
 ## Notes
-- Recent work in this subtree includes meter/imperial support, updated figure assets, and a large set of planetary/astronomical reference additions.
+- Recent work in this subtree includes meter/imperial support, updated figure assets, a large set of planetary/astronomical reference additions, reference categories, and a selectable default reference set.

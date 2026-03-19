@@ -1,13 +1,1 @@
-share/htpasswd
-lib/LocalAuth.pm
-
-scripts/archive/avatars.tar.*
-scripts/raw-pages/*.txt
-
-dev
-forums
-main
-phpBB3
-secure
-users
-
+node_modules/
