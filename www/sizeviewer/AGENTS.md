@@ -11,7 +11,7 @@
   - Bottom is `0`
   - Top is dynamic based on current height behavior
   - Default viewport scale max is `4` meters
-  - Scale label can be `in`, `ft`, `mi`, `mm`, `cm`, `m`, or `km`
+  - Scale label can be `nm`, `um`, `mm`, `cm`, `m`, `km`, `in`, `ft`, or `mi`
   - Scale renders with no more than `20` divisions
   - Major tick labels prefer clean "nice" steps rather than awkward fractional defaults
 - Scenic green/black gradient viewport background via `--bg`.
@@ -61,24 +61,35 @@
 - Scale max grows to `ceil(height * 1.1)` when height exceeds current scale max.
 - Scale max shrinks to `ceil(height * 1.1)` when height drops below `10%` of current scale max.
 - Imperial display modes by current height:
-  - `< 5` feet: scale labels shown in `in`
+  - `< 0.2` inches: scale labels shown in `mm`, `um`, or `nm` using the same tiny-unit breakpoints as metric mode
+  - `< 3` feet: scale labels shown in `in`
   - `< 2500` feet: scale labels shown in `ft`
   - `>= 2500` feet: scale labels shown in `mi`
 - Metric display modes by current height:
+  - `< 0.000001` meters: scale labels shown in `nm`
+  - `< 0.001` meters: scale labels shown in `um`
   - `< 0.1` meters: scale labels shown in `mm`
   - `< 1.1` meters: scale labels shown in `cm`
   - `< 2500` meters: scale labels shown in `m`
   - `>= 2500` meters: scale labels shown in `km`
+- Minimum allowed size:
+  - metric mode clamps at `1 nm`
+  - imperial mode also clamps at `1 nm` internally, converted through feet for the input/control path
 - Tick spacing uses a `1/2/5 x 10^n` "nice step" strategy while keeping divisions <= `20`.
 
 ## Status Formatting
 - Status text follows the active measurement system.
 - Imperial status:
+  - below `0.2` inches it switches to `mm`, `um`, or `nm`
+  - below `12` inches it shows fractional inches with up to `2` decimals
+  - from `12` inches up to `3` feet it shows inches only, rounded to whole inches
+  - from `3` feet up to `10` feet it shows mixed feet/inches, such as `6 foot 6 inches`
   - feet use comma formatting when large
   - miles mode shows `Height: X miles (Y feet)`
   - above `100,000` feet it shows miles only
 - Metric status:
-  - uses `mm`, `cm`, `m`, or `kilometers` depending on current height
+  - uses `nm`, `um`, `mm`, `cm`, `m`, or `kilometers` depending on current height
+  - meter values below `4` meters show `2` decimal places
 
 ## Reference Images (Lower Right)
 - Displays the three nearest references in lower-right based on current placed-image height.
@@ -149,6 +160,7 @@
   - `.numba-cache/`
   - `.u2net/`
   - `.venv-rembg/`
+  - `node_modules/`
 
 ## Linting
 - Repository root now contains a minimal ESLint setup for the inline `sizeviewer` script.

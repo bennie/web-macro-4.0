@@ -596,9 +596,12 @@ Height: 2 meters</p>
     const INCHES_PER_FOOT = 12;
     const FEET_PER_MILE = 5280;
     const METERS_PER_KILOMETER = 1000;
+    const METRIC_NM_MAX_METERS = 0.000001;
+    const METRIC_UM_MAX_METERS = 0.001;
     const METRIC_MM_MAX_METERS = 0.1;
     const METRIC_CM_MAX_METERS = 1.1;
     const METRIC_KM_MIN_METERS = 2500;
+    const IMPERIAL_MM_MAX_METERS = (0.2 / INCHES_PER_FOOT) * FEET_TO_METERS;
 
     const measurementSystems = {
       imperial: {
@@ -607,11 +610,26 @@ Height: 2 meters</p>
         toggleLabel: 'Use metric',
         inputUnit: 'feet',
         inputStep: '0.1',
-        minInput: 1,
+        minInput: 0.000000001 / FEET_TO_METERS, // 1 nm
         defaultInputValue: 20,
         toMeters: (value) => value * FEET_TO_METERS,
         fromMeters: (value) => value / FEET_TO_METERS,
         scaleModes: [
+          {
+            unit: 'nm',
+            maxMeters: METRIC_NM_MAX_METERS,
+            convertFromMeters: (value) => value * 1000000000
+          },
+          {
+            unit: 'um',
+            maxMeters: METRIC_UM_MAX_METERS,
+            convertFromMeters: (value) => value * 1000000
+          },
+          {
+            unit: 'mm',
+            maxMeters: IMPERIAL_MM_MAX_METERS,
+            convertFromMeters: (value) => value * 1000
+          },
           {
             unit: 'in',
             maxMeters: 3 * FEET_TO_METERS,
@@ -640,6 +658,15 @@ Height: 2 meters</p>
           if (feetValue > 2500) {
             return 'Height: ' + milesValue + ' miles (' + formattedFeet + ' feet)';
           }
+          if (valueMeters < METRIC_NM_MAX_METERS) {
+            return 'Height: ' + formatDisplayNumber(valueMeters * 1000000000) + ' nanometers';
+          }
+          if (valueMeters < METRIC_UM_MAX_METERS) {
+            return 'Height: ' + formatDisplayNumber(valueMeters * 1000000) + ' micrometers';
+          }
+          if (valueMeters < IMPERIAL_MM_MAX_METERS) {
+            return 'Height: ' + formatDisplayNumber(valueMeters * 1000) + ' millimeters';
+          }
           if (feetValue < 3) {
             return 'Height: ' + formattedInches + ' inches';
           }
@@ -653,6 +680,15 @@ Height: 2 meters</p>
           if (feetValue > 2500) {
             return Number((feetValue / FEET_PER_MILE).toFixed(2)) + ' mi';
           }
+          if (valueMeters < METRIC_NM_MAX_METERS) {
+            return formatDisplayNumber(valueMeters * 1000000000) + ' nm';
+          }
+          if (valueMeters < METRIC_UM_MAX_METERS) {
+            return formatDisplayNumber(valueMeters * 1000000) + ' um';
+          }
+          if (valueMeters < IMPERIAL_MM_MAX_METERS) {
+            return formatDisplayNumber(valueMeters * 1000) + ' mm';
+          }
           if (feetValue < 3) {
             return formatInchesValue(feetValue * INCHES_PER_FOOT) + ' in';
           }
@@ -665,11 +701,21 @@ Height: 2 meters</p>
         toggleLabel: 'Use imperial',
         inputUnit: 'meters',
         inputStep: '0.1',
-        minInput: 0.1,
+        minInput: 0.000000001, // 1 nm
         defaultInputValue: 2,
         toMeters: (value) => value,
         fromMeters: (value) => value,
         scaleModes: [
+          {
+            unit: 'nm',
+            maxMeters: METRIC_NM_MAX_METERS,
+            convertFromMeters: (value) => value * 1000000000
+          },
+          {
+            unit: 'um',
+            maxMeters: METRIC_UM_MAX_METERS,
+            convertFromMeters: (value) => value * 1000000
+          },
           {
             unit: 'mm',
             maxMeters: METRIC_MM_MAX_METERS,
@@ -695,11 +741,20 @@ Height: 2 meters</p>
           if (valueMeters >= METRIC_KM_MIN_METERS) {
             return 'Height: ' + formatDisplayNumber(valueMeters / METERS_PER_KILOMETER) + ' kilometers (' + formatRoundedValue(valueMeters) + ' meters)';
           }
+          if (valueMeters < METRIC_NM_MAX_METERS) {
+            return 'Height: ' + formatDisplayNumber(valueMeters * 1000000000) + ' nanometers';
+          }
+          if (valueMeters < METRIC_UM_MAX_METERS) {
+            return 'Height: ' + formatDisplayNumber(valueMeters * 1000000) + ' micrometers';
+          }
           if (valueMeters < METRIC_MM_MAX_METERS) {
             return 'Height: ' + Math.round(valueMeters * 1000) + ' millimeters';
           }
           if (valueMeters < METRIC_CM_MAX_METERS) {
             return 'Height: ' + Number((valueMeters * 100).toFixed(1)) + ' centimeters';
+          }
+          if (valueMeters < 4) {
+            return 'Height: ' + Number(valueMeters.toFixed(2)) + ' meters';
           }
           return 'Height: ' + formatRoundedValue(valueMeters) + ' meters';
         },
@@ -707,11 +762,20 @@ Height: 2 meters</p>
           if (valueMeters >= METRIC_KM_MIN_METERS) {
             return Number((valueMeters / METERS_PER_KILOMETER).toFixed(2)) + ' km';
           }
+          if (valueMeters < METRIC_NM_MAX_METERS) {
+            return formatDisplayNumber(valueMeters * 1000000000) + ' nm';
+          }
+          if (valueMeters < METRIC_UM_MAX_METERS) {
+            return formatDisplayNumber(valueMeters * 1000000) + ' um';
+          }
           if (valueMeters < METRIC_MM_MAX_METERS) {
             return Math.round(valueMeters * 1000) + ' mm';
           }
           if (valueMeters < METRIC_CM_MAX_METERS) {
             return Number((valueMeters * 100).toFixed(1)) + ' cm';
+          }
+          if (valueMeters < 4) {
+            return Number(valueMeters.toFixed(2)) + ' m';
           }
           return Number(valueMeters.toFixed(2)) + ' m';
         }
@@ -840,6 +904,18 @@ Height: 2 meters</p>
         : String(fixedValue);
     };
 
+    const formatInputValue = (value) => {
+      if (value >= 1) {
+        return String(Number(value.toFixed(2)));
+      }
+
+      if (value >= 0.001) {
+        return value.toFixed(6).replace(/0+$/, '').replace(/\.$/, '');
+      }
+
+      return value.toFixed(12).replace(/0+$/, '').replace(/\.$/, '');
+    };
+
     const getNiceStep = (minimumStep) => {
       const power = 10 ** Math.floor(Math.log10(minimumStep));
       const stepBase = minimumStep / power;
@@ -950,7 +1026,7 @@ Height: 2 meters</p>
 
     const syncInputFromCurrentHeight = () => {
       const activeSystem = getActiveSystem();
-      heightInput.value = String(Number(activeSystem.fromMeters(currentHeightMeters).toFixed(2)));
+      heightInput.value = formatInputValue(activeSystem.fromMeters(currentHeightMeters));
     };
 
     const renderCurrentHeightState = () => {
