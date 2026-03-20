@@ -30,6 +30,11 @@
   - `Status:`
   - `Height: ...`
 - Watermark logo fixed near the top-left of the content area.
+- Character chooser modal:
+  - uses a 3-column grid
+  - stays within the viewport
+  - scrolls vertically when needed
+  - sorts avatars from smallest to largest by height
 
 ## Image Upload Flow
 - `Add image` opens a centered modal dialog.
@@ -157,6 +162,8 @@
 - `reference-images/sun.png` currently uses the Wikimedia hydrogen-alpha Sun image with transparent outside pixels
 - `reference-images/uranus.png` is a transparent crop derived from Wikimedia Uranus imagery
 - `avatar-images/Bennie-Zoot.png` is now a trimmed alpha PNG derived from Dropbox `ZootSuitBennie_01-alpha.png`
+- `avatar-images/Arilin.png` is a trimmed alpha PNG derived from Dropbox `Arilin_SizeViewer_Pose_01.png`
+- `avatar-images/jennifur-rae-4-42ft.png` through `avatar-images/jennifur-rae-22680ft.png` are trimmed alpha PNGs derived from Dropbox `Jennifur_Rae_SizeViewerPose_*` images
 
 ## Current Large Body References
 - `Mercury` (`4,879,400` meters)
@@ -181,6 +188,18 @@
 - `Red Blood Cell` (`0.000007` meters)
 - `Bacteria` (`0.000001` meters)
 - `Atom` (`0.0000000001` meters)
+
+## Current Avatars
+- `Jennifur Rae (Stage 1)` (`1.347216` meters)
+- `Jennifur Rae (Stage 2)` (`2.7432` meters)
+- `Bennie Zoot` (`3.5` meters)
+- `Jennifur Rae (Stage 3)` (`8.2296` meters)
+- `Arilin` (`24.384` meters / `80 ft`)
+- `Jennifur Rae (Stage 4)` (`32.9184` meters)
+- `Jennifur Rae (Stage 5)` (`164.592` meters)
+- `Jennifur Rae (Stage 6)` (`987.552` meters)
+- `Alistor` (`1780` meters)
+- `Jennifur Rae (Stage 7)` (`6912.864` meters)
 
 ## Repo Hygiene
 - `.gitignore` ignores:

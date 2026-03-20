@@ -240,9 +240,18 @@
 
     .character-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
       margin-top: 10px;
+      max-height: min(65vh, 560px);
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .character-modal-overlay .upload-modal {
+      width: min(620px, calc(100vw - 32px));
+      max-height: calc(100vh - 32px);
+      overflow: hidden;
     }
 
     .character-option {
@@ -789,7 +798,15 @@ Height: 2 meters</p>
 
     const avatarCatalog = [
       { name: 'Alistor', filePath: 'avatar-images/Alistor.png', heightMeters: 1780 },
-      { name: 'Bennie Zoot', filePath: 'avatar-images/Bennie-Zoot.png', heightMeters: 3.5 }
+      { name: 'Arilin', filePath: 'avatar-images/Arilin.png', heightMeters: 80 * FEET_TO_METERS },
+      { name: 'Bennie Zoot', filePath: 'avatar-images/Bennie-Zoot.png', heightMeters: 3.5 },
+      { name: 'Jennifur Rae (Stage 1)', filePath: 'avatar-images/jennifur-rae-4-42ft.png', heightMeters: 1.347216 },
+      { name: 'Jennifur Rae (Stage 2)', filePath: 'avatar-images/jennifur-rae-9ft.png', heightMeters: 2.7432 },
+      { name: 'Jennifur Rae (Stage 3)', filePath: 'avatar-images/jennifur-rae-27ft.png', heightMeters: 8.2296 },
+      { name: 'Jennifur Rae (Stage 4)', filePath: 'avatar-images/jennifur-rae-108ft.png', heightMeters: 32.9184 },
+      { name: 'Jennifur Rae (Stage 5)', filePath: 'avatar-images/jennifur-rae-540ft.png', heightMeters: 164.592 },
+      { name: 'Jennifur Rae (Stage 6)', filePath: 'avatar-images/jennifur-rae-3240ft.png', heightMeters: 987.552 },
+      { name: 'Jennifur Rae (Stage 7)', filePath: 'avatar-images/jennifur-rae-22680ft.png', heightMeters: 6912.864 }
     ];
 
     // Returns the currently selected measurement system config.
@@ -1163,7 +1180,7 @@ Height: 2 meters</p>
     // Builds the avatar chooser grid from the current avatar catalog.
     const renderCharacterOptions = () => {
       characterGrid.innerHTML = '';
-      avatarCatalog.forEach((avatar) => {
+      [...avatarCatalog].sort((a, b) => a.heightMeters - b.heightMeters).forEach((avatar) => {
         const button = document.createElement('button');
         button.className = 'character-option';
         button.type = 'button';
