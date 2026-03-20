@@ -589,6 +589,7 @@ Height: 2 meters</p>
     const referenceSecondLabel = document.querySelector('.reference-second-label');
     const referenceThirdLabel = document.querySelector('.reference-third-label');
     const heightReadout = document.querySelector('.height-readout');
+    const introText = document.querySelector('.content p');
     const scaleLabel = document.querySelector('.scale-label');
     const referenceImageElements = [
       referenceFirstImage,
@@ -1132,6 +1133,28 @@ Height: 2 meters</p>
       renderCurrentHeightState();
     };
 
+    // Returns whether any modal dialog is currently open.
+    const isAnyModalOpen = () => {
+      return modalOverlay.classList.contains('open')
+        || characterModalOverlay.classList.contains('open')
+        || referencePickerModalOverlay.classList.contains('open');
+    };
+
+    // Applies the standard "bigger" size step to the placed image.
+    const increaseCurrentHeight = () => {
+      currentHeightMeters += currentHeightMeters * 0.1;
+      syncInputFromCurrentHeight();
+      applyPlacedImageHeight();
+    };
+
+    // Applies the standard "smaller" size step while respecting the active minimum.
+    const decreaseCurrentHeight = () => {
+      const activeSystem = getActiveSystem();
+      currentHeightMeters = Math.max(activeSystem.toMeters(activeSystem.minInput), currentHeightMeters - (currentHeightMeters * 0.1));
+      syncInputFromCurrentHeight();
+      applyPlacedImageHeight();
+    };
+
     renderScale(scaleMaxMeters, scaleUnit);
     updateMeasurementSystemUi();
 
@@ -1172,6 +1195,7 @@ Height: 2 meters</p>
       placedImage.src = selectedImageDataUrl;
       placedImage.style.width = 'auto';
       placedImage.style.display = 'block';
+      introText.style.display = 'none';
       applyPlacedImageHeight();
       resetHeightMeters = currentHeightMeters;
       setSizeControlsEnabled(true);
@@ -1310,18 +1334,9 @@ Height: 2 meters</p>
       imageInput.click();
     });
 
-    biggerBtn.addEventListener('click', () => {
-      currentHeightMeters += currentHeightMeters * 0.1;
-      syncInputFromCurrentHeight();
-      applyPlacedImageHeight();
-    });
+    biggerBtn.addEventListener('click', increaseCurrentHeight);
 
-    smallerBtn.addEventListener('click', () => {
-      const activeSystem = getActiveSystem();
-      currentHeightMeters = Math.max(activeSystem.toMeters(activeSystem.minInput), currentHeightMeters - (currentHeightMeters * 0.1));
-      syncInputFromCurrentHeight();
-      applyPlacedImageHeight();
-    });
+    smallerBtn.addEventListener('click', decreaseCurrentHeight);
 
     resetBtn.addEventListener('click', () => {
       currentHeightMeters = resetHeightMeters;
@@ -1337,6 +1352,35 @@ Height: 2 meters</p>
     heightInput.addEventListener('input', () => {
       applyPlacedImageHeight();
     });
+
+    let wheelAccumulator = 0;
+
+    document.addEventListener('wheel', (event) => {
+      if (isAnyModalOpen()) return;
+      if (placedImage.style.display !== 'block') return;
+      if (event.target.closest('.control-panel')) return;
+
+      let delta = event.deltaY;
+      if (event.deltaMode === 1) delta *= 16;
+      if (event.deltaMode === 2) delta *= window.innerHeight;
+
+      wheelAccumulator += delta;
+      const threshold = 80;
+
+      while (wheelAccumulator <= -threshold) {
+        increaseCurrentHeight();
+        wheelAccumulator += threshold;
+      }
+
+      while (wheelAccumulator >= threshold) {
+        decreaseCurrentHeight();
+        wheelAccumulator -= threshold;
+      }
+
+      if (Math.abs(delta) > 0) {
+        event.preventDefault();
+      }
+    }, { passive: false });
 
     imageInput.addEventListener('change', () => {
       const file = imageInput.files && imageInput.files[0];
