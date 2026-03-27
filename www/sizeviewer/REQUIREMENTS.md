@@ -1,177 +1,213 @@
-# Sizeviewer Requirements
+# Software Requirements Specification
 
-This document describes the current functional requirements for `www/sizeviewer` so the app can be reconstructed in Codex from scratch.
+## Product
+- Product name: `Sizeviewer`
+- Implementation target: single-page web application in `www/sizeviewer/index.html`
+- Runtime model: client-side HTML, CSS, and JavaScript only
 
-## Scope
-- Build a single-page browser app in [`index.html`](/home/phil/work/web-macro-4.0/www/sizeviewer/index.html).
-- Keep all logic client-side in plain HTML, CSS, and JavaScript.
-- Use local asset folders:
-  - `reference-images/`
-  - `avatar-images/`
+## Purpose
+- Allow a user to place one main image into a scaled scene.
+- Let the user resize that image across a very large range of sizes.
+- Show the main image against comparable reference objects.
+- Support both imperial and metric presentation while keeping the internal model meter-native.
 
-## Core Purpose
-- The app displays one main figure anchored to the bottom of the viewport.
-- The user can scale that figure up and down.
-- The app compares the figure against reference objects shown at the lower right.
-- The left side shows a vertical scale that updates with the current size range.
+## Files And Assets
+- Main application file:
+  - `www/sizeviewer/index.html`
+- Reference image directory:
+  - `www/sizeviewer/reference-images/`
+- Avatar image directory:
+  - `www/sizeviewer/avatar-images/`
+- Reference metadata format:
+  - one optional JSON file per reference image, stored beside the PNG
 
-## Main Layout
-- Full-viewport visual scene.
-- Left edge:
-  - fixed vertical scale
-  - bottom labeled `0`
-  - dynamic unit label at the top of the scale
-- Top-right:
-  - floating control panel
-- Lower-left:
-  - two-line status text
-- Lower-right:
-  - up to 3 reference images with labels
-- Top-left:
-  - watermark/logo
+## User Interface
 
-## Visual Style
-- Title and heading are `Sizeviewer`.
-- Background uses a scenic green/black gradient, not a flat color.
-- Control panel is dark, semi-opaque, and always above content.
-- Reference and avatar PNGs should render as-is without forced borders or frames.
+### Overall Layout
+- The application shall render as a full-viewport scene.
+- The application shall show a fixed vertical measurement scale on the left side.
+- The application shall show a floating control panel in the upper-right.
+- The application shall show a status readout in the lower-left.
+- The application shall show up to three reference figures in the lower-right.
+- The application shall show a watermark logo near the upper-left content area.
 
-## Control Panel
-- Include these controls:
+### Main Heading And Intro
+- The page title shall be `Sizeviewer`.
+- The main heading shall be `Sizeviewer`.
+- The intro sentence shall read `Upload an image to view and shift its size.`
+- That intro sentence shall disappear after a main image is placed, whether placement came from upload or avatar selection.
+
+### Visual Style
+- The scene background shall use a scenic green/black gradient.
+- The control panel shall use a dark, semi-opaque style and remain above the scene.
+- Main images, avatars, and reference images shall render without added decorative frames or borders.
+
+## Control Panel Requirements
+- The control panel shall include:
   - `Add image`
   - `Select character`
-  - `Use metric` / `Use imperial` toggle
+  - `Use metric` / `Use imperial`
   - `Choose Reference Images`
   - `Bigger`
   - `Smaller`
   - `Reset`
-- `Bigger`, `Smaller`, and `Reset` start disabled.
-- Those three become enabled once a main image is placed.
+- `Bigger`, `Smaller`, and `Reset` shall start disabled.
+- Those three controls shall become enabled after a main image is placed.
 
-## Main Image Placement
-- Main image is always bottom-aligned to the viewport.
-- Main image should be horizontally centered.
-- Scaling is based on the image’s real-world height, not width.
-- `Reset` restores the placed image’s original height.
-- If the current image came from an avatar, `Reset` restores that avatar’s defined height.
+## Main Image Behavior
+- The main image shall be bottom-aligned to the viewport.
+- The main image shall be horizontally centered in the scene.
+- The main image shall scale by real-world height.
+- The image width shall remain automatic.
+- `Reset` shall restore the originally placed height of the current main image.
+- If the current image came from the avatar chooser, `Reset` shall restore that avatar’s defined height.
 
-## Add Image Flow
-- `Add image` opens a modal dialog.
-- Dialog contains:
-  - button to choose an image file
-  - hidden file input with `accept="image/*"`
-  - numeric height input
-  - live preview area
-  - `Ok` button
-- Default imported-image height is `2 meters`.
-- Input unit label must follow the active measurement system.
-- Closing the modal with a valid selected image places the image into the scene.
-- Overlay click should also close the modal.
+## Upload Flow
+- Selecting `Add image` shall open an upload modal.
+- The upload modal shall include:
+  - a `Choose image` action
+  - a hidden file input with `accept="image/*"`
+  - a numeric height input
+  - a unit label bound to the active measurement system
+  - a preview area
+  - an `Ok` button
+- The default imported-image height shall be `2 meters`.
+- Closing the upload modal with a selected image shall place that image in the scene.
+- Clicking the overlay outside the upload modal shall also close it and place the image if one is ready.
 
 ## Avatar Flow
-- `Select character` opens a modal showing avatar choices.
-- Current avatar catalog includes at least:
-  - `Bennie-Zoot.png`
-  - `Alistor.png`
-- Clicking an avatar places it immediately.
-- Avatar entries carry predefined real-world heights.
+- Selecting `Select character` shall open a character chooser modal.
+- The character chooser shall:
+  - use a fixed 3-column grid
+  - fit within the viewport
+  - scroll vertically when content exceeds available height
+  - sort avatars from smallest to largest by height
+- Selecting an avatar shall place it immediately into the scene.
+- Avatar entries shall each have a predefined `heightMeters` value.
+
+## Avatar Catalog
+- The current avatar set shall include at least:
+  - `Jennifur Rae (Stage 1)` at `1.347216 m`
+  - `Jennifur Rae (Stage 2)` at `2.7432 m`
+  - `Bennie Zoot` at `3.5 m`
+  - `Jennifur Rae (Stage 3)` at `8.2296 m`
+  - `Arilin` at `24.384 m`
+  - `Jennifur Rae (Stage 4)` at `32.9184 m`
+  - `Jennifur Rae (Stage 5)` at `164.592 m`
+  - `Jennifur Rae (Stage 6)` at `987.552 m`
+  - `Alistor` at `1780 m`
+  - `Jennifur Rae (Stage 7)` at `6912.864 m`
 
 ## Internal Measurement Model
-- All internal state and calculations are meter-native.
-- Any legacy foot-based reference data must be converted to meters at load time.
-- The app must support both metric and imperial display systems without changing internal storage units.
+- All internal calculations and stored heights shall use meters.
+- Any legacy reference metadata field named `height` shall be interpreted as feet and converted to meters.
+- Switching between metric and imperial shall only change presentation and input interpretation, not internal storage units.
 
-## User Size Changes
-- `Bigger` increases current height by `10%`.
-- `Smaller` decreases current height by `10%`.
-- Metric minimum character size is `1 nm`.
-- Imperial minimum character size is also `1 nm`, converted through feet for the input/control path.
+## Size Adjustment Behavior
+- `Bigger` shall increase current height by `10%`.
+- `Smaller` shall decrease current height by `10%`.
+- The metric minimum character size shall be `1 nm`.
+- The imperial minimum character size shall also be `1 nm`, converted through feet for input and clamping.
+- Mouse wheel support shall be available when a main image is placed.
+- Mouse wheel behavior shall be:
+  - wheel up increases size
+  - wheel down decreases size
+  - it shall use the same size-step logic as `Bigger` and `Smaller`
+  - it shall be ignored while any modal is open
+  - it shall be ignored when no main image is placed
+  - it shall be ignored when the pointer is over the control panel
+- Wheel input shall use accumulated deltas with a threshold rather than direct raw-delta scaling.
 
-## Viewport Scale Behavior
-- Default viewport maximum is `4 meters`.
-- The viewport scale maximum grows when the main character exceeds the current scale.
-- Growth target is approximately `height * 1.1`.
-- For heights `>= 1 meter`, growth can round with `ceil(height * 1.1)`.
-- For heights below `1 meter`, use a nice-step expansion instead of rounding everything up to `1`.
-- The viewport scale shrinks when the main character drops below `35%` of the current scale height.
-- The minimum viewport scale maximum is `1.5 nm`.
-- If the main character height falls at or below the minimum-scale threshold, the viewport should automatically snap to that minimum viewport scale.
+## Viewport Scale Requirements
+- The default viewport scale maximum shall be `4 meters`.
+- The viewport scale shall grow when the current image height exceeds the current scale maximum.
+- The scale growth target shall be approximately `height * 1.1`.
+- For heights at or above `1 meter`, scale growth may round using `ceil(height * 1.1)`.
+- For heights below `1 meter`, scale expansion shall use a nice-step progression instead of rounding directly to `1`.
+- The viewport scale shall shrink when the current image height drops below `35%` of the current scale maximum.
+- The minimum viewport scale maximum shall be `1.5 nm`.
+- If the current image height is at or below the minimum viewport-scale threshold, the scale shall snap to the minimum viewport scale maximum.
 
-## Scale Rendering
-- Scale should render no more than `20` divisions.
-- Tick spacing uses a `1 / 2 / 5 x 10^n` nice-step strategy.
-- Major tick labels should prefer even/clean values.
-- Supported scale units:
-  - metric side: `nm`, `um`, `mm`, `cm`, `m`, `km`
-  - imperial side: `nm`, `um`, `mm`, `in`, `ft`, `mi`
+## Scale Rendering Requirements
+- The vertical scale shall render no more than `20` tick divisions.
+- Tick spacing shall use a `1 / 2 / 5 x 10^n` nice-step strategy.
+- Major tick labels shall favor clean values.
+- The scale shall support these display units:
+  - metric: `nm`, `um`, `mm`, `cm`, `m`, `km`
+  - imperial: `nm`, `um`, `mm`, `in`, `ft`, `mi`
 
-## Measurement System Breakpoints
-- Metric:
-  - `< 0.000001 m` -> `nm`
-  - `< 0.001 m` -> `um`
-  - `< 0.1 m` -> `mm`
-  - `< 1.1 m` -> `cm`
-  - `< 2500 m` -> `m`
-  - `>= 2500 m` -> `km`
-- Imperial:
-  - below `0.2 inches` -> use metric tiny units `mm`, `um`, `nm`
-  - below `3 feet` -> `in`
-  - below `2500 feet` -> `ft`
-  - `>= 2500 feet` -> `mi`
+## Unit Breakpoints
 
-## Status Formatting
-- Lower-left status shows:
+### Metric
+- `< 0.000001 m` shall display as `nm`
+- `< 0.001 m` shall display as `um`
+- `< 0.1 m` shall display as `mm`
+- `< 1.1 m` shall display as `cm`
+- `< 2500 m` shall display as `m`
+- `>= 2500 m` shall display as `km`
+
+### Imperial
+- below `0.2 inches` shall display using `mm`, `um`, or `nm`
+- below `3 feet` shall display as `in`
+- below `2500 feet` shall display as `ft`
+- at or above `2500 feet` shall display as `mi`
+
+## Status Readout Requirements
+- The status readout shall appear in the lower-left.
+- It shall contain:
   - `Status:`
   - `Height: ...`
-- Metric formatting:
-  - use `nm`, `um`, `mm`, `cm`, `m`, or `kilometers` depending on current height
-  - meter values below `4 meters` show `2` decimal places
-  - values at `1000` and above use comma separators
-  - kilometer values at `1000` and above show no decimal places
-- Imperial formatting:
-  - below `0.2 inches` switch to `mm`, `um`, or `nm`
-  - below `12 inches` show fractional inches with up to `2` decimal places
-  - from `12 inches` up to `3 feet` show inches only, rounded to whole inches
-  - from `3 feet` up to `10 feet` show mixed feet/inches, for example `6 foot 6 inches`
-  - from `10 feet` upward show feet, then miles at large values
-  - values at `1000` and above use comma separators
-  - mile values at `1000` and above show no decimal places
-  - above `100,000 feet`, miles display without the feet parenthetical
+
+### Metric Status Formatting
+- Metric status shall use `nm`, `um`, `mm`, `cm`, `m`, or `kilometers` according to the active breakpoints.
+- Meter values below `4 meters` shall show `2` decimal places.
+- Values at `1000` and above shall use comma separators.
+- Kilometer values at or above `1000` shall show no decimal places.
+
+### Imperial Status Formatting
+- Below `0.2 inches`, status shall switch to `mm`, `um`, or `nm`.
+- Below `12 inches`, inches may show fractional values with up to `2` decimal places.
+- From `12 inches` up to `3 feet`, values shall show inches only.
+- From `3 feet` up to `10 feet`, values shall show mixed feet and inches.
+- At larger sizes, values shall show feet, then miles.
+- Values at `1000` and above shall use comma separators.
+- Mile values at or above `1000` shall show no decimal places.
+- Above `100,000 feet`, miles shall display without a feet parenthetical.
 
 ## Reference Image System
-- Show up to 3 nearest reference objects by absolute height difference.
-- Reference objects are bottom-aligned and scaled against the same current viewport scale as the main image.
-- Each reference has:
+- The application shall support a reference catalog displayed in the lower-right comparison area.
+- Up to three nearest references shall be shown, based on absolute height difference from the current main image.
+- Reference figures shall be bottom-aligned and scaled against the same viewport scale as the main image.
+- Each reference shall support:
   - `name`
   - `fileBase`
   - `heightMeters`
   - optional `category`
-- Metadata should load from matching JSON files in `reference-images/` when available.
-- Prefer JSON `heightMeters`.
-- If only legacy `height` exists, interpret it as feet and convert.
-- Preserve JSON `category` when present.
+- Reference metadata shall load from `reference-images/<fileBase>.json` when present.
+- Reference JSON shall prefer `heightMeters`.
+- Reference JSON may also provide `name` and `category`.
 
 ## Reference Visibility Rules
-- Only checked references from the chooser may appear in the lower-right comparison set.
-- References larger than `3x` the current viewport scale must not be shown.
-- Reference labels use the active measurement system.
-- Labels include category when available, using the format:
+- Only references selected in the chooser shall be eligible for display.
+- References larger than `3x` the current viewport scale shall not be displayed.
+- Reference labels shall follow the active measurement system.
+- If a reference has a category, the label shall use the format:
   - `Name [category]: value`
 
 ## Reference Chooser
-- `Choose Reference Images` opens a modal dialog.
-- Modal shows every reference as an icon card with:
+- Selecting `Choose Reference Images` shall open a reference chooser modal.
+- The chooser shall show every reference as an icon card with:
   - preview image
   - checkbox
   - name
-  - category/size text
-- Layout is a fixed `4`-column grid.
-- The chooser modal is wider than the upload modal so 4 columns fit comfortably.
-- Sort chooser entries from largest to smallest by `heightMeters`.
-- Toggling a checkbox immediately updates which references are eligible for display.
+  - category and/or size text
+- The chooser shall use a fixed 4-column grid.
+- The chooser modal shall be wider than the character chooser modal.
+- References in the chooser shall be sorted from largest to smallest by `heightMeters`.
+- Toggling a checkbox shall immediately update which references are eligible for display.
 
 ## Default Selected Reference Set
-- The default active set must include at least:
+- The default active reference set shall include at least:
   - `Man`
   - `Woman`
   - `Kodiak Bear`
@@ -196,7 +232,7 @@ This document describes the current functional requirements for `www/sizeviewer`
   - `Sun`
 
 ## Reference Categories
-- Current categories in use include:
+- Supported categories shall include at least:
   - `creature`
   - `Kaiju`
   - `building`
@@ -206,49 +242,55 @@ This document describes the current functional requirements for `www/sizeviewer`
   - `cell`
   - `atom`
 
-## Important Reference Entries
-- Buildings:
-  - `Epcot Center`
-  - `Great Pyramid`
-  - `Washington Monument`
-  - `Eiffel Tower`
-  - `Sears Tower`
-  - `CN Tower`
-  - `Empire State Building`
-- Mountains:
-  - `Mount Rainier`
-  - `Mount Everest`
-- Planetary / astronomical:
-  - `Mercury`
-  - `Mars`
-  - `Pluto`
-  - `Moon`
-  - `Earth`
-  - `Jupiter`
-  - `Uranus`
-  - `Neptune`
-  - `Sun`
-- Small-scale references:
-  - `Basketball` = `0.23876 m`
-  - `Egg` = `0.056 m`
-  - `Die` = `0.016 m`
-  - `Pollen` = `0.0001 m`
-  - `Red Blood Cell` = `0.000007 m`
-  - `Bacteria` = `0.000001 m`
-  - `Atom` = `0.0000000001 m`
+## Important Reference Inventory
 
-## Asset Expectations
+### Buildings
+- `Epcot Center`
+- `Great Pyramid`
+- `Washington Monument`
+- `Eiffel Tower`
+- `Sears Tower`
+- `CN Tower`
+- `Empire State Building`
+
+### Mountains
+- `Mount Rainier`
+- `Mount Everest`
+
+### Large Astronomical / Planetary References
+- `Mercury` at `4,879,400 m`
+- `Mars` at `6,779,000 m`
+- `Pluto` at `2,376,600 m`
+- `Moon` at `3,474,000 m`
+- `Earth` at `12,742,000 m`
+- `Jupiter` at `139,820,000 m`
+- `Uranus` at `50,724,000 m`
+- `Neptune` at `49,244,000 m`
+- `Sun` at `1,392,700,000 m`
+
+### Small References
+- `Basketball` at `0.23876 m`
+- `Egg` at `0.056 m`
+- `Die` at `0.016 m`
+- `Pollen` at `0.0001 m`
+- `Red Blood Cell` at `0.000007 m`
+- `Bacteria` at `0.000001 m`
+- `Atom` at `0.0000000001 m`
+
+## Asset Requirements
 - Reference images should generally be tightly cropped PNGs with transparent outside regions.
-- Bennie’s current avatar asset is a trimmed alpha PNG derived from `ZootSuitBennie_01-alpha.png`.
-- Many reference images are prepared from Wikimedia or Dropbox source art and then cleaned into transparent PNGs.
+- Avatar images should generally be tightly cropped PNGs with transparent outside regions.
+- Bennie’s current avatar asset shall remain a trimmed alpha PNG derived from `ZootSuitBennie_01-alpha.png`.
+- Arilin shall be represented by a trimmed alpha PNG derived from `Arilin_SizeViewer_Pose_01.png`.
+- Jennifur Rae stage avatars shall be represented by trimmed alpha PNGs derived from the supplied Dropbox sizeviewer images.
 
-## Implementation Notes
-- Keep the app as a single-file HTML app unless there is a strong reason not to.
-- Plain DOM APIs are sufficient; no framework is required.
-- Keep the existing local JSON-per-reference pattern.
-- Keep all calculations deterministic and synchronous on the client side.
+## Implementation Constraints
+- The product should remain a single-file app unless there is a strong reason to split it.
+- Plain DOM APIs are sufficient; no front-end framework is required.
+- Calculations should remain deterministic and entirely client-side.
+- Existing JSON-per-reference metadata loading should be preserved.
 
-## Verification
-- `node --check` should pass when run against the inline script extracted from `index.html`.
-- `npm run lint:sizeviewer` should pass from the repository root.
-- The repo-local pre-commit hook should continue to run the linter.
+## Verification Requirements
+- The JavaScript extracted from the inline script shall pass `node --check`.
+- The project shall pass `npm run lint:sizeviewer` from the repository root.
+- The repo-local pre-commit hook shall continue to run the linter.
