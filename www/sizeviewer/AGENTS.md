@@ -30,6 +30,7 @@
   - `Status:`
   - `Height: ...`
 - Watermark logo fixed near the top-left of the content area.
+- The intro sentence `Upload an image to view and shift its size.` disappears once a main image is placed.
 - Character chooser modal:
   - uses a 3-column grid
   - stays within the viewport
@@ -57,6 +58,13 @@
 - They become enabled after an image is placed.
 - `Bigger`: increases current height by `10%`.
 - `Smaller`: decreases current height by `10%`.
+- Mouse wheel resizing is enabled on the main scene:
+  - wheel up makes the placed image bigger
+  - wheel down makes it smaller
+  - it uses the same `10%` step path as the buttons
+  - it ignores input while a modal is open
+  - it ignores input when no image is placed
+  - it ignores wheel input over the control panel
 - `Reset`: restores to the placed image's original height.
 - Avatar selections reset to their avatar-defined size.
 - All size changes immediately update placed image and references.
