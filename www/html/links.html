@@ -49,9 +49,20 @@
 
       <main id="main" class="content-main">
         <section id="links" class="panel panel-feature" aria-label="Links by category">
-          <h2>Community Links</h2>
+          <div class="panel-head">
+            <h2>Community Links</h2>
+            <label class="filter-toggle">
+              <input id="show-dead-links" type="checkbox" />
+              <span
+                id="show-dead-links-icon"
+                class="filter-toggle-icon"
+                aria-hidden="true"
+              ></span>
+              <span>Show dead links</span>
+            </label>
+          </div>
           <p id="link-count">Loading link totals...</p>
-          <div id="links-root" class="category-grid category-grid-three" aria-live="polite"></div>
+          <div id="links-root" class="category-grid category-grid-three category-grid-masonry" aria-live="polite"></div>
         </section>
       </main>
 
@@ -64,6 +75,12 @@
       (function () {
         const root = document.getElementById("links-root");
         const countNode = document.getElementById("link-count");
+        const showDeadLinksNode = document.getElementById("show-dead-links");
+        const showDeadLinksIcon = document.getElementById("show-dead-links-icon");
+
+        function syncDeadLinkToggleIcon() {
+          showDeadLinksIcon.classList.toggle("filter-toggle-icon-on", showDeadLinksNode.checked);
+        }
 
         function renderError(message) {
           root.innerHTML = "";
@@ -72,6 +89,88 @@
           panel.innerHTML = `<h3>Unable to load links</h3><p class=\"link-entry-desc\">${message}</p>`;
           root.appendChild(panel);
           countNode.textContent = "0 links loaded.";
+        }
+
+        function renderLinks(items) {
+          const visibleItems = items.filter((item) => showDeadLinksNode.checked || !item.maybeDead);
+
+          const grouped = visibleItems.reduce((acc, item) => {
+            const category = item.category || "Uncategorized";
+            if (!acc[category]) {
+              acc[category] = [];
+            }
+            acc[category].push(item);
+            return acc;
+          }, {});
+
+          const preferredOrder = [
+            "Artist and Writer Websites",
+            "Art, Stories, and Media Sites",
+            "Video",
+            "Simulation",
+            "Community Forums",
+            "Non-Furry Macro Sites",
+            "Tangential Interests",
+            "Local Accounts"
+          ];
+
+          const orderedCategories = [
+            ...preferredOrder.filter((category) => grouped[category]),
+            ...Object.keys(grouped).filter(
+              (category) => !preferredOrder.includes(category)
+            )
+          ];
+
+          root.innerHTML = "";
+
+          orderedCategories.forEach((category) => {
+            const entries = grouped[category];
+            const card = document.createElement("article");
+            card.className = "category-card";
+            if (category === "Local Accounts") {
+              card.classList.add("category-card-internal");
+            }
+
+            const heading = document.createElement("h3");
+            heading.textContent = `${category} (${entries.length})`;
+            card.appendChild(heading);
+
+            entries.forEach((entry) => {
+              const row = document.createElement("div");
+              row.className = "link-entry";
+
+              const title = document.createElement("p");
+              title.className = "link-entry-title";
+
+              if (entry.username) {
+                title.append(document.createTextNode(`${entry.username}: `));
+              }
+
+              const anchor = document.createElement("a");
+              anchor.href = entry.link;
+              anchor.textContent = entry.title;
+              anchor.target = "_blank";
+              anchor.rel = "noopener noreferrer";
+              title.appendChild(anchor);
+              if (entry.maybeDead) {
+                title.append(document.createTextNode(" (dead?)"));
+              }
+              row.appendChild(title);
+
+              if (entry.description) {
+                const desc = document.createElement("p");
+                desc.className = "link-entry-desc";
+                desc.textContent = entry.description;
+                row.appendChild(desc);
+              }
+
+              card.appendChild(row);
+            });
+
+            root.appendChild(card);
+          });
+
+          countNode.textContent = `${visibleItems.length} links across ${Object.keys(grouped).length} categories.`;
         }
 
         fetch("../data/links.json")
@@ -85,79 +184,12 @@
             if (!Array.isArray(items)) {
               throw new Error("Invalid data format");
             }
-
-            const grouped = items.reduce((acc, item) => {
-              const category = item.category || "Uncategorized";
-              if (!acc[category]) {
-                acc[category] = [];
-              }
-              acc[category].push(item);
-              return acc;
-            }, {});
-
-            const preferredOrder = [
-              "Artist and Writer Websites",
-              "Art, Stories, and Media Sites",
-              "Community Forums",
-              "Local Accounts",
-              "Non-Furry Macro Sites",
-              "Tangential Interests"
-            ];
-
-            const orderedCategories = [
-              ...preferredOrder.filter((category) => grouped[category]),
-              ...Object.keys(grouped).filter(
-                (category) => !preferredOrder.includes(category)
-              )
-            ];
-
-            root.innerHTML = "";
-
-            orderedCategories.forEach((category) => {
-              const entries = grouped[category];
-              const card = document.createElement("article");
-              card.className = "category-card";
-              if (category === "Local Accounts") {
-                card.classList.add("category-card-internal");
-              }
-
-              const heading = document.createElement("h3");
-              heading.textContent = `${category} (${entries.length})`;
-              card.appendChild(heading);
-
-              entries.forEach((entry) => {
-                const row = document.createElement("div");
-                row.className = "link-entry";
-
-                const title = document.createElement("p");
-                title.className = "link-entry-title";
-
-                if (entry.username) {
-                  title.append(document.createTextNode(`${entry.username}: `));
-                }
-
-                const anchor = document.createElement("a");
-                anchor.href = entry.link;
-                anchor.textContent = entry.title;
-                anchor.target = "_blank";
-                anchor.rel = "noopener noreferrer";
-                title.appendChild(anchor);
-                row.appendChild(title);
-
-                if (entry.description) {
-                  const desc = document.createElement("p");
-                  desc.className = "link-entry-desc";
-                  desc.textContent = entry.description;
-                  row.appendChild(desc);
-                }
-
-                card.appendChild(row);
-              });
-
-              root.appendChild(card);
+            showDeadLinksNode.addEventListener("change", () => {
+              syncDeadLinkToggleIcon();
+              renderLinks(items);
             });
-
-            countNode.textContent = `${items.length} links across ${Object.keys(grouped).length} categories.`;
+            syncDeadLinkToggleIcon();
+            renderLinks(items);
           })
           .catch((error) => {
             renderError(error.message);

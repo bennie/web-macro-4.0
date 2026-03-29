@@ -152,6 +152,43 @@ body {
   font-size: 1.28rem;
 }
 
+.filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.7rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.filter-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.filter-toggle-icon {
+  width: 1.7rem;
+  height: 1.7rem;
+  display: block;
+  flex: 0 0 auto;
+  background: linear-gradient(180deg, #95e695 0%, var(--accent-strong) 100%);
+  mask-image: url("../icons/fontawesome-free/svgs/solid/toggle-off.svg");
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-image: url("../icons/fontawesome-free/svgs/solid/toggle-off.svg");
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+}
+
+.filter-toggle-icon.filter-toggle-icon-on {
+  mask-image: url("../icons/fontawesome-free/svgs/solid/toggle-on.svg");
+  -webkit-mask-image: url("../icons/fontawesome-free/svgs/solid/toggle-on.svg");
+}
+
 .panel-head {
   display: flex;
   justify-content: space-between;
@@ -267,10 +304,17 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 0.8rem;
+  align-items: start;
 }
 
 .category-grid-three {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.category-grid-masonry {
+  display: block;
+  column-count: 3;
+  column-gap: 0.8rem;
 }
 
 .category-card {
@@ -278,6 +322,13 @@ body {
   border: 1px solid #245b36;
   border-radius: 10px;
   padding: 0.8rem;
+}
+
+.category-grid-masonry .category-card {
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 0.8rem;
+  break-inside: avoid;
 }
 
 .category-card h3 {
@@ -437,6 +488,10 @@ body {
   .category-grid-three {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .category-grid-masonry {
+    column-count: 2;
+  }
 }
 
 @media (max-width: 640px) {
@@ -463,6 +518,10 @@ body {
 
   .category-grid-three {
     grid-template-columns: 1fr;
+  }
+
+  .category-grid-masonry {
+    column-count: 1;
   }
 }
 .main-nav a[aria-current="page"] {

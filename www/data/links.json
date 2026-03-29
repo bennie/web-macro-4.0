@@ -163,25 +163,35 @@
     "category": "Community Forums",
     "link": "https://www.giganti.ca",
     "title": "Giganti.ca",
-    "description": "giganti.ca welcomes all forms of size-related creativity: anthros, humans, giants, giantesses, small men and small women alike. Their goal is to foster a supportive and accepting creative community, one which both encourages improvement and champions quality."
+    "description": "giganti.ca welcomes all forms of size-related creativity: anthros, humans, giants, giantesses, small men and small women alike. Their goal is to foster a supportive and accepting creative community, one which both encourages improvement and champions quality.",
+    "maybeDead": true
   },
   {
     "category": "Community Forums",
     "link": "https://www.ta-host.com",
     "title": "Macro Sonic Forum",
-    "description": "Previously the \"Macro-Sonic-Girls\" group on yahoo, this forum features macro content of characters from the Sonic the Hedgehog universe."
+    "description": "Previously the \"Macro-Sonic-Girls\" group on yahoo, this forum features macro content of characters from the Sonic the Hedgehog universe.",
+    "maybeDead": true
   },
   {
     "category": "Community Forums",
     "link": "https://www.offscale.org",
     "title": "OffScale",
-    "description": "An online communtity dedicated to all things Macro, Micro, and all thats in between. Forums, IRC, Art gallery, Journals and more. Stay tuned for future additions."
+    "description": "An online communtity dedicated to all things Macro, Micro, and all thats in between. Forums, IRC, Art gallery, Journals and more. Stay tuned for future additions.",
+    "maybeDead": true
   },
   {
     "category": "Community Forums",
     "link": "https://www.theprocess.cc",
     "title": "The Process",
-    "description": "Formerly hosted on the GTS Depot, this site has a vareity of furry and non-furry art and stories divided by focus. Giantess and Growth are both featured. As well as Inflation, BE, TF, TG and others."
+    "description": "Formerly hosted on the GTS Depot, this site has a vareity of furry and non-furry art and stories divided by focus. Giantess and Growth are both featured. As well as Inflation, BE, TF, TG and others.",
+    "maybeDead": true
+  },
+  {
+    "category": "Video",
+    "link": "https://bigmaxwolf.com/",
+    "title": "Maxwolf",
+    "description": "Maxwolf is a 3D video series in seasons focused on the origins of Maxwolf, a synthetic macro. 12 episodes and over 4 hours total of macro goodness all yours in 4k. Forming the first feature length furry adult animated film and series."
   },
   {
     "category": "Art, Stories, and Media Sites",
@@ -193,19 +203,22 @@
     "category": "Art, Stories, and Media Sites",
     "link": "https://solo15.abac.com",
     "title": "Macro Anthro & Non Anthro Animals and Furries Page",
-    "description": "Originally the \"Macro Anthropomorphic Animals and Other Giant Beasts in Cartoons Page,\" this site focuses mostly upon giant anthro and non-anthro furries that have occurred in cartoons and television."
+    "description": "Originally the \"Macro Anthropomorphic Animals and Other Giant Beasts in Cartoons Page,\" this site focuses mostly upon giant anthro and non-anthro furries that have occurred in cartoons and television.",
+    "maybeDead": true
   },
   {
     "category": "Art, Stories, and Media Sites",
     "link": "https://www.macromataki.org",
     "title": "Macro Mataki",
-    "description": "A site centered around the ginatess Mataki and her likes and interests. Art, Games, and other Macro links."
+    "description": "A site centered around the ginatess Mataki and her likes and interests. Art, Games, and other Macro links.",
+    "maybeDead": true
   },
   {
-    "category": "Art, Stories, and Media Sites",
+    "category": "Video",
     "link": "https://stonegate.furvect.com",
     "title": "Shadowlord Inc.",
-    "description": "Stonegate and Dragoniade's site that features lots of media clips of transforamtions and growth scenes as well as stories, art and other fun stuff."
+    "description": "Stonegate and Dragoniade's site that features lots of media clips of transforamtions and growth scenes as well as stories, art and other fun stuff.",
+    "maybeDead": true
   },
   {
     "category": "Art, Stories, and Media Sites",
@@ -214,7 +227,13 @@
     "description": "\"What we hope to accomplish with this site is to have a very comprehensive size-related library for anyone to find what they are looking for in a reasonably quick and slick fashion. Besides what we have outlined in the terms and conditions, you can post most anything related to size.\""
   },
   {
-    "category": "Art, Stories, and Media Sites",
+    "category": "Simulation",
+    "link": "https://underpa.ws/",
+    "title": "Underpaws",
+    "description": "An underpaw sumlator with choice of paws, characters and stomps. By Scooterr (bsky @scoot.fm)"
+  },
+  {
+    "category": "Simulation",
     "link": "https://www.sizescope.com",
     "title": "The SizeScope",
     "description": "Formerly the Visually Aided Macrostat. It has been brought back by WolfMech, and the VAM is making itself known again on it's own domain. Updates promised for a new and improved version."
@@ -223,7 +242,8 @@
     "category": "Artist and Writer Websites",
     "link": "https://www.blackwolfe.net",
     "title": "BlackWolfe.net",
-    "description": "BlackWolf's collection of art and stories."
+    "description": "BlackWolf's collection of art and stories.",
+    "maybeDead": true
   },
   {
     "category": "Artist and Writer Websites",
@@ -241,13 +261,15 @@
     "category": "Non-Furry Macro Sites",
     "link": "https://www.maxcatsrealm.com",
     "title": "Maxcat's Giantess Realm",
-    "description": "Video, comics, art and more. A good giantess interest site."
+    "description": "Video, comics, art and more. A good giantess interest site.",
+    "maybeDead": true
   },
   {
     "category": "Non-Furry Macro Sites",
     "link": "https://www.gts-depot.net",
     "title": "The GTS Depot",
-    "description": "Forums, Art, Links and more. Focused on Giantesses. Recently changed domain name due to DNS trouble."
+    "description": "Forums, Art, Links and more. Focused on Giantesses. Recently changed domain name due to DNS trouble.",
+    "maybeDead": true
   },
   {
     "category": "Tangential Interests",
@@ -259,7 +281,8 @@
     "category": "Tangential Interests",
     "link": "https://www3.mahoroba.ne.jp",
     "title": "Fat Furry Archive",
-    "description": "A japanese site dedicated to over-eating furries."
+    "description": "A japanese site dedicated to over-eating furries.",
+    "maybeDead": true
   },
   {
     "category": "Tangential Interests",
@@ -271,12 +294,14 @@
     "category": "Tangential Interests",
     "link": "https://www.hotboards.com",
     "title": "The Big Gulp",
-    "description": "Vore interest message board."
+    "description": "Vore interest message board.",
+    "maybeDead": true
   },
   {
     "category": "Tangential Interests",
     "link": "https://roundhouse.wulfnet.net",
     "title": "The Round House",
-    "description": "Probably the largest fat-fur archive out there. Lots of art and stories."
+    "description": "Probably the largest fat-fur archive out there. Lots of art and stories.",
+    "maybeDead": true
   }
 ]

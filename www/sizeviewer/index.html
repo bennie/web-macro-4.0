@@ -1,135 +1,103 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sizeviewer</title>
   <style>
     :root {
-      --scale-width: 72px;
-      --line-color: #1f2937;
-      --tick-color: #374151;
-      --label-color: #111827;
-      --bg:
-        radial-gradient(circle at 12% 95%, #1e4f2f 0%, transparent 35%),
-        radial-gradient(circle at 88% 100%, #123f28 0%, transparent 40%),
-        linear-gradient(180deg, #000000 0%, #144225 100%);
-      --text: #f8fafc;
+      color-scheme: dark;
+      --bg: linear-gradient(180deg, #244334 0%, #0a0d10 100%);
+      --panel: rgba(24, 24, 27, 0.9);
+      --border: #52525b;
+      --text: #f4f4f5;
+      --muted: #d4d4d8;
+      --button: #27272a;
+      --button-hover: #3f3f46;
+      --scale-width: 74px;
     }
 
     * {
       box-sizing: border-box;
     }
 
-    html,
     body {
       margin: 0;
-      height: 100%;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--bg);
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
       color: var(--text);
+      background: var(--bg);
+    }
+
+    .watermark-logo {
+      position: fixed;
+      top: calc(2.2rem + 14px);
+      left: calc(var(--scale-width) + 14px);
+      width: min(38vw, 360px);
+      height: auto;
+      opacity: 0.30;
+      pointer-events: none;
+      user-select: none;
+      z-index: 2;
     }
 
     .scale {
       position: fixed;
-      left: 0;
-      top: 0;
-      bottom: 0;
+      inset: 0 auto 0 0;
       width: var(--scale-width);
-      border-right: 2px solid var(--line-color);
-      background: #ffffff;
-      z-index: 12;
-    }
-
-    .watermark-logo {
-      position: fixed;
-      top: 14px;
-      left: calc(var(--scale-width) + 14px);
-      width: min(38vw, 360px);
-      height: auto;
-      opacity: 0.30;
-      pointer-events: none;
-      user-select: none;
-      z-index: 2;
-    }
-
-    .watermark-logo {
-      position: fixed;
-      top: 14px;
-      left: calc(var(--scale-width) + 14px);
-      width: min(38vw, 360px);
-      height: auto;
-      opacity: 0.30;
-      pointer-events: none;
-      user-select: none;
-      z-index: 2;
+      border-right: 1px solid rgba(255, 255, 255, 0.18);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.10));
+      z-index: 6;
     }
 
     .scale-label {
       position: absolute;
-      top: 8px;
-      left: 8px;
-      font-size: 12px;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px;
       font-weight: 700;
-      color: #111827;
-      text-transform: lowercase;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #eef7ef;
     }
 
     .tick {
       position: absolute;
       left: 0;
       width: 100%;
-      transform: translateY(50%);
-      color: var(--label-color);
+      padding-left: 34px;
+      color: #eef7ef;
       font-size: 12px;
       line-height: 1;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding-left: 6px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+      transform: translateY(50%);
     }
 
-    .tick::after {
+    .tick::before {
       content: "";
-      display: block;
-      height: 1px;
-      flex: 1;
-      margin-right: 6px;
-      background: var(--tick-color);
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.45);
     }
 
-    .tick.major {
-      font-weight: 600;
+    .tick.major::before {
+      width: 28px;
+      border-top-width: 2px;
     }
 
-    .tick.minor {
-      font-size: 0;
-      color: transparent;
-    }
-
-    .tick.minor::after {
-      flex: 0 0 45%;
-      margin-left: auto;
-    }
-
-    .content {
-      position: fixed;
-      top: 16px;
-      left: calc(var(--scale-width) + 14px + min(38vw, 360px) + 18px);
-      right: 300px;
-      z-index: 8;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-
-    .content h1 {
+    .viewport-note-title {
       margin: 0 0 4px;
       font-size: 30px;
       line-height: 1.1;
+      color: var(--text);
     }
 
-    .content p {
+    .viewport-note-text {
       margin: 0;
       color: #d9ecdd;
       font-size: 15px;
@@ -137,35 +105,20 @@
 
     .control-panel {
       position: fixed;
-      top: 16px;
+      top: calc(2.2rem + 16px);
       right: 16px;
+      width: 320px;
       padding: 12px;
-      border: 1px solid #52525b;
+      border: 1px solid var(--border);
       border-radius: 10px;
-      background: rgba(24, 24, 27, 0.9);
+      background: var(--panel);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-      width: 260px;
       z-index: 1000;
-    }
-
-    .primary-action-btn {
-      border: 1px solid #71717a;
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 14px;
-      font-weight: 600;
-      color: #f4f4f5;
-      background: #27272a;
-      cursor: pointer;
-    }
-
-    .primary-action-btn:hover {
-      background: #3f3f46;
     }
 
     .primary-actions {
       display: grid;
-      grid-template-columns: 1fr auto 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto minmax(0, 1fr);
       gap: 8px;
       align-items: center;
     }
@@ -175,47 +128,252 @@
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #d4d4d8;
+      color: var(--muted);
     }
 
-    .control-actions {
-      display: flex;
+    .control-btn,
+    .primary-action-btn {
+      width: 100%;
+      border: 1px solid #71717a;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--button);
+      cursor: pointer;
+    }
+
+    .primary-actions .primary-action-btn {
+      min-width: 0;
+      padding: 8px 8px;
+      font-size: 13px;
+    }
+
+    .control-btn:hover,
+    .primary-action-btn:hover {
+      background: var(--button-hover);
+    }
+
+    .auto-mode-link {
+      display: block;
+      border: 1px solid #71717a;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--button);
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .auto-mode-link:hover {
+      background: var(--button-hover);
+    }
+
+    .secondary-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
       margin-top: 10px;
     }
 
-    .system-toggle-btn {
-      width: 100%;
-      margin-top: 10px;
+    .field-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
     }
 
-    .reference-picker-btn {
+    .field-row input {
       width: 100%;
-      margin-top: 10px;
-    }
-
-    .control-btn {
       border: 1px solid #71717a;
       border-radius: 8px;
       padding: 8px 10px;
+      font-size: 14px;
+      color: var(--text);
+      background: #27272a;
+    }
+
+    .dialog-preview-wrap {
+      display: grid;
+      place-items: center;
+      min-height: 180px;
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px dashed rgba(255, 255, 255, 0.16);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .dialog-preview-wrap img {
+      display: block;
+      max-width: 100%;
+      max-height: 260px;
+      object-fit: contain;
+    }
+
+    .preview-hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .status-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      height: 2.2rem;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 16px 0 calc(var(--scale-width) + 16px);
+      background: rgba(7, 9, 12, 0.86);
+      color: var(--muted);
       font-size: 13px;
-      font-weight: 600;
-      color: #f4f4f5;
-      background: #27272a;
-      cursor: pointer;
+      z-index: 12;
+      backdrop-filter: blur(6px);
     }
 
-    .control-btn:hover {
-      background: #3f3f46;
+    .status-bar-top {
+      top: 0;
+      justify-content: flex-end;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
     }
 
-    .control-btn:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      background: #27272a;
+    .status-bar-top-scale {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: max-content;
+      max-width: calc(100vw - 32px);
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      padding: 0 8px;
+      text-align: left;
+      white-space: nowrap;
     }
 
-    .upload-modal-overlay {
+    .status-bar-top .system-toggle-btn {
+      width: auto;
+      min-width: 0;
+      padding: 4px 10px;
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .status-bar-top-main {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-left: auto;
+    }
+
+    .status-bar-bottom {
+      bottom: 0;
+      padding: 0;
+      justify-content: flex-start;
+      border-top: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .status-bar strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .placed-characters {
+      position: fixed;
+      left: calc(var(--scale-width) + 24px);
+      right: 24px;
+      bottom: 2.2rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 16px;
+      pointer-events: none;
+      z-index: 14;
+    }
+
+    .placed-image {
+      display: none;
+      width: auto;
+      height: auto;
+      max-width: none;
+      object-fit: contain;
+      flex: 0 0 auto;
+      transition: height 220ms ease;
+    }
+
+    .status-bar-bottom-labels {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .status-bar-bottom-label {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(220px, 28vw);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-bar-bottom-label-name,
+    .status-bar-bottom-label-height {
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-bar-bottom-label-name {
+      color: var(--text);
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .status-bar-bottom-label-height {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .viewport-note {
+      position: fixed;
+      inset: calc(2.2rem + 24px) 24px calc(2.2rem + 24px) calc(var(--scale-width) + 24px);
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+    }
+
+    .viewport-note-inner {
+      max-width: 540px;
+      padding: 18px 20px;
+      border: 1px dashed rgba(255, 255, 255, 0.16);
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.12);
+      color: rgba(255, 255, 255, 0.85);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .modal-overlay {
       position: fixed;
       inset: 0;
       display: none;
@@ -225,17 +383,41 @@
       z-index: 20;
     }
 
-    .upload-modal-overlay.open {
+    .modal-overlay.open {
       display: flex;
     }
 
-    .upload-modal {
-      width: min(460px, calc(100vw - 32px));
+    .modal {
+      width: min(620px, calc(100vw - 32px));
+      max-height: calc(100vh - 32px);
+      overflow: hidden;
       background: #18181b;
-      border: 1px solid #52525b;
+      border: 1px solid var(--border);
       border-radius: 12px;
       padding: 14px;
       box-shadow: 0 16px 38px rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .close-modal-btn {
+      border: 1px solid #71717a;
+      background: #27272a;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 4px 8px;
+      cursor: pointer;
     }
 
     .character-grid {
@@ -248,17 +430,11 @@
       padding-right: 4px;
     }
 
-    .character-modal-overlay .upload-modal {
-      width: min(620px, calc(100vw - 32px));
-      max-height: calc(100vh - 32px);
-      overflow: hidden;
-    }
-
     .character-option {
       border: 1px solid #71717a;
       border-radius: 10px;
       background: #27272a;
-      color: #f4f4f5;
+      color: var(--text);
       padding: 10px;
       cursor: pointer;
       text-align: center;
@@ -279,12 +455,22 @@
     .character-option-height {
       margin-top: 4px;
       font-size: 12px;
-      color: #d4d4d8;
+      color: var(--muted);
     }
 
-    .reference-picker-grid {
+    .character-grid-message {
+      grid-column: 1 / -1;
+      padding: 18px 12px;
+      border: 1px dashed rgba(255, 255, 255, 0.14);
+      border-radius: 10px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .reference-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
       margin-top: 10px;
       max-height: min(65vh, 560px);
@@ -292,227 +478,95 @@
       padding-right: 4px;
     }
 
-    .reference-picker-modal-overlay .upload-modal {
-      width: min(760px, calc(100vw - 32px));
-    }
-
     .reference-option {
       border: 1px solid #71717a;
       border-radius: 10px;
       background: #27272a;
-      color: #f4f4f5;
+      color: var(--text);
       padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .reference-option:hover {
+      background: #3f3f46;
     }
 
     .reference-option img {
       display: block;
       width: 100%;
-      max-height: 140px;
+      max-height: 160px;
       object-fit: contain;
-      margin: 0 auto;
+      margin: 0 auto 8px;
     }
 
-    .reference-option-toggle {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      line-height: 1.3;
-    }
-
-    .reference-option-toggle input {
-      margin: 0;
-    }
-
-    .reference-option-meta {
+    .reference-option-height {
+      margin-top: 4px;
       font-size: 12px;
-      color: #d4d4d8;
+      color: var(--muted);
     }
 
-    .upload-modal-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      color: #f4f4f5;
-    }
-
-    .upload-modal-title {
-      margin: 0;
-      font-size: 16px;
-    }
-
-    .close-modal-btn {
-      border: 1px solid #71717a;
-      background: #27272a;
-      color: #f4f4f5;
-      border-radius: 8px;
-      padding: 4px 8px;
-      cursor: pointer;
-    }
-
-    .pick-image-btn {
-      border: 1px solid #71717a;
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 14px;
-      font-weight: 600;
-      color: #f4f4f5;
-      background: #27272a;
-      cursor: pointer;
-      margin-bottom: 10px;
-    }
-
-    .field-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      color: #f4f4f5;
-      font-size: 14px;
-    }
-
-    .field-row input {
-      width: 80px;
-      border: 1px solid #71717a;
-      border-radius: 6px;
-      background: #27272a;
-      color: #f4f4f5;
-      padding: 6px 8px;
-      font-size: 14px;
-    }
-
-    .field-unit {
-      color: #f4f4f5;
-      font-size: 14px;
-    }
-
-    .dialog-preview-wrap {
-      border: 1px dashed #71717a;
-      border-radius: 8px;
-      min-height: 120px;
-      display: grid;
-      place-items: center;
-      padding: 8px;
-      background: rgba(63, 63, 70, 0.35);
-    }
-
-    .dialog-preview-wrap img {
-      max-width: 100%;
-      max-height: 180px;
-      border-radius: 6px;
-      display: block;
-    }
-
-    .preview-hint {
-      margin: 0;
-      font-size: 12px;
-      color: #d4d4d8;
+    .reference-grid-message {
+      grid-column: 1 / -1;
+      padding: 18px 12px;
+      border: 1px dashed rgba(255, 255, 255, 0.14);
+      border-radius: 10px;
+      color: var(--muted);
       text-align: center;
-    }
-
-    .placed-image {
-      position: fixed;
-      left: calc(var(--scale-width) + ((100vw - var(--scale-width)) * 0.33));
-      bottom: 16px;
-      transform: translateX(-50%);
-      max-height: calc(100vh - 32px);
-      width: auto;
-      z-index: 10;
-      display: none;
-      vertical-align: bottom;
-      transform-origin: center bottom;
-      transition: height 220ms ease;
-    }
-
-    .reference-figures {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      z-index: 6;
-      pointer-events: none;
-      display: flex;
-      align-items: flex-end;
-      gap: 12px;
-    }
-
-    .reference-figure-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .reference-item-img {
-      width: auto;
-      height: auto;
-      transition: height 220ms ease;
-    }
-
-    .reference-label {
-      color: #ffffff;
-      font-size: 12px;
-      font-weight: 600;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
-      white-space: nowrap;
-    }
-
-    .height-readout {
-      position: fixed;
-      left: calc(var(--scale-width) + 12px);
-      bottom: 12px;
-      color: #ffffff;
-      font-size: 16px;
-      font-weight: 600;
-      z-index: 11;
-      pointer-events: none;
-      margin: 0;
-      line-height: 1.3;
-      white-space: pre-line;
+      line-height: 1.5;
     }
 
     @media (max-width: 980px) {
-      .content {
-        top: 110px;
-        left: calc(var(--scale-width) + 20px);
+      .viewport-note {
         right: 16px;
+        left: calc(var(--scale-width) + 20px);
       }
     }
   </style>
 </head>
 <body>
   <img class="watermark-logo" src="../images/logo.svg" alt="" aria-hidden="true" />
-  <aside class="scale" aria-label="Vertical scale from 0 to 100">
+
+  <header class="status-bar status-bar-top" aria-label="Status bar">
+    <span class="status-bar-top-scale">
+      <strong>Scale height:</strong>
+      <span class="status-scale-height">100 feet</span>
+      <button class="control-btn system-toggle-btn" type="button">Use metric</button>
+    </span>
+    <div class="status-bar-top-main">
+      <span><strong>Slots:</strong> Up to 3 figures</span>
+      <span><strong>Mode:</strong> Manual lineup</span>
+    </div>
+  </header>
+
+  <aside class="scale" aria-label="Vertical scale from 0 to current max">
     <div class="scale-label">feet</div>
   </aside>
+
   <section class="control-panel" aria-label="Control panel">
     <div class="primary-actions">
-      <button class="primary-action-btn add-image-btn" type="button">Add image</button>
+      <button class="primary-action-btn select-character-btn" type="button" disabled>Select Character</button>
+      <button class="primary-action-btn reference-picker-btn" type="button">Select Reference</button>
       <span class="primary-actions-or" aria-hidden="true">or</span>
-      <button class="primary-action-btn select-character-btn" type="button">Select character</button>
+      <button class="primary-action-btn add-image-btn" type="button">Upload Image</button>
     </div>
-    <button class="control-btn system-toggle-btn" type="button" aria-pressed="false">Use metric</button>
-    <button class="control-btn reference-picker-btn" type="button">Choose Reference Images</button>
-    <div class="control-actions">
-      <button class="control-btn bigger-btn" type="button" disabled>Bigger</button>
-      <button class="control-btn smaller-btn" type="button" disabled>Smaller</button>
-      <button class="control-btn reset-btn" type="button" disabled>Reset</button>
+    <div class="secondary-actions">
+      <button class="control-btn reset-btn" type="button">Reset</button>
+      <a class="auto-mode-link" href="auto-mode.html">Open Auto Mode</a>
     </div>
   </section>
-  <section class="upload-modal-overlay" aria-label="Image upload dialog">
-    <div class="upload-modal" role="dialog" aria-modal="true" aria-labelledby="upload-title">
-      <header class="upload-modal-head">
-        <h2 id="upload-title" class="upload-modal-title">Upload image</h2>
-        <button class="close-modal-btn" type="button">Ok</button>
+
+  <section class="modal-overlay upload-modal-overlay" aria-label="Image upload dialog">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="upload-title">
+      <header class="modal-head">
+        <h2 id="upload-title" class="modal-title">Upload Image</h2>
+        <button class="close-modal-btn close-upload-modal-btn" type="button">Place</button>
       </header>
-      <button class="pick-image-btn" type="button">Choose image</button>
+      <button class="control-btn pick-image-btn" type="button">Choose Image</button>
       <label class="field-row">
         <span>Height</span>
-        <input class="height-input" type="number" value="2" min="1" />
-        <span class="field-unit">meters</span>
+        <input class="height-input" type="number" value="20" min="1" step="0.1" />
+        <span class="field-unit">feet</span>
       </label>
       <input class="image-input" type="file" accept="image/*" hidden />
       <div class="dialog-preview-wrap" aria-live="polite">
@@ -520,91 +574,93 @@
       </div>
     </div>
   </section>
-  <section class="upload-modal-overlay character-modal-overlay" aria-label="Character selection dialog">
-    <div class="upload-modal" role="dialog" aria-modal="true" aria-labelledby="character-title">
-      <header class="upload-modal-head">
-        <h2 id="character-title" class="upload-modal-title">Select character</h2>
-        <button class="close-character-modal-btn" type="button">Close</button>
+
+  <section class="modal-overlay character-modal-overlay" aria-label="Character selection dialog">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="character-title">
+      <header class="modal-head">
+        <h2 id="character-title" class="modal-title">Select character</h2>
+        <button class="close-modal-btn close-character-modal-btn" type="button">Close</button>
       </header>
       <div class="character-grid" aria-live="polite"></div>
     </div>
   </section>
-  <section class="upload-modal-overlay reference-picker-modal-overlay" aria-label="Reference selection dialog">
-    <div class="upload-modal" role="dialog" aria-modal="true" aria-labelledby="reference-picker-title">
-      <header class="upload-modal-head">
-        <h2 id="reference-picker-title" class="upload-modal-title">Choose reference images</h2>
-        <button class="close-reference-picker-modal-btn" type="button">Close</button>
+
+  <section class="modal-overlay reference-modal-overlay" aria-label="Reference selection dialog">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reference-title">
+      <header class="modal-head">
+        <h2 id="reference-title" class="modal-title">Choose reference image</h2>
+        <button class="close-modal-btn close-reference-modal-btn" type="button">Close</button>
       </header>
-      <div class="reference-picker-grid" aria-live="polite"></div>
+      <div class="reference-grid" aria-live="polite"></div>
     </div>
   </section>
-  <img class="placed-image" alt="Placed uploaded image" />
-  <section class="reference-figures" aria-label="Reference figures">
-    <div class="reference-figure-wrap">
-      <img class="reference-item-img reference-first-image" alt="Reference image 1" />
-      <div class="reference-label reference-first-label"></div>
-    </div>
-    <div class="reference-figure-wrap">
-      <img class="reference-item-img reference-second-image" alt="Reference image 2" />
-      <div class="reference-label reference-second-label"></div>
-    </div>
-    <div class="reference-figure-wrap">
-      <img class="reference-item-img reference-third-image" alt="Reference image 3" />
-      <div class="reference-label reference-third-label"></div>
+
+  <section class="placed-characters" aria-label="Placed characters">
+    <img class="placed-image placed-image-first" alt="Placed character 1" />
+    <img class="placed-image placed-image-second" alt="Placed character 2" />
+    <img class="placed-image placed-image-third" alt="Placed character 3" />
+  </section>
+
+  <section class="viewport-note" aria-hidden="true">
+    <div class="viewport-note-inner">
+      <h1 class="viewport-note-title">Sizeviewer</h1>
+      <p class="viewport-note-text">Select a character, reference image or upload your own. It will place the image in the viewer to compare. You can place up to three images.</p>
+      <p class="viewport-note-text">Mouse-wheel will also resize the scale.</p>
     </div>
   </section>
-  <p class="height-readout">Status:
-Height: 2 meters</p>
-  <main class="content">
-    <h1>Sizeviewer</h1>
-    <p>Upload an image to view and shift its size.</p>
-  </main>
+
+  <footer class="status-bar status-bar-bottom" aria-label="Status bar">
+    <div class="status-bar-bottom-labels">
+      <div class="status-bar-bottom-label">
+        <span class="status-bar-bottom-label-name"></span>
+        <span class="status-bar-bottom-label-height"></span>
+      </div>
+      <div class="status-bar-bottom-label">
+        <span class="status-bar-bottom-label-name"></span>
+        <span class="status-bar-bottom-label-height"></span>
+      </div>
+      <div class="status-bar-bottom-label">
+        <span class="status-bar-bottom-label-name"></span>
+        <span class="status-bar-bottom-label-height"></span>
+      </div>
+    </div>
+  </footer>
 
   <script>
     const scale = document.querySelector('.scale');
     const addImageBtn = document.querySelector('.add-image-btn');
     const selectCharacterBtn = document.querySelector('.select-character-btn');
     const referencePickerBtn = document.querySelector('.reference-picker-btn');
-    const modalOverlay = document.querySelector('.upload-modal-overlay');
-    const characterModalOverlay = document.querySelector('.character-modal-overlay');
-    const referencePickerModalOverlay = document.querySelector('.reference-picker-modal-overlay');
-    const closeModalBtn = document.querySelector('.close-modal-btn');
-    const closeCharacterModalBtn = document.querySelector('.close-character-modal-btn');
-    const closeReferencePickerModalBtn = document.querySelector('.close-reference-picker-modal-btn');
-    const pickImageBtn = document.querySelector('.pick-image-btn');
-    const biggerBtn = document.querySelector('.bigger-btn');
-    const smallerBtn = document.querySelector('.smaller-btn');
     const resetBtn = document.querySelector('.reset-btn');
     const systemToggleBtn = document.querySelector('.system-toggle-btn');
+    const uploadModalOverlay = document.querySelector('.upload-modal-overlay');
+    const characterModalOverlay = document.querySelector('.character-modal-overlay');
+    const referenceModalOverlay = document.querySelector('.reference-modal-overlay');
+    const closeUploadModalBtn = document.querySelector('.close-upload-modal-btn');
+    const closeCharacterModalBtn = document.querySelector('.close-character-modal-btn');
+    const closeReferenceModalBtn = document.querySelector('.close-reference-modal-btn');
+    const pickImageBtn = document.querySelector('.pick-image-btn');
     const heightInput = document.querySelector('.height-input');
+    const fieldUnit = document.querySelector('.field-unit');
     const imageInput = document.querySelector('.image-input');
     const imagePreviewWrap = document.querySelector('.dialog-preview-wrap');
     const characterGrid = document.querySelector('.character-grid');
-    const referencePickerGrid = document.querySelector('.reference-picker-grid');
-    const placedImage = document.querySelector('.placed-image');
-    const referenceFirstImage = document.querySelector('.reference-first-image');
-    const referenceSecondImage = document.querySelector('.reference-second-image');
-    const referenceThirdImage = document.querySelector('.reference-third-image');
-    const referenceFirstLabel = document.querySelector('.reference-first-label');
-    const referenceSecondLabel = document.querySelector('.reference-second-label');
-    const referenceThirdLabel = document.querySelector('.reference-third-label');
-    const heightReadout = document.querySelector('.height-readout');
-    const introText = document.querySelector('.content p');
+    const referenceGrid = document.querySelector('.reference-grid');
     const scaleLabel = document.querySelector('.scale-label');
-    const referenceImageElements = [
-      referenceFirstImage,
-      referenceSecondImage,
-      referenceThirdImage
+    const placedImageElements = [
+      document.querySelector('.placed-image-first'),
+      document.querySelector('.placed-image-second'),
+      document.querySelector('.placed-image-third')
     ];
-    const referenceLabelElements = [
-      referenceFirstLabel,
-      referenceSecondLabel,
-      referenceThirdLabel
-    ];
-    let selectedImageDataUrl = '';
-    let activeSystemKey = 'imperial';
-    let scaleMaxMeters = 4;
-    let scaleUnit = 'ft';
+    const statusBarBottom = document.querySelector('.status-bar-bottom');
+    const statusLabelElements = Array.from(document.querySelectorAll('.status-bar-bottom-label')).map((label) => ({
+      root: label,
+      name: label.querySelector('.status-bar-bottom-label-name'),
+      height: label.querySelector('.status-bar-bottom-label-height')
+    }));
+    const statusScaleHeight = document.querySelector('.status-scale-height');
+    const introText = document.querySelector('.viewport-note-text');
+    const viewportNote = document.querySelector('.viewport-note');
 
     const FEET_TO_METERS = 0.3048;
     const INCHES_PER_FOOT = 12;
@@ -616,202 +672,35 @@ Height: 2 meters</p>
     const METRIC_CM_MAX_METERS = 1.1;
     const METRIC_KM_MIN_METERS = 2500;
     const IMPERIAL_MM_MAX_METERS = (0.2 / INCHES_PER_FOOT) * FEET_TO_METERS;
-    const MIN_SCALE_MAX_METERS = 0.0000000015; // 1.5 nm
+    const MIN_SCALE_MAX_METERS = 1;
+    const DEFAULT_HEIGHT_METERS = 20 * FEET_TO_METERS;
+    const DEFAULT_SCALE_MAX_METERS = 100 * FEET_TO_METERS;
 
-    const measurementSystems = {
-      imperial: {
-        key: 'imperial',
-        label: 'Imperial',
-        toggleLabel: 'Use metric',
-        inputUnit: 'feet',
-        inputStep: '0.1',
-        minInput: 0.000000001 / FEET_TO_METERS, // 1 nm
-        defaultInputValue: 20,
-        toMeters: (value) => value * FEET_TO_METERS,
-        fromMeters: (value) => value / FEET_TO_METERS,
-        scaleModes: [
-          {
-            unit: 'nm',
-            maxMeters: METRIC_NM_MAX_METERS,
-            convertFromMeters: (value) => value * 1000000000
-          },
-          {
-            unit: 'um',
-            maxMeters: METRIC_UM_MAX_METERS,
-            convertFromMeters: (value) => value * 1000000
-          },
-          {
-            unit: 'mm',
-            maxMeters: IMPERIAL_MM_MAX_METERS,
-            convertFromMeters: (value) => value * 1000
-          },
-          {
-            unit: 'in',
-            maxMeters: 3 * FEET_TO_METERS,
-            convertFromMeters: (value) => value / FEET_TO_METERS * INCHES_PER_FOOT
-          },
-          {
-            unit: 'ft',
-            maxMeters: 2500 * FEET_TO_METERS,
-            convertFromMeters: (value) => value / FEET_TO_METERS
-          },
-          {
-            unit: 'mi',
-            maxMeters: Infinity,
-            convertFromMeters: (value) => value / FEET_TO_METERS / FEET_PER_MILE
-          }
-        ],
-        formatStatus: (valueMeters) => {
-          const feetValue = valueMeters / FEET_TO_METERS;
-          const inchesValue = feetValue * INCHES_PER_FOOT;
-          const milesValue = formatDisplayNumber(feetValue / FEET_PER_MILE);
-          const formattedFeet = formatRoundedValue(feetValue);
-          const formattedInches = formatInchesValue(inchesValue);
-          if (feetValue > 100000) {
-            return 'Height: ' + milesValue + ' miles';
-          }
-          if (feetValue > 2500) {
-            return 'Height: ' + milesValue + ' miles (' + formattedFeet + ' feet)';
-          }
-          if (valueMeters < METRIC_NM_MAX_METERS) {
-            return 'Height: ' + formatDisplayNumber(valueMeters * 1000000000) + ' nanometers';
-          }
-          if (valueMeters < METRIC_UM_MAX_METERS) {
-            return 'Height: ' + formatDisplayNumber(valueMeters * 1000000) + ' micrometers';
-          }
-          if (valueMeters < IMPERIAL_MM_MAX_METERS) {
-            return 'Height: ' + formatDisplayNumber(valueMeters * 1000) + ' millimeters';
-          }
-          if (feetValue < 3) {
-            return 'Height: ' + formattedInches + ' inches';
-          }
-          if (feetValue < 10) {
-            return 'Height: ' + formatFeetAndInches(feetValue);
-          }
-          return 'Height: ' + formattedFeet + ' feet';
-        },
-        formatReference: (valueMeters) => {
-          const feetValue = valueMeters / FEET_TO_METERS;
-          if (feetValue > 2500) {
-            return Number((feetValue / FEET_PER_MILE).toFixed(2)) + ' mi';
-          }
-          if (valueMeters < METRIC_NM_MAX_METERS) {
-            return formatDisplayNumber(valueMeters * 1000000000) + ' nm';
-          }
-          if (valueMeters < METRIC_UM_MAX_METERS) {
-            return formatDisplayNumber(valueMeters * 1000000) + ' um';
-          }
-          if (valueMeters < IMPERIAL_MM_MAX_METERS) {
-            return formatDisplayNumber(valueMeters * 1000) + ' mm';
-          }
-          if (feetValue < 3) {
-            return formatInchesValue(feetValue * INCHES_PER_FOOT) + ' in';
-          }
-          return Math.round(feetValue) + ' ft';
-        }
-      },
-      metric: {
-        key: 'metric',
-        label: 'Metric',
-        toggleLabel: 'Use imperial',
-        inputUnit: 'meters',
-        inputStep: '0.1',
-        minInput: 0.000000001, // 1 nm
-        defaultInputValue: 2,
-        toMeters: (value) => value,
-        fromMeters: (value) => value,
-        scaleModes: [
-          {
-            unit: 'nm',
-            maxMeters: METRIC_NM_MAX_METERS,
-            convertFromMeters: (value) => value * 1000000000
-          },
-          {
-            unit: 'um',
-            maxMeters: METRIC_UM_MAX_METERS,
-            convertFromMeters: (value) => value * 1000000
-          },
-          {
-            unit: 'mm',
-            maxMeters: METRIC_MM_MAX_METERS,
-            convertFromMeters: (value) => value * 1000
-          },
-          {
-            unit: 'cm',
-            maxMeters: METRIC_CM_MAX_METERS,
-            convertFromMeters: (value) => value * 100
-          },
-          {
-            unit: 'm',
-            maxMeters: METRIC_KM_MIN_METERS,
-            convertFromMeters: (value) => value
-          },
-          {
-            unit: 'km',
-            maxMeters: Infinity,
-            convertFromMeters: (value) => value / METERS_PER_KILOMETER
-          }
-        ],
-        formatStatus: (valueMeters) => {
-          if (valueMeters >= METRIC_KM_MIN_METERS) {
-            return 'Height: ' + formatDisplayNumber(valueMeters / METERS_PER_KILOMETER) + ' kilometers (' + formatRoundedValue(valueMeters) + ' meters)';
-          }
-          if (valueMeters < METRIC_NM_MAX_METERS) {
-            return 'Height: ' + formatDisplayNumber(valueMeters * 1000000000) + ' nanometers';
-          }
-          if (valueMeters < METRIC_UM_MAX_METERS) {
-            return 'Height: ' + formatDisplayNumber(valueMeters * 1000000) + ' micrometers';
-          }
-          if (valueMeters < METRIC_MM_MAX_METERS) {
-            return 'Height: ' + Math.round(valueMeters * 1000) + ' millimeters';
-          }
-          if (valueMeters < METRIC_CM_MAX_METERS) {
-            return 'Height: ' + Number((valueMeters * 100).toFixed(1)) + ' centimeters';
-          }
-          if (valueMeters < 4) {
-            return 'Height: ' + Number(valueMeters.toFixed(2)) + ' meters';
-          }
-          return 'Height: ' + formatRoundedValue(valueMeters) + ' meters';
-        },
-        formatReference: (valueMeters) => {
-          if (valueMeters >= METRIC_KM_MIN_METERS) {
-            return Number((valueMeters / METERS_PER_KILOMETER).toFixed(2)) + ' km';
-          }
-          if (valueMeters < METRIC_NM_MAX_METERS) {
-            return formatDisplayNumber(valueMeters * 1000000000) + ' nm';
-          }
-          if (valueMeters < METRIC_UM_MAX_METERS) {
-            return formatDisplayNumber(valueMeters * 1000000) + ' um';
-          }
-          if (valueMeters < METRIC_MM_MAX_METERS) {
-            return Math.round(valueMeters * 1000) + ' mm';
-          }
-          if (valueMeters < METRIC_CM_MAX_METERS) {
-            return Number((valueMeters * 100).toFixed(1)) + ' cm';
-          }
-          if (valueMeters < 4) {
-            return Number(valueMeters.toFixed(2)) + ' m';
-          }
-          return Number(valueMeters.toFixed(2)) + ' m';
-        }
-      }
+    let avatarCatalog = [];
+    let referenceCatalog = [];
+    let activeSystemKey = 'imperial';
+    let selectedImageDataUrl = '';
+    let selectedImageName = 'Uploaded Image';
+
+    let placedFigures = [];
+    let currentHeightMeters = DEFAULT_HEIGHT_METERS;
+    let scaleMaxMeters = DEFAULT_SCALE_MAX_METERS;
+
+    const setCharacterChooserMessage = (message) => {
+      characterGrid.innerHTML = '';
+      const note = document.createElement('div');
+      note.className = 'character-grid-message';
+      note.textContent = message;
+      characterGrid.appendChild(note);
     };
 
-    const avatarCatalog = [
-      { name: 'Alistor', filePath: 'avatar-images/Alistor.png', heightMeters: 1780 },
-      { name: 'Arilin', filePath: 'avatar-images/Arilin.png', heightMeters: 80 * FEET_TO_METERS },
-      { name: 'Bennie Zoot', filePath: 'avatar-images/Bennie-Zoot.png', heightMeters: 3.5 },
-      { name: 'Jennifur Rae (Stage 1)', filePath: 'avatar-images/jennifur-rae-4-42ft.png', heightMeters: 1.347216 },
-      { name: 'Jennifur Rae (Stage 2)', filePath: 'avatar-images/jennifur-rae-9ft.png', heightMeters: 2.7432 },
-      { name: 'Jennifur Rae (Stage 3)', filePath: 'avatar-images/jennifur-rae-27ft.png', heightMeters: 8.2296 },
-      { name: 'Jennifur Rae (Stage 4)', filePath: 'avatar-images/jennifur-rae-108ft.png', heightMeters: 32.9184 },
-      { name: 'Jennifur Rae (Stage 5)', filePath: 'avatar-images/jennifur-rae-540ft.png', heightMeters: 164.592 },
-      { name: 'Jennifur Rae (Stage 6)', filePath: 'avatar-images/jennifur-rae-3240ft.png', heightMeters: 987.552 },
-      { name: 'Jennifur Rae (Stage 7)', filePath: 'avatar-images/jennifur-rae-22680ft.png', heightMeters: 6912.864 }
-    ];
-
-    // Returns the currently selected measurement system config.
-    const getActiveSystem = () => measurementSystems[activeSystemKey];
+    const setReferenceChooserMessage = (message) => {
+      referenceGrid.innerHTML = '';
+      const note = document.createElement('div');
+      note.className = 'reference-grid-message';
+      note.textContent = message;
+      referenceGrid.appendChild(note);
+    };
 
     const defaultReferences = [
       { name: 'Man', fileBase: 'man', heightMeters: 6 * FEET_TO_METERS, category: 'creature' },
@@ -848,71 +737,26 @@ Height: 2 meters</p>
       { name: 'Neptune', fileBase: 'neptune', heightMeters: 49244000, category: 'planet' },
       { name: 'Sun', fileBase: 'sun', heightMeters: 1392700000, category: 'planet' }
     ];
-    let referenceCatalog = [...defaultReferences];
-    let selectedReferenceFileBases = new Set([
-      'man',
-      'woman',
-      'bear',
-      'atom',
-      'bacteria',
-      'red-blood-cell',
-      'pollen',
-      'die',
-      'egg',
-      'basketball',
-      'king-kong-1933',
-      'nancy-50ft-woman',
-      'godzilla-1954',
-      'godzilla-earth-2018',
-      'epcot-center',
-      'great-pyramid',
-      'washington-monument',
-      'eiffel',
-      'sears-tower',
-      'cn-tower',
-      'empire-state',
-      'mount-everest',
-      'pluto',
-      'moon',
-      'earth',
-      'uranus',
-      'jupiter',
-      'sun'
-    ]);
-    let displayedReferences = [];
-    let currentHeightMeters = measurementSystems.metric.defaultInputValue;
-    const initialHeightMeters = currentHeightMeters;
-    let resetHeightMeters = initialHeightMeters;
 
-    // Parses a user-entered height and clamps it to the active system minimum.
-    const getClampedDisplayHeightValue = (value, system = getActiveSystem()) => {
-      const parsedHeight = Number(value);
-      return Number.isFinite(parsedHeight)
-        ? Math.max(system.minInput, parsedHeight)
-        : system.defaultInputValue;
-    };
-
-    // Enables or disables the size adjustment controls together.
-    const setSizeControlsEnabled = (enabled) => {
-      biggerBtn.disabled = !enabled;
-      smallerBtn.disabled = !enabled;
-      resetBtn.disabled = !enabled;
-    };
-
-    // Formats tick labels for the left-side scale.
     const formatScaleNumber = (value) => {
       return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(2)));
     };
 
-    // Formats rounded whole-number values with commas only when needed.
     const formatRoundedValue = (value) => {
       const roundedValue = Math.round(value);
-      return roundedValue >= 1000
-        ? roundedValue.toLocaleString('en-US')
-        : String(roundedValue);
+      return roundedValue >= 1000 ? roundedValue.toLocaleString('en-US') : String(roundedValue);
     };
 
-    // Formats a feet value as mixed feet and inches.
+    const formatDisplayNumber = (value) => String(Number(value.toFixed(2)));
+
+    const formatInchesValue = (inchesValue) => {
+      if (inchesValue < 12) {
+        return Number(inchesValue.toFixed(2)).toString();
+      }
+
+      return String(Math.round(inchesValue));
+    };
+
     const formatFeetAndInches = (feetValue) => {
       const totalInches = Math.round(feetValue * INCHES_PER_FOOT);
       const wholeFeet = Math.floor(totalInches / INCHES_PER_FOOT);
@@ -925,44 +769,100 @@ Height: 2 meters</p>
       return wholeFeet + ' foot ' + remainingInches + ' inches';
     };
 
-    // Formats inch-only values, preserving fractions for sub-foot sizes.
-    const formatInchesValue = (inchesValue) => {
-      if (inchesValue < 12) {
-        return Number(inchesValue.toFixed(2)).toString();
+    const measurementSystems = {
+      imperial: {
+        scaleLabel: 'feet',
+        inputUnit: 'feet',
+        inputStep: '0.1',
+        minInput: 1 / FEET_TO_METERS,
+        defaultInputValue: 20,
+        toMeters: (value) => value * FEET_TO_METERS,
+        fromMeters: (value) => value / FEET_TO_METERS,
+        scaleModes: [
+          { unit: 'nm', maxMeters: METRIC_NM_MAX_METERS, convertFromMeters: (value) => value * 1000000000 },
+          { unit: 'um', maxMeters: METRIC_UM_MAX_METERS, convertFromMeters: (value) => value * 1000000 },
+          { unit: 'mm', maxMeters: IMPERIAL_MM_MAX_METERS, convertFromMeters: (value) => value * 1000 },
+          { unit: 'in', maxMeters: 3 * FEET_TO_METERS, convertFromMeters: (value) => value / FEET_TO_METERS * INCHES_PER_FOOT },
+          { unit: 'ft', maxMeters: 2500 * FEET_TO_METERS, convertFromMeters: (value) => value / FEET_TO_METERS },
+          { unit: 'mi', maxMeters: Infinity, convertFromMeters: (value) => value / FEET_TO_METERS / FEET_PER_MILE }
+        ],
+        toggleLabel: 'Use metric',
+        formatHeight: (valueMeters) => {
+          const feetValue = valueMeters / FEET_TO_METERS;
+          if (feetValue >= FEET_PER_MILE) {
+            const milesValue = feetValue / FEET_PER_MILE;
+            return milesValue >= 1000
+              ? Math.round(milesValue).toLocaleString('en-US') + ' miles'
+              : formatDisplayNumber(milesValue) + ' miles';
+          }
+          if (valueMeters < METRIC_NM_MAX_METERS) {
+            return formatDisplayNumber(valueMeters * 1000000000) + ' nanometers';
+          }
+          if (valueMeters < METRIC_UM_MAX_METERS) {
+            return formatDisplayNumber(valueMeters * 1000000) + ' micrometers';
+          }
+          if (valueMeters < IMPERIAL_MM_MAX_METERS) {
+            return formatDisplayNumber(valueMeters * 1000) + ' millimeters';
+          }
+          if (feetValue < 3) {
+            return formatInchesValue(feetValue * INCHES_PER_FOOT) + ' inches';
+          }
+          if (feetValue < 10) {
+            return formatFeetAndInches(feetValue);
+          }
+          return formatRoundedValue(feetValue) + ' feet';
+        }
+      },
+      metric: {
+        scaleLabel: 'meters',
+        inputUnit: 'meters',
+        inputStep: '0.1',
+        minInput: 0.1,
+        defaultInputValue: 2,
+        toMeters: (value) => value,
+        fromMeters: (value) => value,
+        scaleModes: [
+          { unit: 'nm', maxMeters: METRIC_NM_MAX_METERS, convertFromMeters: (value) => value * 1000000000 },
+          { unit: 'um', maxMeters: METRIC_UM_MAX_METERS, convertFromMeters: (value) => value * 1000000 },
+          { unit: 'mm', maxMeters: METRIC_MM_MAX_METERS, convertFromMeters: (value) => value * 1000 },
+          { unit: 'cm', maxMeters: METRIC_CM_MAX_METERS, convertFromMeters: (value) => value * 100 },
+          { unit: 'm', maxMeters: METRIC_KM_MIN_METERS, convertFromMeters: (value) => value },
+          { unit: 'km', maxMeters: Infinity, convertFromMeters: (value) => value / METERS_PER_KILOMETER }
+        ],
+        toggleLabel: 'Use imperial',
+        formatHeight: (valueMeters) => {
+          if (valueMeters >= METRIC_KM_MIN_METERS) {
+            return formatDisplayNumber(valueMeters / METERS_PER_KILOMETER) + ' kilometers';
+          }
+          if (valueMeters < METRIC_NM_MAX_METERS) {
+            return formatDisplayNumber(valueMeters * 1000000000) + ' nanometers';
+          }
+          if (valueMeters < METRIC_UM_MAX_METERS) {
+            return formatDisplayNumber(valueMeters * 1000000) + ' micrometers';
+          }
+          if (valueMeters < METRIC_MM_MAX_METERS) {
+            return Math.round(valueMeters * 1000) + ' millimeters';
+          }
+          if (valueMeters < METRIC_CM_MAX_METERS) {
+            return Number((valueMeters * 100).toFixed(1)) + ' centimeters';
+          }
+          if (valueMeters < 4) {
+            return Number(valueMeters.toFixed(2)) + ' meters';
+          }
+          return formatRoundedValue(valueMeters) + ' meters';
+        }
       }
-
-      return formatRoundedValue(inchesValue);
     };
 
-    // Formats display values with optional decimals and comma separators.
-    const formatDisplayNumber = (value, digits = 2) => {
-      if (value >= 1000) {
-        return Math.round(value).toLocaleString('en-US');
-      }
+    const getActiveSystem = () => measurementSystems[activeSystemKey];
 
-      const fixedValue = Number(value.toFixed(digits));
-      return fixedValue >= 1000
-        ? fixedValue.toLocaleString('en-US', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: digits
-          })
-        : String(fixedValue);
+    const getClampedUploadHeightValue = (value, system = getActiveSystem()) => {
+      const parsedHeight = Number(value);
+      return Number.isFinite(parsedHeight)
+        ? Math.max(system.minInput, parsedHeight)
+        : system.defaultInputValue;
     };
 
-    // Formats the editable height input while preserving tiny values.
-    const formatInputValue = (value) => {
-      if (value >= 1) {
-        return String(Number(value.toFixed(2)));
-      }
-
-      if (value >= 0.001) {
-        return value.toFixed(6).replace(/0+$/, '').replace(/\.$/, '');
-      }
-
-      return value.toFixed(12).replace(/0+$/, '').replace(/\.$/, '');
-    };
-
-    // Picks a human-friendly step size using a 1/2/5 progression.
     const getNiceStep = (minimumStep) => {
       const power = 10 ** Math.floor(Math.log10(minimumStep));
       const stepBase = minimumStep / power;
@@ -975,7 +875,6 @@ Height: 2 meters</p>
       return normalizedStep * power;
     };
 
-    // Expands the viewport scale slightly above the current character height.
     const getExpandedScaleMax = (heightMeters) => {
       if (heightMeters >= 1) {
         return Math.ceil(heightMeters * 1.1);
@@ -984,78 +883,45 @@ Height: 2 meters</p>
       return getNiceStep(heightMeters * 1.1);
     };
 
-    // Tests whether a tick value lines up with a major-step boundary.
     const isStepMultiple = (value, step) => {
       const roundedRatio = Math.round(value / step);
       return Math.abs(value - (roundedRatio * step)) < 1e-9;
     };
 
-    // Resolves the image path for a reference catalog entry.
-    const getReferenceImagePath = (reference) => {
-      return 'reference-images/' + reference.fileBase + '.png';
+    const formatCharacterHeight = (heightMeters) => getActiveSystem().formatHeight(heightMeters);
+
+    const formatScaleHeight = (heightMeters) => getActiveSystem().formatHeight(heightMeters);
+
+    const positionStatusLabels = () => {
+      const footerRect = statusBarBottom.getBoundingClientRect();
+
+      placedImageElements.forEach((imageEl, index) => {
+        const labelEl = statusLabelElements[index];
+        const placedFigure = placedFigures[index];
+
+        if (!placedFigure || imageEl.style.display === 'none') {
+          labelEl.root.style.display = 'none';
+          return;
+        }
+
+        const imageRect = imageEl.getBoundingClientRect();
+        labelEl.root.style.display = 'flex';
+        labelEl.root.style.left = (imageRect.left + (imageRect.width / 2) - footerRect.left) + 'px';
+      });
     };
 
-    // Populates one lower-right reference slot or clears it when empty.
-    const setReferenceSlot = (imageEl, labelEl, reference) => {
+    const renderScale = () => {
+      scale.querySelectorAll('.tick').forEach((tick) => tick.remove());
+
       const activeSystem = getActiveSystem();
-      if (!reference) {
-        imageEl.removeAttribute('src');
-        imageEl.style.display = 'none';
-        labelEl.textContent = '';
-        return;
-      }
-      imageEl.src = getReferenceImagePath(reference);
-      imageEl.alt = reference.name;
-      imageEl.style.display = 'block';
-      imageEl.style.height = ((reference.heightMeters / scaleMaxMeters) * 100) + 'vh';
-      const categoryLabel = reference.category ? ' [' + reference.category + ']' : '';
-      labelEl.textContent = reference.name + categoryLabel + ': ' + activeSystem.formatReference(reference.heightMeters);
-    };
-
-    // Re-renders the currently chosen reference figures in their display slots.
-    const applyReferenceFigureHeights = () => {
-      referenceImageElements.forEach((imageEl, index) => {
-        setReferenceSlot(imageEl, referenceLabelElements[index], displayedReferences[index]);
-      });
-    };
-
-    // Returns only the references currently enabled in the chooser.
-    const getSelectableReferences = () => {
-      return referenceCatalog.filter((reference) => selectedReferenceFileBases.has(reference.fileBase));
-    };
-
-    // Chooses and renders the nearest eligible references for the current height.
-    const updateNearestReferences = (targetHeight) => {
-      const sorted = getSelectableReferences().filter((reference) => {
-        return reference.heightMeters <= (scaleMaxMeters * 3);
-      }).sort((a, b) => {
-        const da = Math.abs(a.heightMeters - targetHeight);
-        const db = Math.abs(b.heightMeters - targetHeight);
-        if (da !== db) return da - db;
-        return a.heightMeters - b.heightMeters;
-      });
-      displayedReferences = sorted.slice(0, 3).sort((a, b) => a.heightMeters - b.heightMeters);
-      applyReferenceFigureHeights();
-    };
-
-    // Selects the display unit mode for a meter value in the active system.
-    const getScaleModeForMeters = (valueMeters, system = getActiveSystem()) => {
-      return system.scaleModes.find((mode) => valueMeters < mode.maxMeters) || system.scaleModes[system.scaleModes.length - 1];
-    };
-
-    // Draws the left-side vertical scale for the current viewport range.
-    const renderScale = (maxValue, unit) => {
-      const existingTicks = scale.querySelectorAll('.tick');
-      existingTicks.forEach((tick) => tick.remove());
-      scaleLabel.textContent = unit;
-
-      const scaleMode = getScaleModeForMeters(maxValue);
-
-      const safeMax = Math.max(MIN_SCALE_MAX_METERS, maxValue);
+      const safeMax = Math.max(MIN_SCALE_MAX_METERS, scaleMaxMeters);
       const maxDivisions = 20;
       const majorStep = getNiceStep(safeMax / 4);
       const minorStep = Math.max(getNiceStep(majorStep / 2), safeMax / maxDivisions);
       const values = [];
+      const scaleMode = activeSystem.scaleModes.find((mode) => safeMax <= mode.maxMeters) || activeSystem.scaleModes[activeSystem.scaleModes.length - 1];
+
+      scaleLabel.textContent = scaleMode.unit;
 
       for (let value = 0; value <= safeMax + Number.EPSILON; value += minorStep) {
         values.push(value);
@@ -1067,143 +933,150 @@ Height: 2 meters</p>
       values.forEach((value) => {
         const tick = document.createElement('div');
         const isMajor = isStepMultiple(value, majorStep) || value === safeMax;
-        const displayValue = scaleMode.convertFromMeters(value);
         tick.className = 'tick' + (isMajor ? ' major' : ' minor');
         tick.style.bottom = (value / safeMax) * 100 + '%';
-        tick.textContent = isMajor ? formatScaleNumber(displayValue) : '';
+        if (isMajor) {
+          tick.textContent = formatScaleNumber(scaleMode.convertFromMeters(value));
+        }
         scale.appendChild(tick);
       });
     };
 
-    // Updates the viewport scale range and unit based on the current height.
     const syncScaleWithHeight = (heightMeters) => {
       const expandedFromHeight = Math.max(MIN_SCALE_MAX_METERS, getExpandedScaleMax(heightMeters));
       const isAboveCurrentScale = heightMeters > scaleMaxMeters;
       const isBelowShrinkThreshold = heightMeters < (scaleMaxMeters * 0.35);
-      const isBelowMinimumScaleThreshold = heightMeters <= MIN_SCALE_MAX_METERS;
-      const nextMax = isBelowMinimumScaleThreshold
-        ? MIN_SCALE_MAX_METERS
-        : (isAboveCurrentScale || isBelowShrinkThreshold)
+      const nextMax = (isAboveCurrentScale || isBelowShrinkThreshold)
         ? expandedFromHeight
         : scaleMaxMeters;
-      const nextScaleUnit = getScaleModeForMeters(heightMeters).unit;
-      if (nextMax !== scaleMaxMeters || nextScaleUnit !== scaleUnit) {
+
+      if (nextMax !== scaleMaxMeters) {
         scaleMaxMeters = nextMax;
-        scaleUnit = nextScaleUnit;
-        renderScale(scaleMaxMeters, scaleUnit);
+        renderScale();
       }
     };
 
-    // Mirrors the current internal height into the numeric input.
-    const syncInputFromCurrentHeight = () => {
-      const activeSystem = getActiveSystem();
-      heightInput.value = formatInputValue(activeSystem.fromMeters(currentHeightMeters));
-    };
-
-    // Re-renders all UI that depends on the current placed-image height.
     const renderCurrentHeightState = () => {
-      const activeSystem = getActiveSystem();
       syncScaleWithHeight(currentHeightMeters);
-      heightReadout.textContent = 'Status:\n' + activeSystem.formatStatus(currentHeightMeters);
-      if (placedImage.style.display === 'block') {
-        placedImage.style.height = ((currentHeightMeters / scaleMaxMeters) * 100) + 'vh';
+      statusScaleHeight.textContent = formatScaleHeight(scaleMaxMeters);
+      const availableHeightPixels = window.innerHeight - statusBarBottom.offsetHeight;
+
+      placedImageElements.forEach((imageEl, index) => {
+        const placedFigure = placedFigures[index];
+        if (!placedFigure) {
+          imageEl.style.display = 'none';
+          imageEl.removeAttribute('src');
+          statusLabelElements[index].root.style.display = 'none';
+          statusLabelElements[index].name.textContent = '';
+          statusLabelElements[index].height.textContent = '';
+          return;
+        }
+
+        imageEl.src = placedFigure.filePath;
+        imageEl.alt = placedFigure.name;
+        imageEl.style.display = 'block';
+        imageEl.style.height = ((placedFigure.heightMeters / scaleMaxMeters) * availableHeightPixels) + 'px';
+        statusLabelElements[index].name.textContent = placedFigure.name;
+        statusLabelElements[index].height.textContent = formatCharacterHeight(placedFigure.heightMeters);
+      });
+
+      requestAnimationFrame(positionStatusLabels);
+    };
+
+    const placeFigure = (figure) => {
+      if (placedFigures.length === placedImageElements.length) {
+        placedFigures.shift();
       }
-      updateNearestReferences(currentHeightMeters);
-      return currentHeightMeters;
-    };
 
-    // Applies the input height to the placed image and refreshes dependent UI.
-    const applyPlacedImageHeight = () => {
-      const activeSystem = getActiveSystem();
-      const clampedDisplayHeight = getClampedDisplayHeightValue(heightInput.value, activeSystem);
-      currentHeightMeters = activeSystem.toMeters(clampedDisplayHeight);
-      syncInputFromCurrentHeight();
-      return renderCurrentHeightState();
-    };
+      placedFigures.push({
+        name: figure.name,
+        filePath: figure.filePath,
+        heightMeters: figure.heightMeters
+      });
 
-    // Refreshes labels, limits, and readouts after a unit-system change.
-    const updateMeasurementSystemUi = () => {
-      const activeSystem = getActiveSystem();
-      document.querySelector('.field-unit').textContent = activeSystem.inputUnit;
-      heightInput.min = String(activeSystem.minInput);
-      heightInput.step = activeSystem.inputStep;
-      systemToggleBtn.textContent = activeSystem.toggleLabel;
-      systemToggleBtn.setAttribute('aria-pressed', String(activeSystemKey === 'metric'));
-      syncInputFromCurrentHeight();
+      currentHeightMeters = Math.max(...placedFigures.map((placedFigure) => placedFigure.heightMeters));
+      introText.style.display = 'none';
+      viewportNote.style.display = 'none';
       renderCurrentHeightState();
     };
 
-    // Returns whether any modal dialog is currently open.
-    const isAnyModalOpen = () => {
-      return modalOverlay.classList.contains('open')
-        || characterModalOverlay.classList.contains('open')
-        || referencePickerModalOverlay.classList.contains('open');
+    const resetViewer = () => {
+      placedFigures = [];
+      currentHeightMeters = DEFAULT_HEIGHT_METERS;
+      scaleMaxMeters = DEFAULT_SCALE_MAX_METERS;
+      introText.style.display = '';
+      viewportNote.style.display = '';
+      renderScale();
+      renderCurrentHeightState();
     };
 
-    // Applies the standard "bigger" size step to the placed image.
-    const increaseCurrentHeight = () => {
-      currentHeightMeters += currentHeightMeters * 0.1;
-      syncInputFromCurrentHeight();
-      applyPlacedImageHeight();
-    };
+    const renderUploadPreview = () => {
+      imagePreviewWrap.innerHTML = '';
 
-    // Applies the standard "smaller" size step while respecting the active minimum.
-    const decreaseCurrentHeight = () => {
-      const activeSystem = getActiveSystem();
-      currentHeightMeters = Math.max(activeSystem.toMeters(activeSystem.minInput), currentHeightMeters - (currentHeightMeters * 0.1));
-      syncInputFromCurrentHeight();
-      applyPlacedImageHeight();
-    };
-
-    renderScale(scaleMaxMeters, scaleUnit);
-    updateMeasurementSystemUi();
-
-    // Loads optional per-reference JSON overrides for names, sizes, and categories.
-    const loadReferenceFigureConfigs = async () => {
-      try {
-        const loaded = await Promise.all(defaultReferences.map(async (reference) => {
-          const response = await fetch('reference-images/' + reference.fileBase + '.json');
-          if (!response.ok) return reference;
-          const config = await response.json();
-          const parsedHeightMeters = Number(config.heightMeters);
-          const parsedLegacyHeightFeet = Number(config.height);
-          return {
-            ...reference,
-            name: typeof config.name === 'string' && config.name.trim() ? config.name.trim() : reference.name,
-            category: typeof config.category === 'string' && config.category.trim() ? config.category.trim() : reference.category,
-            heightMeters: Number.isFinite(parsedHeightMeters) && parsedHeightMeters > 0
-              ? parsedHeightMeters
-              : Number.isFinite(parsedLegacyHeightFeet) && parsedLegacyHeightFeet > 0
-                ? parsedLegacyHeightFeet * FEET_TO_METERS
-              : reference.heightMeters
-          };
-        }));
-
-        referenceCatalog = loaded;
-        renderReferencePickerOptions();
-        updateNearestReferences(currentHeightMeters);
-      } catch {
-        // Keep default catalog if JSON files cannot be read.
+      if (!selectedImageDataUrl) {
+        const hint = document.createElement('p');
+        hint.className = 'preview-hint';
+        hint.textContent = 'No image selected';
+        imagePreviewWrap.appendChild(hint);
+        return;
       }
+
+      const image = document.createElement('img');
+      image.src = selectedImageDataUrl;
+      image.alt = selectedImageName;
+      imagePreviewWrap.appendChild(image);
     };
 
-    loadReferenceFigureConfigs();
+    const syncUploadDialogToActiveSystem = (previousSystem = getActiveSystem()) => {
+      const nextSystem = getActiveSystem();
+      const valueMeters = previousSystem.toMeters(getClampedUploadHeightValue(heightInput.value, previousSystem));
+      const nextValue = getClampedUploadHeightValue(nextSystem.fromMeters(valueMeters), nextSystem);
+      heightInput.value = String(Number(nextValue.toFixed(4)));
+      heightInput.min = String(nextSystem.minInput);
+      heightInput.step = nextSystem.inputStep;
+      fieldUnit.textContent = nextSystem.inputUnit;
+    };
 
-    // Places the currently chosen upload or avatar into the scene.
+    const openUploadModal = () => {
+      syncUploadDialogToActiveSystem();
+      renderUploadPreview();
+      uploadModalOverlay.classList.add('open');
+    };
+
     const placeSelectedImage = () => {
       if (!selectedImageDataUrl) return;
-      placedImage.src = selectedImageDataUrl;
-      placedImage.style.width = 'auto';
-      placedImage.style.display = 'block';
-      introText.style.display = 'none';
-      applyPlacedImageHeight();
-      resetHeightMeters = currentHeightMeters;
-      setSizeControlsEnabled(true);
+
+      const activeSystem = getActiveSystem();
+      const heightMeters = activeSystem.toMeters(getClampedUploadHeightValue(heightInput.value, activeSystem));
+      placeFigure({
+        name: selectedImageName,
+        filePath: selectedImageDataUrl,
+        heightMeters
+      });
     };
 
-    // Builds the avatar chooser grid from the current avatar catalog.
+    const closeUploadModalAndPlaceImage = () => {
+      uploadModalOverlay.classList.remove('open');
+      placeSelectedImage();
+    };
+
+    const refreshDisplayedUnits = (previousSystem = getActiveSystem()) => {
+      systemToggleBtn.textContent = getActiveSystem().toggleLabel;
+      systemToggleBtn.setAttribute('aria-pressed', String(activeSystemKey === 'metric'));
+      syncUploadDialogToActiveSystem(previousSystem);
+      renderScale();
+      renderCurrentHeightState();
+      renderCharacterOptions();
+      renderReferenceOptions();
+    };
+
     const renderCharacterOptions = () => {
       characterGrid.innerHTML = '';
+      if (avatarCatalog.length === 0) {
+        setCharacterChooserMessage('No characters are available.');
+        return;
+      }
+
       [...avatarCatalog].sort((a, b) => a.heightMeters - b.heightMeters).forEach((avatar) => {
         const button = document.createElement('button');
         button.className = 'character-option';
@@ -1218,75 +1091,139 @@ Height: 2 meters</p>
 
         const height = document.createElement('div');
         height.className = 'character-option-height';
-        height.textContent = getActiveSystem().formatReference(avatar.heightMeters);
+        height.textContent = formatCharacterHeight(avatar.heightMeters);
 
         button.appendChild(image);
         button.appendChild(label);
         button.appendChild(height);
         button.addEventListener('click', () => {
-          selectedImageDataUrl = avatar.filePath;
-          if (Number.isFinite(avatar.heightMeters) && avatar.heightMeters > 0) {
-            currentHeightMeters = avatar.heightMeters;
-            syncInputFromCurrentHeight();
-          }
           characterModalOverlay.classList.remove('open');
-          placeSelectedImage();
+          placeFigure(avatar);
         });
 
         characterGrid.appendChild(button);
       });
     };
 
-    renderCharacterOptions();
+    const getReferenceImagePath = (reference) => {
+      return 'reference-images/' + reference.fileBase + '.png';
+    };
 
-    // Builds the reference chooser grid sorted from largest to smallest.
-    const renderReferencePickerOptions = () => {
-      referencePickerGrid.innerHTML = '';
+    const isAnyModalOpen = () => {
+      return uploadModalOverlay.classList.contains('open')
+        || characterModalOverlay.classList.contains('open')
+        || referenceModalOverlay.classList.contains('open');
+    };
 
-      [...referenceCatalog].sort((a, b) => b.heightMeters - a.heightMeters).forEach((reference) => {
-        const option = document.createElement('label');
-        option.className = 'reference-option';
+    const increaseScale = () => {
+      scaleMaxMeters *= 1.1;
+      renderScale();
+      renderCurrentHeightState();
+    };
+
+    const decreaseScale = () => {
+      scaleMaxMeters = Math.max(MIN_SCALE_MAX_METERS, scaleMaxMeters / 1.1);
+      renderScale();
+      renderCurrentHeightState();
+    };
+
+    const renderReferenceOptions = () => {
+      referenceGrid.innerHTML = '';
+      if (referenceCatalog.length === 0) {
+        setReferenceChooserMessage('No reference images are available.');
+        return;
+      }
+
+      [...referenceCatalog].sort((a, b) => a.heightMeters - b.heightMeters).forEach((reference) => {
+        const button = document.createElement('button');
+        button.className = 'reference-option';
+        button.type = 'button';
 
         const image = document.createElement('img');
         image.src = getReferenceImagePath(reference);
         image.alt = reference.name;
 
-        const toggleRow = document.createElement('div');
-        toggleRow.className = 'reference-option-toggle';
+        const label = document.createElement('div');
+        label.textContent = reference.name;
 
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = selectedReferenceFileBases.has(reference.fileBase);
+        const height = document.createElement('div');
+        height.className = 'reference-option-height';
+        height.textContent = formatCharacterHeight(reference.heightMeters);
 
-        const title = document.createElement('span');
-        title.textContent = reference.name;
-
-        const meta = document.createElement('div');
-        meta.className = 'reference-option-meta';
-        meta.textContent = (reference.category ? reference.category + ' - ' : '') + getActiveSystem().formatReference(reference.heightMeters);
-
-        checkbox.addEventListener('change', () => {
-          if (checkbox.checked) {
-            selectedReferenceFileBases.add(reference.fileBase);
-          } else {
-            selectedReferenceFileBases.delete(reference.fileBase);
-          }
-          updateNearestReferences(currentHeightMeters);
+        button.appendChild(image);
+        button.appendChild(label);
+        button.appendChild(height);
+        button.addEventListener('click', () => {
+          referenceModalOverlay.classList.remove('open');
+          placeFigure({
+            name: reference.name,
+            filePath: getReferenceImagePath(reference),
+            heightMeters: reference.heightMeters
+          });
         });
 
-        toggleRow.appendChild(checkbox);
-        toggleRow.appendChild(title);
-        option.appendChild(image);
-        option.appendChild(toggleRow);
-        option.appendChild(meta);
-        referencePickerGrid.appendChild(option);
+        referenceGrid.appendChild(button);
       });
     };
 
-    renderReferencePickerOptions();
+    const loadAvatarCatalog = async () => {
+      setCharacterChooserMessage('Loading characters...');
+      try {
+        const response = await fetch('avatar-images/avatars.json');
+        if (!response.ok) {
+          throw new Error('Avatar catalog request failed.');
+        }
+        const loaded = await response.json();
+        avatarCatalog = loaded.filter((avatar) => {
+          return avatar
+            && typeof avatar.name === 'string'
+            && typeof avatar.filePath === 'string'
+            && Number.isFinite(Number(avatar.heightMeters))
+            && Number(avatar.heightMeters) > 0;
+        }).map((avatar) => ({
+          name: avatar.name.trim(),
+          filePath: avatar.filePath.trim(),
+          heightMeters: Number(avatar.heightMeters)
+        }));
+        selectCharacterBtn.disabled = avatarCatalog.length === 0;
+        renderCharacterOptions();
+      } catch {
+        selectCharacterBtn.disabled = true;
+        setCharacterChooserMessage('Characters could not be loaded from avatars.json.');
+      }
+    };
+
+    const loadReferenceCatalog = async () => {
+      setReferenceChooserMessage('Loading reference images...');
+      try {
+        const loaded = await Promise.all(defaultReferences.map(async (reference) => {
+          const response = await fetch('reference-images/' + reference.fileBase + '.json');
+          if (!response.ok) return reference;
+          const config = await response.json();
+          const parsedHeightMeters = Number(config.heightMeters);
+          const parsedLegacyHeightFeet = Number(config.height);
+          return {
+            ...reference,
+            name: typeof config.name === 'string' && config.name.trim() ? config.name.trim() : reference.name,
+            heightMeters: Number.isFinite(parsedHeightMeters) && parsedHeightMeters > 0
+              ? parsedHeightMeters
+              : Number.isFinite(parsedLegacyHeightFeet) && parsedLegacyHeightFeet > 0
+                ? parsedLegacyHeightFeet * FEET_TO_METERS
+                : reference.heightMeters
+          };
+        }));
+
+        referenceCatalog = loaded;
+        referencePickerBtn.disabled = referenceCatalog.length === 0;
+        renderReferenceOptions();
+      } catch {
+        referencePickerBtn.disabled = true;
+        setReferenceChooserMessage('Reference images could not be loaded.');
+      }
+    };
 
     addImageBtn.addEventListener('click', () => {
-      modalOverlay.classList.add('open');
+      openUploadModal();
     });
 
     selectCharacterBtn.addEventListener('click', () => {
@@ -1294,27 +1231,22 @@ Height: 2 meters</p>
     });
 
     referencePickerBtn.addEventListener('click', () => {
-      renderReferencePickerOptions();
-      referencePickerModalOverlay.classList.add('open');
+      referenceModalOverlay.classList.add('open');
     });
 
-    // Closes the upload modal and places the selected image, if any.
-    const closeModalAndPlaceImage = () => {
-      modalOverlay.classList.remove('open');
-      placeSelectedImage();
-    };
+    closeUploadModalBtn.addEventListener('click', closeUploadModalAndPlaceImage);
 
-    closeModalBtn.addEventListener('click', closeModalAndPlaceImage);
     closeCharacterModalBtn.addEventListener('click', () => {
       characterModalOverlay.classList.remove('open');
     });
-    closeReferencePickerModalBtn.addEventListener('click', () => {
-      referencePickerModalOverlay.classList.remove('open');
+
+    closeReferenceModalBtn.addEventListener('click', () => {
+      referenceModalOverlay.classList.remove('open');
     });
 
-    modalOverlay.addEventListener('click', (event) => {
-      if (event.target === modalOverlay) {
-        closeModalAndPlaceImage();
+    uploadModalOverlay.addEventListener('click', (event) => {
+      if (event.target === uploadModalOverlay) {
+        closeUploadModalAndPlaceImage();
       }
     });
 
@@ -1324,40 +1256,44 @@ Height: 2 meters</p>
       }
     });
 
-    referencePickerModalOverlay.addEventListener('click', (event) => {
-      if (event.target === referencePickerModalOverlay) {
-        referencePickerModalOverlay.classList.remove('open');
+    referenceModalOverlay.addEventListener('click', (event) => {
+      if (event.target === referenceModalOverlay) {
+        referenceModalOverlay.classList.remove('open');
       }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      resetViewer();
+    });
+
+    systemToggleBtn.addEventListener('click', () => {
+      const previousSystem = getActiveSystem();
+      activeSystemKey = activeSystemKey === 'imperial' ? 'metric' : 'imperial';
+      refreshDisplayedUnits(previousSystem);
     });
 
     pickImageBtn.addEventListener('click', () => {
       imageInput.click();
     });
 
-    biggerBtn.addEventListener('click', increaseCurrentHeight);
+    imageInput.addEventListener('change', () => {
+      const file = imageInput.files && imageInput.files[0];
+      if (!file) return;
 
-    smallerBtn.addEventListener('click', decreaseCurrentHeight);
-
-    resetBtn.addEventListener('click', () => {
-      currentHeightMeters = resetHeightMeters;
-      syncInputFromCurrentHeight();
-      applyPlacedImageHeight();
-    });
-
-    systemToggleBtn.addEventListener('click', () => {
-      activeSystemKey = activeSystemKey === 'imperial' ? 'metric' : 'imperial';
-      updateMeasurementSystemUi();
-    });
-
-    heightInput.addEventListener('input', () => {
-      applyPlacedImageHeight();
+      selectedImageName = file.name.replace(/\.[^.]+$/, '') || 'Uploaded Image';
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        selectedImageDataUrl = String(reader.result || '');
+        renderUploadPreview();
+      });
+      reader.readAsDataURL(file);
     });
 
     let wheelAccumulator = 0;
 
     document.addEventListener('wheel', (event) => {
       if (isAnyModalOpen()) return;
-      if (placedImage.style.display !== 'block') return;
+      if (placedFigures.length === 0) return;
       if (event.target.closest('.control-panel')) return;
 
       let delta = event.deltaY;
@@ -1368,12 +1304,12 @@ Height: 2 meters</p>
       const threshold = 80;
 
       while (wheelAccumulator <= -threshold) {
-        increaseCurrentHeight();
+        decreaseScale();
         wheelAccumulator += threshold;
       }
 
       while (wheelAccumulator >= threshold) {
-        decreaseCurrentHeight();
+        increaseScale();
         wheelAccumulator -= threshold;
       }
 
@@ -1382,21 +1318,13 @@ Height: 2 meters</p>
       }
     }, { passive: false });
 
-    imageInput.addEventListener('change', () => {
-      const file = imageInput.files && imageInput.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.addEventListener('load', () => {
-        selectedImageDataUrl = String(reader.result || '');
-        imagePreviewWrap.innerHTML = '';
-
-        const image = document.createElement('img');
-        image.src = selectedImageDataUrl;
-        image.alt = file.name || 'Uploaded image preview';
-        imagePreviewWrap.appendChild(image);
-      });
-      reader.readAsDataURL(file);
+    window.addEventListener('resize', () => {
+      renderCurrentHeightState();
     });
+
+    loadAvatarCatalog();
+    loadReferenceCatalog();
+    refreshDisplayedUnits();
   </script>
 </body>
 </html>
