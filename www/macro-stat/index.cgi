@@ -1,5 +1,6 @@
-#!/usr/bin/perl -I../../lib/
+#!/usr/bin/env perl
 
+use lib '/var/www/macrophile.com/lib';
 use CGI;
 use Convert::Area;
 use Convert::Length;
