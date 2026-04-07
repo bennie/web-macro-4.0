@@ -2,224 +2,162 @@
 
 ## Project
 - Directory: `/home/phil/work/web-macro-4.0/www/sizeviewer`
-- Application file: `index.html`
-- Reference assets: `reference-images/`
-- Avatar assets: `avatar-images/`
+- Main files:
+  - `index.html`: manual lineup mode
+  - `grow-shrink.html`: original single-figure grow/shrink mode
+- Shared script:
+  - `shared/sizeviewer-shared.js`
+- Shared avatar data:
+  - `avatar-images/avatars.json`
+- Reference assets:
+  - `reference-images/`
+- Avatar assets:
+  - `avatar-images/`
 
-## Implemented UI
-- Left-side vertical scale fixed to viewport:
-  - Bottom is `0`
-  - Top is dynamic based on current height behavior
-  - Default viewport scale max is `4` meters
-  - Scale label can be `nm`, `um`, `mm`, `cm`, `m`, `km`, `in`, `ft`, or `mi`
-  - Scale renders with no more than `20` divisions
-  - Major tick labels prefer clean "nice" steps rather than awkward fractional defaults
-- Scenic green/black gradient viewport background via `--bg`.
-- HTML title: `Sizeviewer`.
-- Main heading: `Sizeviewer`.
-- Top-right control panel includes:
-  - `Add image`
-  - `Select character`
-  - `Use metric` / `Use imperial` toggle
-  - `Choose Reference Images`
-  - `Bigger`
-  - `Smaller`
+## Page Split
+- `index.html` is no longer the old auto-sizing single-character app.
+- `index.html` is now a manual lineup viewer that can place up to `3` figures at once.
+- `grow-shrink.html` contains the original auto-mode experience with the richer size-adjustment workflow.
+- `index.html` links to `grow-shrink.html` through a `Grow/Shrink Mode` control.
+
+## Shared Avatar Catalog
+- Both `index.html` and `grow-shrink.html` load selectable characters from `avatar-images/avatars.json`.
+- Both pages also load shared measurement, formatting, scale, reference, and wheel helpers from `shared/sizeviewer-shared.js`.
+- Character loading is asynchronous on startup.
+- `Select Character` starts disabled until the avatar JSON loads.
+- If the JSON load fails, the chooser shows a fallback error message instead of appearing blank.
+- Current shared avatars are:
+  - `Jennifur Rae (Stage 1)` through `Jennifur Rae (Stage 7)`
+  - `Bennie Zoot`
+  - `Arilin`
+  - `Alistor`
+
+## Manual Lineup App (`index.html`)
+
+### Layout
+- Left fixed vertical scale with translucent white backing.
+- Top header status bar.
+- Bottom footer status bar.
+- Upper-right control panel.
+- Center intro panel that disappears once any figure is placed.
+- Ghosted MacroPhile logo below the header bar.
+- Placed figures are allowed to visually overlap the header bar area.
+
+### Header/Footer
+- Top bar shows:
+  - `Scale height`
+  - a metric/imperial toggle button
+  - `Slots: Up to 3 figures`
+  - `Mode: Manual lineup`
+- Bottom bar is used for labels under the placed images.
+- Footer labels are positioned dynamically from each image's actual rendered location, not fixed slots.
+
+### Controls
+- First row:
+  - `Select Character`
+  - `Select Reference`
+  - `OR`
+  - `Upload Image`
+- Second row:
   - `Reset`
-- Control panel is always on top (`z-index: 1000`).
-- Lower-left two-line status display:
-  - `Status:`
-  - `Height: ...`
-- Watermark logo fixed near the top-left of the content area.
-- The intro sentence `Upload an image to view and shift its size.` disappears once a main image is placed.
-- Character chooser modal:
-  - uses a 3-column grid
-  - stays within the viewport
-  - scrolls vertically when needed
-  - sorts avatars from smallest to largest by height
+  - `Grow/Shrink Mode`
+- `Reset` clears all placed figures, restores the intro panel, and resets the scale to the startup default.
 
-## Image Upload Flow
-- `Add image` opens a centered modal dialog.
-- Dialog contains:
-  - `Choose image`
-  - hidden image file input (`accept="image/*"`)
-  - `Height` numeric input
-  - default imported-image height is `2` meters
-  - input unit label swaps with the selected measurement system
-  - preview area
-  - `Ok` button
-- Dialog closes by `Ok` or overlay click.
-- On close with a selected image:
-  - Image is placed center-bottom of viewport
-  - Image height is mapped to current scale
-  - Transparent PNGs render without an added frame/background/border
+### Placement Behavior
+- The lineup accepts up to `3` total figures from any combination of:
+  - character selection
+  - reference selection
+  - image upload
+- Figures appear left-to-right in insertion order.
+- If a fourth figure is added, the oldest placed figure is discarded.
+- Each figure is scaled from its own real height in meters against the shared viewport scale.
+- Figures are bottom-aligned to the ground line.
+- Image dimensions are recalculated from available viewport height so they preserve aspect ratio during resize and wheel zoom.
 
-## Size Controls
-- `Bigger`, `Smaller`, and `Reset` start disabled.
-- They become enabled after an image is placed.
-- `Bigger`: increases current height by `10%`.
-- `Smaller`: decreases current height by `10%`.
-- Mouse wheel resizing is enabled on the main scene:
-  - wheel up makes the placed image bigger
-  - wheel down makes it smaller
-  - it uses the same `10%` step path as the buttons
-  - it ignores input while a modal is open
-  - it ignores input when no image is placed
-  - it ignores wheel input over the control panel
-- `Reset`: restores to the placed image's original height.
-- Avatar selections reset to their avatar-defined size.
-- All size changes immediately update placed image and references.
+### Intro Panel
+- Intro title is `Sizeviewer`.
+- Intro text currently says:
+  - `Select a character, reference image or upload your own. It will place the image in the viewer to compare. You can place up to three images.`
+  - `Mouse-wheel will also resize the scale.`
 
-## Scale and Unit Logic
-- Internal state and calculations are meter-native.
-- Scale max grows to `ceil(height * 1.1)` when height exceeds current scale max.
-- For sub-meter heights, scale growth/shrink uses the same "nice step" logic instead of rounding everything up to `1`.
-- Scale max shrinks when height drops below `35%` of current scale max.
-- Minimum viewport scale max is `1.5` nanometers.
-- If the current height falls at or below the minimum viewport scale threshold, the scale snaps to that minimum.
-- Imperial display modes by current height:
-  - `< 0.2` inches: scale labels shown in `mm`, `um`, or `nm` using the same tiny-unit breakpoints as metric mode
-  - `< 3` feet: scale labels shown in `in`
-  - `< 2500` feet: scale labels shown in `ft`
-  - `>= 2500` feet: scale labels shown in `mi`
-- Metric display modes by current height:
-  - `< 0.000001` meters: scale labels shown in `nm`
-  - `< 0.001` meters: scale labels shown in `um`
-  - `< 0.1` meters: scale labels shown in `mm`
-  - `< 1.1` meters: scale labels shown in `cm`
-  - `< 2500` meters: scale labels shown in `m`
-  - `>= 2500` meters: scale labels shown in `km`
-- Minimum allowed size:
-  - metric mode clamps at `1 nm`
-  - imperial mode also clamps at `1 nm` internally, converted through feet for the input/control path
-- Tick spacing uses a `1/2/5 x 10^n` "nice step" strategy while keeping divisions <= `20`.
+### Character Chooser
+- Uses a `3`-column scrolling grid.
+- Sorted from smallest to largest by `heightMeters`.
 
-## Status Formatting
-- Status text follows the active measurement system.
-- Imperial status:
-  - below `0.2` inches it switches to `mm`, `um`, or `nm`
-  - below `12` inches it shows fractional inches with up to `2` decimals
-  - from `12` inches up to `3` feet it shows inches only, rounded to whole inches
-  - from `3` feet up to `10` feet it shows mixed feet/inches, such as `6 foot 6 inches`
-  - feet use comma formatting when large
-  - miles mode shows `Height: X miles (Y feet)`
-  - above `100,000` feet it shows miles only
-- Metric status:
-  - uses `nm`, `um`, `mm`, `cm`, `m`, or `kilometers` depending on current height
-  - meter values below `4` meters show `2` decimal places
+### Reference Chooser
+- Enabled in manual lineup mode.
+- Uses a `3`-column scrolling grid.
+- Sorted from largest to smallest by `heightMeters`.
+- Choosing a reference places it into the same shared lineup used by characters and uploads.
 
-## Reference Images (Lower Right)
-- Displays the three nearest references in lower-right based on current placed-image height.
-- Reference images are bottom-aligned and scale-mapped to the same dynamic scale.
-- References larger than `3x` the current viewport scale are excluded from display.
-- Heights are loaded from matching JSON files in `reference-images/` when available.
-- JSON metadata now prefers `heightMeters` and falls back to legacy `height` values in feet.
-- Reference captions follow the active measurement system and may include a category label.
-- Reference entries now support categories such as `creature`, `Kaiju`, `building`, `mountain`, `planet`, `object`, `cell`, and `atom`.
-- A `Choose Reference Images` modal lets users enable/disable individual references.
-- The chooser uses a 4-column grid and is sorted from largest to smallest by `heightMeters`.
-- Only checked reference entries are eligible to appear in the lower-right comparison set.
-- The default active set includes:
-  - `Man`
-  - `Woman`
-  - `Kodiak Bear`
-  - `Atom`
-  - `Bacteria`
-  - `Red Blood Cell`
-  - `Pollen`
-  - `Die`
-  - `Egg`
-  - `Basketball`
-  - `King Kong (1933)`
-  - `Nancy Archer (50ft Woman)`
-  - `Godzilla (1954)`
-  - `Godzilla Earth (2018)`
-  - all `building` entries
-  - `Mount Everest`
-  - `Pluto`
-  - `Moon`
-  - `Earth`
-  - `Uranus`
-  - `Jupiter`
-  - `Sun`
+### Upload Flow
+- `Upload Image` opens a modal.
+- User can:
+  - pick a local image
+  - preview it
+  - enter the intended height in the current unit system
+- Closing via `Place` places the uploaded image into the shared lineup.
 
-## Additional Reference Assets
-- `reference-images/atom.png` is a transparent crop derived from Dropbox Rutherford atom art
-- `reference-images/bacteria.png` is a transparent crop derived from Dropbox bacteria/virus article art
-- `reference-images/basketball.png` is a transparent crop derived from Wikimedia `Basketball.png`
-- `reference-images/earth.png` is a transparent crop derived from Wikimedia Earth imagery
-- `reference-images/egg.png` is a transparent crop derived from Dropbox `egg.jpg`
-- `reference-images/eiffel.png` is now derived from the Wikimedia `Tour_Eiffel_Wikimedia_Commons` image with sky keyed to transparency
-- `reference-images/jupiter.png` is a transparent crop derived from Wikimedia Jupiter imagery
-- `reference-images/king-kong-1933.png` is a transparent, tightly cropped black-outline/light-grey-fill replacement derived from Dropbox source art
-- `reference-images/mars.png` is a transparent crop derived from Wikimedia Mars imagery
-- `reference-images/mercury.png` is a transparent crop derived from Wikimedia Mercury imagery
-- `reference-images/moon.png` is present with meter-based metadata
-- `reference-images/mount-everest.png` is a transparent crop derived from a FreeSVG Everest graphic
-- `reference-images/mount-rainier.png` is a transparent crop derived from a Wikimedia Mount Rainier photo
-- `reference-images/neptune.png` is a transparent crop derived from Wikimedia Neptune imagery
-- `reference-images/pluto.png` is a transparent crop derived from Wikimedia Pluto imagery
-- `reference-images/pollen.png` is a transparent crop derived from Dropbox pollen source art
-- `reference-images/red-blood-cell.png` is a transparent crop derived from Wikimedia `Red_White_Blood_cells.jpg`
-- `reference-images/empire-state.png`
-- `reference-images/empire-state.json` (`height: 1454`)
-- `reference-images/great-pyramid.png` updated to a transparent-outline/light-grey fill version
-- `reference-images/nancy-50ft-woman.png` updated to a transparent cutout
-- `reference-images/nancy-50ft-woman.json` now names `Nancy Archer (50ft Woman)`
-- `reference-images/king-kong-skull-island-2017.png`
-- `reference-images/king-kong-skull-island-2017.json` (`height: 104`)
-- `reference-images/sun.png` currently uses the Wikimedia hydrogen-alpha Sun image with transparent outside pixels
-- `reference-images/uranus.png` is a transparent crop derived from Wikimedia Uranus imagery
-- `avatar-images/Bennie-Zoot.png` is now a trimmed alpha PNG derived from Dropbox `ZootSuitBennie_01-alpha.png`
-- `avatar-images/Arilin.png` is a trimmed alpha PNG derived from Dropbox `Arilin_SizeViewer_Pose_01.png`
-- `avatar-images/jennifur-rae-4-42ft.png` through `avatar-images/jennifur-rae-22680ft.png` are trimmed alpha PNGs derived from Dropbox `Jennifur_Rae_SizeViewerPose_*` images
+### Scale/Units
+- Internal sizing is meter-native.
+- Manual lineup starts with an imperial default display and a header toggle of `Use metric` / `Use imperial`.
+- The metric toggle updates:
+  - scale labels
+  - chooser labels
+  - footer labels
+  - header `Scale height`
+- Mouse wheel changes the viewport scale directly:
+  - wheel up zooms in by decreasing the scale height
+  - wheel down zooms out by increasing the scale height
+  - wheel is ignored while modals are open
+  - wheel is ignored when no figures are placed
+  - wheel is ignored over the control panel
 
-## Current Large Body References
-- `Mercury` (`4,879,400` meters)
-- `Mars` (`6,779,000` meters)
-- `Pluto` (`2,376,600` meters)
-- `Moon` (`3,474,000` meters)
-- `Earth` (`12,742,000` meters)
-- `Jupiter` (`139,820,000` meters)
-- `Uranus` (`50,724,000` meters)
-- `Neptune` (`49,244,000` meters)
-- `Sun` (`1,392,700,000` meters)
+## Auto Mode (`grow-shrink.html`)
+- Still contains the original sizeviewer behavior:
+  - single active main figure
+  - upload flow
+  - size-changing controls
+  - nearest reference image comparison
+  - metric/imperial toggle
+  - wheel-based size changes
+- It now uses the same top and bottom status bar structure as the manual-lineup page.
+- The visible page heading is `Grow/Shrink`.
+- The HTML document title is `Macrophile | Grow/Shrink`.
+- It now also loads avatars from the shared `avatar-images/avatars.json`.
 
-## Current Mountain References
-- `Mount Rainier` (`4,392` meters)
-- `Mount Everest` (`8,848.86` meters)
+### Grow/Shrink Header/Footer
+- Top bar shows:
+  - `Scale height`
+  - a metric/imperial toggle button
+  - `Slots: 1 figure`
+  - `Mode: Grow/Shrink`
+- Bottom bar contains the current `Status / Height` readout.
 
-## Current Small References
-- `Basketball` (`0.23876` meters)
-- `Egg` (`0.056` meters)
-- `Die` (`0.016` meters)
-- `Pollen` (`0.0001` meters)
-- `Red Blood Cell` (`0.000007` meters)
-- `Bacteria` (`0.000001` meters)
-- `Atom` (`0.0000000001` meters)
+## Reference System
+- Reference metadata is still sourced from `reference-images/` JSON files where available.
+- Metadata prefers `heightMeters` and falls back to legacy foot-based `height` values.
+- Reference categories in use include:
+  - `creature`
+  - `Kaiju`
+  - `building`
+  - `mountain`
+  - `planet`
+  - `object`
+  - `cell`
+  - `atom`
 
-## Current Avatars
-- `Jennifur Rae (Stage 1)` (`1.347216` meters)
-- `Jennifur Rae (Stage 2)` (`2.7432` meters)
-- `Bennie Zoot` (`3.5` meters)
-- `Jennifur Rae (Stage 3)` (`8.2296` meters)
-- `Arilin` (`24.384` meters / `80 ft`)
-- `Jennifur Rae (Stage 4)` (`32.9184` meters)
-- `Jennifur Rae (Stage 5)` (`164.592` meters)
-- `Jennifur Rae (Stage 6)` (`987.552` meters)
-- `Alistor` (`1780` meters)
-- `Jennifur Rae (Stage 7)` (`6912.864` meters)
-
-## Repo Hygiene
-- `.gitignore` ignores:
-  - `.numba-cache/`
-  - `.u2net/`
-  - `.venv-rembg/`
-  - `node_modules/`
+## Assets
+- `avatar-images/Bennie-Zoot.png` is the trimmed-alpha Bennie source derived from Dropbox `ZootSuitBennie_01-alpha.png`.
+- `avatar-images/Arilin.png` is a trimmed alpha PNG.
+- `avatar-images/jennifur-rae-*.png` are avatar-only assets, not reference images.
 
 ## Linting
-- Repository root now contains a minimal ESLint setup for the inline `sizeviewer` script.
-- Run `npm run lint:sizeviewer` from the repo root to lint `www/sizeviewer/index.html`.
-- A repo-local Git pre-commit hook in `.githooks/pre-commit` runs `npm run lint:sizeviewer` automatically before commits.
+- The repo-root ESLint setup still lints `sizeviewer` through:
+  - `npm run lint:sizeviewer`
+- The repo-local pre-commit hook runs that linter automatically.
 
 ## Notes
-- Recent work in this subtree includes meter/imperial support, updated figure assets, a large set of planetary/astronomical reference additions, reference categories, and a selectable default reference set.
+- When updating avatars, prefer editing `avatar-images/avatars.json` instead of duplicating avatar metadata inline in either HTML file.
+- When updating shared scale/unit/catalog behavior, prefer editing `shared/sizeviewer-shared.js` instead of duplicating changes across both pages.
+- When changing manual-lineup behavior, check both `index.html` and `grow-shrink.html` before assuming logic is shared.

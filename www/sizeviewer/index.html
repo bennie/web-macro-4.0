@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sizeviewer</title>
+  <title>Macrophile | SizeViewer</title>
   <style>
     :root {
       color-scheme: dark;
@@ -552,7 +552,7 @@
     </div>
     <div class="secondary-actions">
       <button class="control-btn reset-btn" type="button">Reset</button>
-      <a class="auto-mode-link" href="auto-mode.html">Open Auto Mode</a>
+      <a class="auto-mode-link" href="grow-shrink.html">Grow/Shrink Mode</a>
     </div>
   </section>
 
@@ -626,7 +626,34 @@
     </div>
   </footer>
 
+  <script src="shared/sizeviewer-shared.js"></script>
   <script>
+    const {
+      FEET_TO_METERS,
+      INCHES_PER_FOOT,
+      FEET_PER_MILE,
+      METERS_PER_KILOMETER,
+      METRIC_NM_MAX_METERS,
+      METRIC_UM_MAX_METERS,
+      METRIC_MM_MAX_METERS,
+      METRIC_CM_MAX_METERS,
+      METRIC_KM_MIN_METERS,
+      IMPERIAL_MM_MAX_METERS,
+      defaultReferences,
+      formatRoundedValue,
+      formatDisplayNumber,
+      formatInchesValue,
+      formatFeetAndInches,
+      getClampedDisplayHeightValue,
+      renderScale: renderSharedScale,
+      syncScaleMax,
+      setGridMessage,
+      getReferenceImagePath,
+      loadAvatarCatalog: loadSharedAvatarCatalog,
+      loadReferenceCatalog: loadSharedReferenceCatalog,
+      bindWheelStepHandler
+    } = window.SizeviewerShared;
+
     const scale = document.querySelector('.scale');
     const addImageBtn = document.querySelector('.add-image-btn');
     const selectCharacterBtn = document.querySelector('.select-character-btn');
@@ -662,16 +689,6 @@
     const introText = document.querySelector('.viewport-note-text');
     const viewportNote = document.querySelector('.viewport-note');
 
-    const FEET_TO_METERS = 0.3048;
-    const INCHES_PER_FOOT = 12;
-    const FEET_PER_MILE = 5280;
-    const METERS_PER_KILOMETER = 1000;
-    const METRIC_NM_MAX_METERS = 0.000001;
-    const METRIC_UM_MAX_METERS = 0.001;
-    const METRIC_MM_MAX_METERS = 0.1;
-    const METRIC_CM_MAX_METERS = 1.1;
-    const METRIC_KM_MIN_METERS = 2500;
-    const IMPERIAL_MM_MAX_METERS = (0.2 / INCHES_PER_FOOT) * FEET_TO_METERS;
     const MIN_SCALE_MAX_METERS = 1;
     const DEFAULT_HEIGHT_METERS = 20 * FEET_TO_METERS;
     const DEFAULT_SCALE_MAX_METERS = 100 * FEET_TO_METERS;
@@ -687,86 +704,11 @@
     let scaleMaxMeters = DEFAULT_SCALE_MAX_METERS;
 
     const setCharacterChooserMessage = (message) => {
-      characterGrid.innerHTML = '';
-      const note = document.createElement('div');
-      note.className = 'character-grid-message';
-      note.textContent = message;
-      characterGrid.appendChild(note);
+      setGridMessage(characterGrid, 'character-grid-message', message);
     };
 
     const setReferenceChooserMessage = (message) => {
-      referenceGrid.innerHTML = '';
-      const note = document.createElement('div');
-      note.className = 'reference-grid-message';
-      note.textContent = message;
-      referenceGrid.appendChild(note);
-    };
-
-    const defaultReferences = [
-      { name: 'Man', fileBase: 'man', heightMeters: 6 * FEET_TO_METERS, category: 'creature' },
-      { name: 'Woman', fileBase: 'woman', heightMeters: 5 * FEET_TO_METERS, category: 'creature' },
-      { name: 'Kodiak Bear', fileBase: 'bear', heightMeters: 9 * FEET_TO_METERS, category: 'creature' },
-      { name: 'Atom', fileBase: 'atom', heightMeters: 0.0000000001, category: 'atom' },
-      { name: 'Bacteria', fileBase: 'bacteria', heightMeters: 0.000001, category: 'cell' },
-      { name: 'Red Blood Cell', fileBase: 'red-blood-cell', heightMeters: 0.000007, category: 'cell' },
-      { name: 'Pollen', fileBase: 'pollen', heightMeters: 0.0001, category: 'cell' },
-      { name: 'Die', fileBase: 'die', heightMeters: 0.016, category: 'object' },
-      { name: 'Egg', fileBase: 'egg', heightMeters: 0.056, category: 'object' },
-      { name: 'Basketball', fileBase: 'basketball', heightMeters: 0.23876, category: 'object' },
-      { name: 'King Kong (1933)', fileBase: 'king-kong-1933', heightMeters: 24 * FEET_TO_METERS, category: 'Kaiju' },
-      { name: 'Nancy Archer (50ft Woman)', fileBase: 'nancy-50ft-woman', heightMeters: 50 * FEET_TO_METERS, category: 'Kaiju' },
-      { name: 'King Kong (Skull Island 2017)', fileBase: 'king-kong-skull-island-2017', heightMeters: 104 * FEET_TO_METERS, category: 'Kaiju' },
-      { name: 'Godzilla (1954)', fileBase: 'godzilla-1954', heightMeters: 165 * FEET_TO_METERS, category: 'Kaiju' },
-      { name: 'Godzilla Earth (2018)', fileBase: 'godzilla-earth-2018', heightMeters: 1043.3 * FEET_TO_METERS, category: 'Kaiju' },
-      { name: 'Epcot Center', fileBase: 'epcot-center', heightMeters: 180 * FEET_TO_METERS, category: 'building' },
-      { name: 'Great Pyramid', fileBase: 'great-pyramid', heightMeters: 456 * FEET_TO_METERS, category: 'building' },
-      { name: 'Washington Monument', fileBase: 'washington-monument', heightMeters: 555 * FEET_TO_METERS, category: 'building' },
-      { name: 'Eiffel Tower', fileBase: 'eiffel', heightMeters: 1083 * FEET_TO_METERS, category: 'building' },
-      { name: 'Sears Tower', fileBase: 'sears-tower', heightMeters: 1451 * FEET_TO_METERS, category: 'building' },
-      { name: 'CN Tower', fileBase: 'cn-tower', heightMeters: 1815 * FEET_TO_METERS, category: 'building' },
-      { name: 'Empire State Building', fileBase: 'empire-state', heightMeters: 1454 * FEET_TO_METERS, category: 'building' },
-      { name: 'Mount Rainier', fileBase: 'mount-rainier', heightMeters: 4392, category: 'mountain' },
-      { name: 'Mount Everest', fileBase: 'mount-everest', heightMeters: 8848.86, category: 'mountain' },
-      { name: 'Mercury', fileBase: 'mercury', heightMeters: 4879400, category: 'planet' },
-      { name: 'Mars', fileBase: 'mars', heightMeters: 6779000, category: 'planet' },
-      { name: 'Pluto', fileBase: 'pluto', heightMeters: 2376600, category: 'planet' },
-      { name: 'Moon', fileBase: 'moon', heightMeters: 3474000, category: 'planet' },
-      { name: 'Earth', fileBase: 'earth', heightMeters: 12742000, category: 'planet' },
-      { name: 'Jupiter', fileBase: 'jupiter', heightMeters: 139820000, category: 'planet' },
-      { name: 'Uranus', fileBase: 'uranus', heightMeters: 50724000, category: 'planet' },
-      { name: 'Neptune', fileBase: 'neptune', heightMeters: 49244000, category: 'planet' },
-      { name: 'Sun', fileBase: 'sun', heightMeters: 1392700000, category: 'planet' }
-    ];
-
-    const formatScaleNumber = (value) => {
-      return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(2)));
-    };
-
-    const formatRoundedValue = (value) => {
-      const roundedValue = Math.round(value);
-      return roundedValue >= 1000 ? roundedValue.toLocaleString('en-US') : String(roundedValue);
-    };
-
-    const formatDisplayNumber = (value) => String(Number(value.toFixed(2)));
-
-    const formatInchesValue = (inchesValue) => {
-      if (inchesValue < 12) {
-        return Number(inchesValue.toFixed(2)).toString();
-      }
-
-      return String(Math.round(inchesValue));
-    };
-
-    const formatFeetAndInches = (feetValue) => {
-      const totalInches = Math.round(feetValue * INCHES_PER_FOOT);
-      const wholeFeet = Math.floor(totalInches / INCHES_PER_FOOT);
-      const remainingInches = totalInches % INCHES_PER_FOOT;
-
-      if (remainingInches === 0) {
-        return wholeFeet + ' foot';
-      }
-
-      return wholeFeet + ' foot ' + remainingInches + ' inches';
+      setGridMessage(referenceGrid, 'reference-grid-message', message);
     };
 
     const measurementSystems = {
@@ -856,37 +798,7 @@
 
     const getActiveSystem = () => measurementSystems[activeSystemKey];
 
-    const getClampedUploadHeightValue = (value, system = getActiveSystem()) => {
-      const parsedHeight = Number(value);
-      return Number.isFinite(parsedHeight)
-        ? Math.max(system.minInput, parsedHeight)
-        : system.defaultInputValue;
-    };
-
-    const getNiceStep = (minimumStep) => {
-      const power = 10 ** Math.floor(Math.log10(minimumStep));
-      const stepBase = minimumStep / power;
-      let normalizedStep = 10;
-
-      if (stepBase <= 1) normalizedStep = 1;
-      else if (stepBase <= 2) normalizedStep = 2;
-      else if (stepBase <= 5) normalizedStep = 5;
-
-      return normalizedStep * power;
-    };
-
-    const getExpandedScaleMax = (heightMeters) => {
-      if (heightMeters >= 1) {
-        return Math.ceil(heightMeters * 1.1);
-      }
-
-      return getNiceStep(heightMeters * 1.1);
-    };
-
-    const isStepMultiple = (value, step) => {
-      const roundedRatio = Math.round(value / step);
-      return Math.abs(value - (roundedRatio * step)) < 1e-9;
-    };
+    const getClampedUploadHeightValue = (value, system = getActiveSystem()) => getClampedDisplayHeightValue(value, system);
 
     const formatCharacterHeight = (heightMeters) => getActiveSystem().formatHeight(heightMeters);
 
@@ -911,44 +823,21 @@
     };
 
     const renderScale = () => {
-      scale.querySelectorAll('.tick').forEach((tick) => tick.remove());
-
-      const activeSystem = getActiveSystem();
-      const safeMax = Math.max(MIN_SCALE_MAX_METERS, scaleMaxMeters);
-      const maxDivisions = 20;
-      const majorStep = getNiceStep(safeMax / 4);
-      const minorStep = Math.max(getNiceStep(majorStep / 2), safeMax / maxDivisions);
-      const values = [];
-      const scaleMode = activeSystem.scaleModes.find((mode) => safeMax <= mode.maxMeters) || activeSystem.scaleModes[activeSystem.scaleModes.length - 1];
-
-      scaleLabel.textContent = scaleMode.unit;
-
-      for (let value = 0; value <= safeMax + Number.EPSILON; value += minorStep) {
-        values.push(value);
-      }
-      if (Math.abs(values[values.length - 1] - safeMax) > Number.EPSILON) {
-        values.push(safeMax);
-      }
-
-      values.forEach((value) => {
-        const tick = document.createElement('div');
-        const isMajor = isStepMultiple(value, majorStep) || value === safeMax;
-        tick.className = 'tick' + (isMajor ? ' major' : ' minor');
-        tick.style.bottom = (value / safeMax) * 100 + '%';
-        if (isMajor) {
-          tick.textContent = formatScaleNumber(scaleMode.convertFromMeters(value));
-        }
-        scale.appendChild(tick);
+      renderSharedScale({
+        scaleEl: scale,
+        labelEl: scaleLabel,
+        maxMeters: scaleMaxMeters,
+        minScaleMaxMeters: MIN_SCALE_MAX_METERS,
+        system: getActiveSystem()
       });
     };
 
     const syncScaleWithHeight = (heightMeters) => {
-      const expandedFromHeight = Math.max(MIN_SCALE_MAX_METERS, getExpandedScaleMax(heightMeters));
-      const isAboveCurrentScale = heightMeters > scaleMaxMeters;
-      const isBelowShrinkThreshold = heightMeters < (scaleMaxMeters * 0.35);
-      const nextMax = (isAboveCurrentScale || isBelowShrinkThreshold)
-        ? expandedFromHeight
-        : scaleMaxMeters;
+      const nextMax = syncScaleMax({
+        heightMeters,
+        currentScaleMaxMeters: scaleMaxMeters,
+        minScaleMaxMeters: MIN_SCALE_MAX_METERS
+      });
 
       if (nextMax !== scaleMaxMeters) {
         scaleMaxMeters = nextMax;
@@ -1105,10 +994,6 @@
       });
     };
 
-    const getReferenceImagePath = (reference) => {
-      return 'reference-images/' + reference.fileBase + '.png';
-    };
-
     const isAnyModalOpen = () => {
       return uploadModalOverlay.classList.contains('open')
         || characterModalOverlay.classList.contains('open')
@@ -1169,22 +1054,7 @@
     const loadAvatarCatalog = async () => {
       setCharacterChooserMessage('Loading characters...');
       try {
-        const response = await fetch('avatar-images/avatars.json');
-        if (!response.ok) {
-          throw new Error('Avatar catalog request failed.');
-        }
-        const loaded = await response.json();
-        avatarCatalog = loaded.filter((avatar) => {
-          return avatar
-            && typeof avatar.name === 'string'
-            && typeof avatar.filePath === 'string'
-            && Number.isFinite(Number(avatar.heightMeters))
-            && Number(avatar.heightMeters) > 0;
-        }).map((avatar) => ({
-          name: avatar.name.trim(),
-          filePath: avatar.filePath.trim(),
-          heightMeters: Number(avatar.heightMeters)
-        }));
+        avatarCatalog = await loadSharedAvatarCatalog();
         selectCharacterBtn.disabled = avatarCatalog.length === 0;
         renderCharacterOptions();
       } catch {
@@ -1196,24 +1066,7 @@
     const loadReferenceCatalog = async () => {
       setReferenceChooserMessage('Loading reference images...');
       try {
-        const loaded = await Promise.all(defaultReferences.map(async (reference) => {
-          const response = await fetch('reference-images/' + reference.fileBase + '.json');
-          if (!response.ok) return reference;
-          const config = await response.json();
-          const parsedHeightMeters = Number(config.heightMeters);
-          const parsedLegacyHeightFeet = Number(config.height);
-          return {
-            ...reference,
-            name: typeof config.name === 'string' && config.name.trim() ? config.name.trim() : reference.name,
-            heightMeters: Number.isFinite(parsedHeightMeters) && parsedHeightMeters > 0
-              ? parsedHeightMeters
-              : Number.isFinite(parsedLegacyHeightFeet) && parsedLegacyHeightFeet > 0
-                ? parsedLegacyHeightFeet * FEET_TO_METERS
-                : reference.heightMeters
-          };
-        }));
-
-        referenceCatalog = loaded;
+        referenceCatalog = await loadSharedReferenceCatalog(defaultReferences);
         referencePickerBtn.disabled = referenceCatalog.length === 0;
         renderReferenceOptions();
       } catch {
@@ -1289,34 +1142,12 @@
       reader.readAsDataURL(file);
     });
 
-    let wheelAccumulator = 0;
-
-    document.addEventListener('wheel', (event) => {
-      if (isAnyModalOpen()) return;
-      if (placedFigures.length === 0) return;
-      if (event.target.closest('.control-panel')) return;
-
-      let delta = event.deltaY;
-      if (event.deltaMode === 1) delta *= 16;
-      if (event.deltaMode === 2) delta *= window.innerHeight;
-
-      wheelAccumulator += delta;
-      const threshold = 80;
-
-      while (wheelAccumulator <= -threshold) {
-        decreaseScale();
-        wheelAccumulator += threshold;
-      }
-
-      while (wheelAccumulator >= threshold) {
-        increaseScale();
-        wheelAccumulator -= threshold;
-      }
-
-      if (Math.abs(delta) > 0) {
-        event.preventDefault();
-      }
-    }, { passive: false });
+    bindWheelStepHandler({
+      shouldHandle: () => !isAnyModalOpen() && placedFigures.length > 0,
+      onWheelUp: decreaseScale,
+      onWheelDown: increaseScale,
+      isBlockedTarget: (target) => target.closest('.control-panel')
+    });
 
     window.addEventListener('resize', () => {
       renderCurrentHeightState();
