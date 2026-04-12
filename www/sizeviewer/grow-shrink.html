@@ -105,24 +105,34 @@
       border-top-width: 2px;
     }
 
-    .content {
+    .viewport-note {
       position: fixed;
-      top: calc(2.2rem + 16px);
-      left: calc(var(--scale-width) + 14px + min(38vw, 360px) + 18px);
-      right: 300px;
+      inset: calc(2.2rem + 24px) 24px calc(2.2rem + 24px) calc(var(--scale-width) + 24px);
+      display: grid;
+      place-items: center;
+      pointer-events: none;
       z-index: 8;
-      margin: 0;
-      padding: 0;
-      text-align: center;
     }
 
-    .content h1 {
+    .viewport-note-inner {
+      max-width: 540px;
+      padding: 18px 20px;
+      border: 1px dashed rgba(255, 255, 255, 0.16);
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.12);
+      color: rgba(255, 255, 255, 0.85);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .viewport-note-title {
       margin: 0 0 4px;
       font-size: 30px;
       line-height: 1.1;
+      color: var(--text);
     }
 
-    .content p {
+    .viewport-note-text {
       margin: 0;
       color: #d9ecdd;
       font-size: 15px;
@@ -535,10 +545,9 @@
     }
 
     @media (max-width: 980px) {
-      .content {
-        top: calc(2.2rem + 74px);
-        left: calc(var(--scale-width) + 20px);
+      .viewport-note {
         right: 16px;
+        left: calc(var(--scale-width) + 20px);
       }
     }
   </style>
@@ -627,10 +636,12 @@
     <p class="height-readout">Status:
 Height: 2 meters</p>
   </footer>
-  <main class="content">
-    <h1>Grow/Shrink</h1>
-    <p>Upload an image to view and shift its size.</p>
-  </main>
+  <section class="viewport-note" aria-hidden="true">
+    <div class="viewport-note-inner">
+      <h1 class="viewport-note-title">Grow/Shrink</h1>
+      <p class="viewport-note-text">Upload an image to view and shift its size.</p>
+    </div>
+  </section>
 
   <script src="shared/sizeviewer-shared.js"></script>
   <script>
@@ -690,7 +701,8 @@ Height: 2 meters</p>
     const referenceSecondLabel = document.querySelector('.reference-second-label');
     const referenceThirdLabel = document.querySelector('.reference-third-label');
     const heightReadout = document.querySelector('.height-readout');
-    const introText = document.querySelector('.content p');
+    const introText = document.querySelector('.viewport-note-text');
+    const viewportNote = document.querySelector('.viewport-note');
     const scaleLabel = document.querySelector('.scale-label');
     const referenceImageElements = [
       referenceFirstImage,
@@ -1118,6 +1130,7 @@ Height: 2 meters</p>
       placedImage.style.width = 'auto';
       placedImage.style.display = 'block';
       introText.style.display = 'none';
+      viewportNote.style.display = 'none';
       applyPlacedImageHeight();
       resetHeightMeters = currentHeightMeters;
       setSizeControlsEnabled(true);
