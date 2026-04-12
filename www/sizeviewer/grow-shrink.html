@@ -38,6 +38,22 @@
       z-index: 6;
     }
 
+    .scale.animating {
+      animation: scale-refresh 500ms ease;
+    }
+
+    @keyframes scale-refresh {
+      0% {
+        opacity: 0.45;
+        transform: translateX(-4px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
     .watermark-logo {
       position: fixed;
       top: calc(2.2rem + 14px);
@@ -185,6 +201,26 @@
       display: flex;
       gap: 8px;
       margin-top: 10px;
+    }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      color: #f4f4f5;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .slider-row input[type="range"] {
+      width: 100%;
+      margin: 0;
+    }
+
+    .slider-row-percent {
+      grid-template-columns: auto 1fr auto auto;
     }
 
     .system-toggle-btn {
@@ -474,6 +510,48 @@
       margin-left: auto;
     }
 
+    .mode-select {
+      min-width: 148px;
+      border: 1px solid #71717a;
+      border-radius: 8px;
+      background: rgba(24, 24, 27, 0.78);
+      color: #f4f4f5;
+      padding: 4px 28px 4px 10px;
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .status-reference-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-reference-step-btn {
+      width: 22px;
+      min-width: 22px;
+      height: 22px;
+      padding: 0;
+      border: 1px solid #71717a;
+      border-radius: 999px;
+      background: #27272a;
+      color: #f4f4f5;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .status-reference-step-btn:hover {
+      background: #3f3f46;
+    }
+
+    .status-reference-step-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      background: #27272a;
+    }
+
     .status-bar-bottom {
       bottom: 0;
       justify-content: flex-start;
@@ -503,7 +581,7 @@
       display: none;
       vertical-align: bottom;
       transform-origin: center bottom;
-      transition: height 220ms ease;
+      transition: height 750ms ease;
     }
 
     .reference-figures {
@@ -527,21 +605,52 @@
     .reference-item-img {
       width: auto;
       height: auto;
-      transition: height 220ms ease;
+      transition: height 500ms ease;
     }
 
-    .reference-label {
-      color: #ffffff;
-      font-size: 12px;
-      font-weight: 600;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+    .status-bar-bottom {
+      padding: 0;
+    }
+
+    .status-bar-bottom-labels {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .status-bar-bottom-label {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(220px, 18vw);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      line-height: 1.1;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .height-readout {
-      margin: 0;
-      line-height: 1.3;
-      white-space: pre-line;
+    .status-bar-bottom-label-name,
+    .status-bar-bottom-label-height {
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-bar-bottom-label-name {
+      color: #f8fafc;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .status-bar-bottom-label-height {
+      color: #d4d4d8;
+      font-size: 11px;
     }
 
     @media (max-width: 980px) {
@@ -561,8 +670,19 @@
       <button class="control-btn system-toggle-btn" type="button" aria-pressed="false">Use metric</button>
     </span>
     <div class="status-bar-top-main">
-      <span><strong>Slots:</strong> 1 figure</span>
-      <span><strong>Mode:</strong> Grow/Shrink</span>
+      <span class="status-reference-controls">
+        <strong>Reference images:</strong>
+        <button class="status-reference-step-btn status-reference-decrease-btn" type="button" aria-label="Decrease reference images">-</button>
+        <span class="status-reference-count">2</span>
+        <button class="status-reference-step-btn status-reference-increase-btn" type="button" aria-label="Increase reference images">+</button>
+      </span>
+      <label>
+        <strong>Mode:</strong>
+        <select class="mode-select" aria-label="Select sizeviewer mode">
+          <option value="index.html">Manual lineup</option>
+          <option value="grow-shrink.html" selected>Grow/Shrink</option>
+        </select>
+      </label>
     </div>
   </header>
   <aside class="scale" aria-label="Vertical scale from 0 to 100">
@@ -570,9 +690,9 @@
   </aside>
   <section class="control-panel" aria-label="Control panel">
     <div class="primary-actions">
-      <button class="primary-action-btn add-image-btn" type="button">Add image</button>
-      <span class="primary-actions-or" aria-hidden="true">or</span>
       <button class="primary-action-btn select-character-btn" type="button" disabled>Select character</button>
+      <span class="primary-actions-or" aria-hidden="true">or</span>
+      <button class="primary-action-btn add-image-btn" type="button">Add image</button>
     </div>
     <button class="control-btn reference-picker-btn" type="button">Choose Reference Images</button>
     <div class="control-actions">
@@ -580,6 +700,12 @@
       <button class="control-btn smaller-btn" type="button" disabled>Smaller</button>
       <button class="control-btn reset-btn" type="button" disabled>Reset</button>
     </div>
+    <label class="slider-row slider-row-percent">
+      <span>Grow or Shrink by:</span>
+      <input class="grow-shrink-step-input" type="range" min="1" max="100" step="1" value="10" />
+      <span class="grow-shrink-step-value">10</span>
+      <span>%</span>
+    </label>
   </section>
   <section class="upload-modal-overlay" aria-label="Image upload dialog">
     <div class="upload-modal" role="dialog" aria-modal="true" aria-labelledby="upload-title">
@@ -621,25 +747,38 @@
   <section class="reference-figures" aria-label="Reference figures">
     <div class="reference-figure-wrap">
       <img class="reference-item-img reference-first-image" alt="Reference image 1" />
-      <div class="reference-label reference-first-label"></div>
     </div>
     <div class="reference-figure-wrap">
       <img class="reference-item-img reference-second-image" alt="Reference image 2" />
-      <div class="reference-label reference-second-label"></div>
     </div>
     <div class="reference-figure-wrap">
       <img class="reference-item-img reference-third-image" alt="Reference image 3" />
-      <div class="reference-label reference-third-label"></div>
+    </div>
+    <div class="reference-figure-wrap">
+      <img class="reference-item-img reference-fourth-image" alt="Reference image 4" />
+    </div>
+    <div class="reference-figure-wrap">
+      <img class="reference-item-img reference-fifth-image" alt="Reference image 5" />
+    </div>
+    <div class="reference-figure-wrap">
+      <img class="reference-item-img reference-sixth-image" alt="Reference image 6" />
     </div>
   </section>
   <footer class="status-bar status-bar-bottom" aria-label="Status bar">
-    <p class="height-readout">Status:
-Height: 2 meters</p>
+    <div class="status-bar-bottom-labels">
+      <div class="status-bar-bottom-label"><span class="status-bar-bottom-label-name"></span><span class="status-bar-bottom-label-height"></span></div>
+      <div class="status-bar-bottom-label"><span class="status-bar-bottom-label-name"></span><span class="status-bar-bottom-label-height"></span></div>
+      <div class="status-bar-bottom-label"><span class="status-bar-bottom-label-name"></span><span class="status-bar-bottom-label-height"></span></div>
+      <div class="status-bar-bottom-label"><span class="status-bar-bottom-label-name"></span><span class="status-bar-bottom-label-height"></span></div>
+      <div class="status-bar-bottom-label"><span class="status-bar-bottom-label-name"></span><span class="status-bar-bottom-label-height"></span></div>
+      <div class="status-bar-bottom-label"><span class="status-bar-bottom-label-name"></span><span class="status-bar-bottom-label-height"></span></div>
+      <div class="status-bar-bottom-label"><span class="status-bar-bottom-label-name"></span><span class="status-bar-bottom-label-height"></span></div>
+    </div>
   </footer>
   <section class="viewport-note" aria-hidden="true">
     <div class="viewport-note-inner">
       <h1 class="viewport-note-title">Grow/Shrink</h1>
-      <p class="viewport-note-text">Upload an image to view and shift its size.</p>
+      <p class="viewport-note-text">Select a character or upload an image to view and shit its size.</p>
     </div>
   </section>
 
@@ -687,39 +826,47 @@ Height: 2 meters</p>
     const smallerBtn = document.querySelector('.smaller-btn');
     const resetBtn = document.querySelector('.reset-btn');
     const systemToggleBtn = document.querySelector('.system-toggle-btn');
+    const modeSelect = document.querySelector('.mode-select');
     const statusScaleHeight = document.querySelector('.status-scale-height');
+    const statusReferenceCount = document.querySelector('.status-reference-count');
+    const statusReferenceDecreaseBtn = document.querySelector('.status-reference-decrease-btn');
+    const statusReferenceIncreaseBtn = document.querySelector('.status-reference-increase-btn');
+    const growShrinkStepInput = document.querySelector('.grow-shrink-step-input');
+    const growShrinkStepValue = document.querySelector('.grow-shrink-step-value');
     const heightInput = document.querySelector('.height-input');
     const imageInput = document.querySelector('.image-input');
     const imagePreviewWrap = document.querySelector('.dialog-preview-wrap');
     const characterGrid = document.querySelector('.character-grid');
     const referencePickerGrid = document.querySelector('.reference-picker-grid');
+    const statusBarBottom = document.querySelector('.status-bar-bottom');
+    const statusLabelElements = Array.from(document.querySelectorAll('.status-bar-bottom-label')).map((label) => ({
+      root: label,
+      name: label.querySelector('.status-bar-bottom-label-name'),
+      height: label.querySelector('.status-bar-bottom-label-height')
+    }));
     const placedImage = document.querySelector('.placed-image');
-    const referenceFirstImage = document.querySelector('.reference-first-image');
-    const referenceSecondImage = document.querySelector('.reference-second-image');
-    const referenceThirdImage = document.querySelector('.reference-third-image');
-    const referenceFirstLabel = document.querySelector('.reference-first-label');
-    const referenceSecondLabel = document.querySelector('.reference-second-label');
-    const referenceThirdLabel = document.querySelector('.reference-third-label');
-    const heightReadout = document.querySelector('.height-readout');
     const introText = document.querySelector('.viewport-note-text');
     const viewportNote = document.querySelector('.viewport-note');
     const scaleLabel = document.querySelector('.scale-label');
-    const referenceImageElements = [
-      referenceFirstImage,
-      referenceSecondImage,
-      referenceThirdImage
-    ];
-    const referenceLabelElements = [
-      referenceFirstLabel,
-      referenceSecondLabel,
-      referenceThirdLabel
-    ];
+    const referenceImageElements = Array.from(document.querySelectorAll('.reference-item-img'));
     let selectedImageDataUrl = '';
+    let selectedImageName = 'Uploaded Image';
     let activeSystemKey = 'imperial';
     let scaleMaxMeters = 4;
     let scaleUnit = 'ft';
+    let maxDisplayedReferences = 2;
+    let growShrinkStepPercent = 10;
+    let isResizeSequenceActive = false;
+    let pendingScaleSyncTimeout = null;
+    let pendingReferenceUpdateTimeout = null;
+    statusReferenceCount.textContent = String(maxDisplayedReferences);
+    growShrinkStepValue.textContent = String(growShrinkStepPercent);
 
     const MIN_SCALE_MAX_METERS = 0.0000000015; // 1.5 nm
+    const SCALE_RESET_DURATION_MS = 500;
+    const SUBJECT_RESIZE_DURATION_MS = 750;
+    const OVERSIZE_SCALE_TO_SUBJECT_PAUSE_MS = 100;
+    const REFERENCE_UPDATE_DELAY_MS = 100;
 
     const measurementSystems = {
       imperial: {
@@ -955,6 +1102,7 @@ Height: 2 meters</p>
       biggerBtn.disabled = !enabled;
       smallerBtn.disabled = !enabled;
       resetBtn.disabled = !enabled;
+      heightInput.disabled = !enabled;
     };
 
     // Formats tick labels for the left-side scale.
@@ -972,27 +1120,104 @@ Height: 2 meters</p>
     };
 
     // Populates one lower-right reference slot or clears it when empty.
-    const setReferenceSlot = (imageEl, labelEl, reference) => {
-      const activeSystem = getActiveSystem();
+    const setReferenceSlot = (imageEl, reference) => {
       if (!reference) {
         imageEl.removeAttribute('src');
         imageEl.style.display = 'none';
-        labelEl.textContent = '';
         return;
       }
       imageEl.src = getReferenceImagePath(reference);
       imageEl.alt = reference.name;
       imageEl.style.display = 'block';
       imageEl.style.height = ((reference.heightMeters / scaleMaxMeters) * 100) + 'vh';
-      const categoryLabel = reference.category ? ' [' + reference.category + ']' : '';
-      labelEl.textContent = reference.name + categoryLabel + ': ' + activeSystem.formatReference(reference.heightMeters);
     };
 
     // Re-renders the currently chosen reference figures in their display slots.
     const applyReferenceFigureHeights = () => {
+      if (placedImage.style.display !== 'block') {
+        referenceImageElements.forEach((imageEl) => {
+          setReferenceSlot(imageEl, null);
+        });
+        return;
+      }
+
       referenceImageElements.forEach((imageEl, index) => {
-        setReferenceSlot(imageEl, referenceLabelElements[index], displayedReferences[index]);
+        setReferenceSlot(imageEl, displayedReferences[index]);
       });
+    };
+
+    const getFooterLabelItems = () => {
+      const items = [];
+
+      if (placedImage.style.display === 'block') {
+        items.push({
+          imageEl: placedImage,
+          name: selectedImageName,
+          heightText: getActiveSystem().formatReference(currentHeightMeters)
+        });
+      }
+
+      displayedReferences.forEach((reference, index) => {
+        const imageEl = referenceImageElements[index];
+        if (!reference || !imageEl || imageEl.style.display === 'none') return;
+        items.push({
+          imageEl,
+          name: reference.name,
+          heightText: getActiveSystem().formatReference(reference.heightMeters)
+        });
+      });
+
+      return items;
+    };
+
+    const positionStatusLabels = () => {
+      const footerRect = statusBarBottom.getBoundingClientRect();
+      const items = getFooterLabelItems();
+
+      statusLabelElements.forEach((labelEl, index) => {
+        const item = items[index];
+
+        if (!item) {
+          labelEl.root.style.display = 'none';
+          labelEl.name.textContent = '';
+          labelEl.height.textContent = '';
+          return;
+        }
+
+        const imageRect = item.imageEl.getBoundingClientRect();
+        labelEl.root.style.display = 'flex';
+        labelEl.root.style.left = (imageRect.left + (imageRect.width / 2) - footerRect.left) + 'px';
+        labelEl.name.textContent = item.name;
+        labelEl.height.textContent = item.heightText;
+      });
+    };
+
+    // Cancels any delayed reference refresh that has not fired yet.
+    const cancelPendingReferenceUpdate = () => {
+      if (pendingReferenceUpdateTimeout === null) return;
+      clearTimeout(pendingReferenceUpdateTimeout);
+      pendingReferenceUpdateTimeout = null;
+    };
+
+    // Cancels any delayed scale sync that has not fired yet.
+    const cancelPendingScaleSync = () => {
+      if (pendingScaleSyncTimeout === null) return;
+      clearTimeout(pendingScaleSyncTimeout);
+      pendingScaleSyncTimeout = null;
+    };
+
+    // Toggles whether a staged resize sequence is currently in progress.
+    const setResizeSequenceActive = (active) => {
+      isResizeSequenceActive = active;
+      setSizeControlsEnabled(active ? false : placedImage.style.display === 'block');
+    };
+
+    // Clears any staged grow/shrink work and returns the UI to an idle state.
+    const cancelResizeSequence = () => {
+      cancelPendingScaleSync();
+      cancelPendingReferenceUpdate();
+      scale.classList.remove('animating');
+      setResizeSequenceActive(false);
     };
 
     // Returns only the references currently enabled in the chooser.
@@ -1010,7 +1235,7 @@ Height: 2 meters</p>
         if (da !== db) return da - db;
         return a.heightMeters - b.heightMeters;
       });
-      displayedReferences = sorted.slice(0, 3).sort((a, b) => a.heightMeters - b.heightMeters);
+      displayedReferences = sorted.slice(0, maxDisplayedReferences).sort((a, b) => a.heightMeters - b.heightMeters);
       applyReferenceFigureHeights();
     };
 
@@ -1030,8 +1255,18 @@ Height: 2 meters</p>
       });
     };
 
-    // Updates the viewport scale range and unit based on the current height.
-    const syncScaleWithHeight = (heightMeters) => {
+    // Triggers a visible scale reset animation on the left-hand scale.
+    const animateScaleRefresh = () => {
+      scale.classList.remove('animating');
+      void scale.offsetWidth;
+      scale.classList.add('animating');
+      window.setTimeout(() => {
+        scale.classList.remove('animating');
+      }, SCALE_RESET_DURATION_MS);
+    };
+
+    // Updates the viewport scale range and unit based on a target height.
+    const syncScaleWithHeight = (heightMeters, { animate = false } = {}) => {
       const nextMax = syncScaleMax({
         heightMeters,
         currentScaleMaxMeters: scaleMaxMeters,
@@ -1042,7 +1277,12 @@ Height: 2 meters</p>
         scaleMaxMeters = nextMax;
         scaleUnit = nextScaleUnit;
         renderScale(scaleMaxMeters, scaleUnit);
+        if (animate) {
+          animateScaleRefresh();
+        }
+        return true;
       }
+      return false;
     };
 
     // Mirrors the current internal height into the numeric input.
@@ -1051,30 +1291,88 @@ Height: 2 meters</p>
       heightInput.value = formatInputValue(activeSystem.fromMeters(currentHeightMeters));
     };
 
-    // Re-renders all UI that depends on the current placed-image height.
-    const renderCurrentHeightState = () => {
+    // Re-renders all UI that depends on the current subject height.
+    const renderCurrentHeightState = ({ syncScale = true, refreshReferences = true } = {}) => {
       const activeSystem = getActiveSystem();
-      syncScaleWithHeight(currentHeightMeters);
-      statusScaleHeight.textContent = activeSystem.formatReference(scaleMaxMeters);
-      heightReadout.textContent = 'Status:\n' + activeSystem.formatStatus(currentHeightMeters);
+      if (syncScale || refreshReferences) {
+        cancelPendingScaleSync();
+      }
+      if (syncScale) {
+        syncScaleWithHeight(currentHeightMeters);
+        statusScaleHeight.textContent = activeSystem.formatReference(scaleMaxMeters);
+      }
       if (placedImage.style.display === 'block') {
         placedImage.style.height = ((currentHeightMeters / scaleMaxMeters) * 100) + 'vh';
       }
-      updateNearestReferences(currentHeightMeters);
+      if (refreshReferences) {
+        cancelPendingReferenceUpdate();
+        updateNearestReferences(currentHeightMeters);
+      }
+      requestAnimationFrame(positionStatusLabels);
       return currentHeightMeters;
     };
 
-    // Applies the input height to the placed image and refreshes dependent UI.
-    const applyPlacedImageHeight = () => {
+    // Applies the input height to the placed subject and refreshes dependent UI.
+    const applyPlacedImageHeight = ({ syncScale = true, refreshReferences = true } = {}) => {
+      if (syncScale || refreshReferences) {
+        cancelResizeSequence();
+      }
       const activeSystem = getActiveSystem();
       const clampedDisplayHeight = getClampedDisplayHeightValue(heightInput.value, activeSystem);
       currentHeightMeters = activeSystem.toMeters(clampedDisplayHeight);
       syncInputFromCurrentHeight();
-      return renderCurrentHeightState();
+      return renderCurrentHeightState({ syncScale, refreshReferences });
+    };
+
+    // Refreshes the reference images after a short pause following subject resizing.
+    const scheduleReferenceUpdate = () => {
+      cancelPendingReferenceUpdate();
+      pendingReferenceUpdateTimeout = window.setTimeout(() => {
+        pendingReferenceUpdateTimeout = null;
+        updateNearestReferences(currentHeightMeters);
+        setResizeSequenceActive(false);
+      }, REFERENCE_UPDATE_DELAY_MS);
+    };
+
+    // Waits for the subject resize animation, then syncs the scale and refreshes references.
+    const scheduleScaleAndReferenceUpdate = () => {
+      cancelPendingScaleSync();
+      cancelPendingReferenceUpdate();
+      setResizeSequenceActive(true);
+      pendingScaleSyncTimeout = window.setTimeout(() => {
+        pendingScaleSyncTimeout = null;
+        renderCurrentHeightState({ syncScale: true, refreshReferences: false });
+        scheduleReferenceUpdate();
+      }, SUBJECT_RESIZE_DURATION_MS);
+    };
+
+    // Applies an oversize growth step by animating the scale first, then the subject.
+    const growBeyondCurrentScale = (nextHeightMeters) => {
+      cancelPendingScaleSync();
+      cancelPendingReferenceUpdate();
+      setResizeSequenceActive(true);
+      syncScaleWithHeight(nextHeightMeters, { animate: true });
+      statusScaleHeight.textContent = getActiveSystem().formatReference(scaleMaxMeters);
+      if (placedImage.style.display === 'block') {
+        placedImage.style.height = ((currentHeightMeters / scaleMaxMeters) * 100) + 'vh';
+      }
+      applyReferenceFigureHeights();
+      requestAnimationFrame(positionStatusLabels);
+      pendingScaleSyncTimeout = window.setTimeout(() => {
+        pendingScaleSyncTimeout = null;
+        currentHeightMeters = nextHeightMeters;
+        syncInputFromCurrentHeight();
+        renderCurrentHeightState({ syncScale: false, refreshReferences: false });
+        pendingScaleSyncTimeout = window.setTimeout(() => {
+          pendingScaleSyncTimeout = null;
+          scheduleReferenceUpdate();
+        }, SUBJECT_RESIZE_DURATION_MS);
+      }, SCALE_RESET_DURATION_MS + OVERSIZE_SCALE_TO_SUBJECT_PAUSE_MS);
     };
 
     // Refreshes labels, limits, and readouts after a unit-system change.
     const updateMeasurementSystemUi = () => {
+      cancelResizeSequence();
       const activeSystem = getActiveSystem();
       document.querySelector('.field-unit').textContent = activeSystem.inputUnit;
       heightInput.min = String(activeSystem.minInput);
@@ -1092,23 +1390,42 @@ Height: 2 meters</p>
         || referencePickerModalOverlay.classList.contains('open');
     };
 
+    const syncReferenceCountControls = () => {
+      statusReferenceCount.textContent = String(maxDisplayedReferences);
+      statusReferenceDecreaseBtn.disabled = maxDisplayedReferences <= 1;
+      statusReferenceIncreaseBtn.disabled = maxDisplayedReferences >= 10;
+    };
+
+    const getGrowShrinkStepRatio = () => growShrinkStepPercent / 100;
+
     // Applies the standard "bigger" size step to the placed image.
     const increaseCurrentHeight = () => {
-      currentHeightMeters += currentHeightMeters * 0.1;
+      const nextHeightMeters = currentHeightMeters + (currentHeightMeters * getGrowShrinkStepRatio());
+      if (nextHeightMeters > scaleMaxMeters) {
+        growBeyondCurrentScale(nextHeightMeters);
+        return;
+      }
+      currentHeightMeters = nextHeightMeters;
       syncInputFromCurrentHeight();
-      applyPlacedImageHeight();
+      applyPlacedImageHeight({ syncScale: false, refreshReferences: false });
+      scheduleScaleAndReferenceUpdate();
     };
 
     // Applies the standard "smaller" size step while respecting the active minimum.
     const decreaseCurrentHeight = () => {
       const activeSystem = getActiveSystem();
-      currentHeightMeters = Math.max(activeSystem.toMeters(activeSystem.minInput), currentHeightMeters - (currentHeightMeters * 0.1));
+      currentHeightMeters = Math.max(
+        activeSystem.toMeters(activeSystem.minInput),
+        currentHeightMeters - (currentHeightMeters * getGrowShrinkStepRatio())
+      );
       syncInputFromCurrentHeight();
-      applyPlacedImageHeight();
+      applyPlacedImageHeight({ syncScale: false, refreshReferences: false });
+      scheduleScaleAndReferenceUpdate();
     };
 
     renderScale(scaleMaxMeters, scaleUnit);
     updateMeasurementSystemUi();
+    syncReferenceCountControls();
 
     // Loads optional per-reference JSON overrides for names, sizes, and categories.
     const loadReferenceFigureConfigs = async () => {
@@ -1126,7 +1443,9 @@ Height: 2 meters</p>
     // Places the currently chosen upload or avatar into the scene.
     const placeSelectedImage = () => {
       if (!selectedImageDataUrl) return;
+      cancelResizeSequence();
       placedImage.src = selectedImageDataUrl;
+      placedImage.alt = selectedImageName;
       placedImage.style.width = 'auto';
       placedImage.style.display = 'block';
       introText.style.display = 'none';
@@ -1164,6 +1483,7 @@ Height: 2 meters</p>
         button.appendChild(height);
         button.addEventListener('click', () => {
           selectedImageDataUrl = avatar.filePath;
+          selectedImageName = avatar.name;
           if (Number.isFinite(avatar.heightMeters) && avatar.heightMeters > 0) {
             currentHeightMeters = avatar.heightMeters;
             syncInputFromCurrentHeight();
@@ -1249,6 +1569,25 @@ Height: 2 meters</p>
       referencePickerModalOverlay.classList.add('open');
     });
 
+    statusReferenceDecreaseBtn.addEventListener('click', () => {
+      if (maxDisplayedReferences <= 1) return;
+      maxDisplayedReferences -= 1;
+      syncReferenceCountControls();
+      updateNearestReferences(currentHeightMeters);
+    });
+
+    statusReferenceIncreaseBtn.addEventListener('click', () => {
+      if (maxDisplayedReferences >= 10) return;
+      maxDisplayedReferences += 1;
+      syncReferenceCountControls();
+      updateNearestReferences(currentHeightMeters);
+    });
+
+    growShrinkStepInput.addEventListener('input', () => {
+      growShrinkStepPercent = Number(growShrinkStepInput.value);
+      growShrinkStepValue.textContent = String(growShrinkStepPercent);
+    });
+
     // Closes the upload modal and places the selected image, if any.
     const closeModalAndPlaceImage = () => {
       modalOverlay.classList.remove('open');
@@ -1290,6 +1629,7 @@ Height: 2 meters</p>
     smallerBtn.addEventListener('click', decreaseCurrentHeight);
 
     resetBtn.addEventListener('click', () => {
+      cancelResizeSequence();
       currentHeightMeters = resetHeightMeters;
       syncInputFromCurrentHeight();
       applyPlacedImageHeight();
@@ -1300,12 +1640,16 @@ Height: 2 meters</p>
       updateMeasurementSystemUi();
     });
 
+    modeSelect.addEventListener('change', () => {
+      window.location.href = modeSelect.value;
+    });
+
     heightInput.addEventListener('input', () => {
       applyPlacedImageHeight();
     });
 
     bindWheelStepHandler({
-      shouldHandle: () => !isAnyModalOpen() && placedImage.style.display === 'block',
+      shouldHandle: () => !isAnyModalOpen() && !isResizeSequenceActive && placedImage.style.display === 'block',
       onWheelUp: increaseCurrentHeight,
       onWheelDown: decreaseCurrentHeight,
       isBlockedTarget: (target) => target.closest('.control-panel')
@@ -1314,6 +1658,7 @@ Height: 2 meters</p>
     imageInput.addEventListener('change', () => {
       const file = imageInput.files && imageInput.files[0];
       if (!file) return;
+      selectedImageName = file.name.replace(/\.[^.]+$/, '') || 'Uploaded Image';
       const reader = new FileReader();
       reader.addEventListener('load', () => {
         selectedImageDataUrl = String(reader.result || '');
@@ -1321,7 +1666,7 @@ Height: 2 meters</p>
 
         const image = document.createElement('img');
         image.src = selectedImageDataUrl;
-        image.alt = file.name || 'Uploaded image preview';
+        image.alt = selectedImageName;
         imagePreviewWrap.appendChild(image);
       });
       reader.readAsDataURL(file);

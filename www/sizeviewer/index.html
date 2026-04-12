@@ -278,6 +278,17 @@
       margin-left: auto;
     }
 
+    .mode-select {
+      min-width: 148px;
+      border: 1px solid #71717a;
+      border-radius: 8px;
+      background: rgba(24, 24, 27, 0.78);
+      color: #f4f4f5;
+      padding: 4px 28px 4px 10px;
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
     .status-bar-bottom {
       bottom: 0;
       padding: 0;
@@ -535,7 +546,13 @@
     </span>
     <div class="status-bar-top-main">
       <span><strong>Slots:</strong> Up to 3 figures</span>
-      <span><strong>Mode:</strong> Manual lineup</span>
+      <label>
+        <strong>Mode:</strong>
+        <select class="mode-select" aria-label="Select sizeviewer mode">
+          <option value="index.html" selected>Manual lineup</option>
+          <option value="grow-shrink.html">Grow/Shrink</option>
+        </select>
+      </label>
     </div>
   </header>
 
@@ -552,7 +569,6 @@
     </div>
     <div class="secondary-actions">
       <button class="control-btn reset-btn" type="button">Reset</button>
-      <a class="auto-mode-link" href="grow-shrink.html">Grow/Shrink Mode</a>
     </div>
   </section>
 
@@ -660,6 +676,7 @@
     const referencePickerBtn = document.querySelector('.reference-picker-btn');
     const resetBtn = document.querySelector('.reset-btn');
     const systemToggleBtn = document.querySelector('.system-toggle-btn');
+    const modeSelect = document.querySelector('.mode-select');
     const uploadModalOverlay = document.querySelector('.upload-modal-overlay');
     const characterModalOverlay = document.querySelector('.character-modal-overlay');
     const referenceModalOverlay = document.querySelector('.reference-modal-overlay');
@@ -1123,6 +1140,10 @@
       const previousSystem = getActiveSystem();
       activeSystemKey = activeSystemKey === 'imperial' ? 'metric' : 'imperial';
       refreshDisplayedUnits(previousSystem);
+    });
+
+    modeSelect.addEventListener('change', () => {
+      window.location.href = modeSelect.value;
     });
 
     pickImageBtn.addEventListener('click', () => {

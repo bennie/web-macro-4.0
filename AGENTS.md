@@ -51,7 +51,7 @@ This file defines working rules for agents editing this repository.
   - `Grow/Shrink`
   - `Links`
 - For MacroStat template changes, edit `www/templates/main-template.tmpl` instead of DB-backed template storage.
-- `build.sh` deploys `lib/` and `www/` via `rsync` and now excludes `*.swp` files.
+- `sync.sh` deploys `lib/` and `www/` via `rsync` and excludes `*.swp` files.
 - `www/html/links.html` supports `maybeDead: true` entries in `www/data/links.json`.
 - The links page has explicit category ordering that currently includes `Video` and `Simulation`, with `Local Accounts` rendered last.
 - The links page dead-link toggle uses local Font Awesome SVGs from `www/icons/fontawesome-free/`.
@@ -72,7 +72,8 @@ This file defines working rules for agents editing this repository.
 - `2026-03-08`: Added JSON-driven change log page at `www/html/changes.html` using `www/data/changes.json`.
 - `2026-03-29`: Links page gained `Video` and `Simulation` categories, `maybeDead` support, a `Show dead links` toggle, and masonry-style category card layout.
 - `2026-03-29`: Vendored Font Awesome Free was added under `www/icons/fontawesome-free/` and the links-page dead-link toggle now uses local toggle icons.
-- `2026-03-29`: `build.sh` and `.gitignore` were updated to exclude Vim swap files (`*.swp`).
+- `2026-03-29`: The deploy script and `.gitignore` were updated to exclude Vim swap files (`*.swp`).
+- `2026-04-12`: The deploy script was renamed from `build.sh` to `sync.sh`.
 - `2026-03-30`: `www/macro-stat/index.cgi` was updated for nginx/fcgi-style deployment with `#!/usr/bin/env perl` and `use lib '/var/www/macrophile.com/lib';`.
 - `2026-04-06`: Public Art/Stories links and the temporary `www/html/stories.html` page were removed; placeholder content was preserved in `www/html/art-stories-rebuild-snapshot.md`.
 - `2026-04-06`: Site-wide navigation was updated to include `Community`, `Grow/Shrink`, and `Links` in the current order.
