@@ -77,6 +77,7 @@ This file defines working rules for agents editing this repository.
 - `2026-04-06`: Public Art/Stories links and the temporary `www/html/stories.html` page were removed; placeholder content was preserved in `www/html/art-stories-rebuild-snapshot.md`.
 - `2026-04-06`: Site-wide navigation was updated to include `Community`, `Grow/Shrink`, and `Links` in the current order.
 - `2026-04-07`: The Sizeviewer auto-mode page was renamed from `auto-mode.html` to `grow-shrink.html`.
+- `2026-04-11`: Sizeviewer pages now use a shared script at `www/sizeviewer/shared/sizeviewer-shared.js`, and `grow-shrink.html` mirrors the top/bottom status bar structure used by the main Sizeviewer page.
 
 ## Editing Guidelines
 - Make minimal, targeted changes.

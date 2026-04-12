@@ -28,6 +28,7 @@
 - If the JSON load fails, the chooser shows a fallback error message instead of appearing blank.
 - Current shared avatars are:
   - `Jennifur Rae (Stage 1)` through `Jennifur Rae (Stage 7)`
+  - `Cassie`
   - `Bennie Zoot`
   - `Arilin`
   - `Alistor`
@@ -79,6 +80,7 @@
 - Intro text currently says:
   - `Select a character, reference image or upload your own. It will place the image in the viewer to compare. You can place up to three images.`
   - `Mouse-wheel will also resize the scale.`
+- The HTML document title is `Macrophile | SizeViewer`.
 
 ### Character Chooser
 - Uses a `3`-column scrolling grid.
@@ -123,6 +125,8 @@
   - wheel-based size changes
 - It now uses the same top and bottom status bar structure as the manual-lineup page.
 - The visible page heading is `Grow/Shrink`.
+- The intro text is displayed inside the same centered intro-panel style used by the main Sizeviewer page.
+- The intro panel hides once an image is placed.
 - The HTML document title is `Macrophile | Grow/Shrink`.
 - It now also loads avatars from the shared `avatar-images/avatars.json`.
 
@@ -149,6 +153,7 @@
 
 ## Assets
 - `avatar-images/Bennie-Zoot.png` is the trimmed-alpha Bennie source derived from Dropbox `ZootSuitBennie_01-alpha.png`.
+- `avatar-images/Cassie.png` is a trimmed alpha PNG derived from Dropbox `Cassie.png`.
 - `avatar-images/Arilin.png` is a trimmed alpha PNG.
 - `avatar-images/jennifur-rae-*.png` are avatar-only assets, not reference images.
 
